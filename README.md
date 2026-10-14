@@ -1,20 +1,20 @@
 # FastAPI HTMX Basecoat
 
-Server-driven admin UI: the FastAPI + HTMX backend (SQLite books, session/CSRF, Bearer API). The browser shell is moving from Bootstrap to [Basecoat](https://basecoatui.com/introduction/) 1.0.2.
+Server-driven admin UI: the FastAPI + HTMX backend (SQLite books, session/CSRF, Bearer API) with a [Basecoat](https://basecoatui.com/introduction/) 1.0.2 shell.
 
-This is a copy of the Bootstrap admin app. The books API, session, and roles are unchanged. Basecoat's Vega stylesheet and JavaScript are vendored under `app/ui/static/vendor/basecoat/`. Page markup still uses Bootstrap classes, so the shell is not restyled yet.
+The books API, session, and roles are unchanged. Basecoat's Vega stylesheet and JavaScript are vendored under `app/ui/static/vendor/basecoat/`.
 
 Browsers get HTML (Jinja + HTMX 4.0.0). Machines get `/api` with Bearer tokens. One user store, Docker Compose, pytest.
 
 Architecture: [`docs/ENGINEERING.md`](docs/ENGINEERING.md).  
 Sessions, CSRF, and Bearer: [`docs/auth.md`](docs/auth.md).  
-Vendored Bootstrap, Bootstrap Icons, and Chart.js notices: [`LICENSES.md`](LICENSES.md).
+Vendored Chart.js and Basecoat notices: [`LICENSES.md`](LICENSES.md).
 
 ## Primary path vs demos
 
 | | Role |
 |--|------|
-| **Primary** | SQLite **books** · roles (viewer / editor / admin) · session + CSRF for `/ui` and `/auth` · Bearer (or session) for `/api/books` · Basecoat (vendored) + HTMX; shell markup still Bootstrap |
+| **Primary** | SQLite **books** · roles (viewer / editor / admin) · session + CSRF for `/ui` and `/auth` · Bearer (or session) for `/api/books` · Basecoat (vendored) + HTMX |
 | **Demos** (thin, removable) | `/items` in-memory CRUD · `/db-items` MongoDB CRUD |
 
 ## Quick start
@@ -55,10 +55,8 @@ The shell is `app/ui/templates/layout.html`: a Basecoat sidebar (brand, navigati
 |------|------|
 | Dashboard | `/ui/dashboard` |
 | Users, Forms, Tables | `/ui/users`, `/ui/forms`, `/ui/tables` |
-| Components, Cheatsheet, Palette lab | `/ui/components`, `/ui/cheatsheet`, `/ui/palette-lab` |
+| Components | `/ui/components` |
 | Settings, Blank, 404 | `/ui/settings`, `/ui/blank`, `/ui/404` |
-| Header specimens | `/ui/headers/simple` (and centered, buttons, dark, account, product, double, icons) |
-| Sidebar specimens | `/ui/sidebars/dark` (and light, icons, collapsible, list-group) |
 | Sign in | `/auth/login` |
 
 Working data pages use the same shell:
@@ -72,7 +70,7 @@ Working data pages use the same shell:
 | Search books | `/ui/books/search` |
 | Staff (admin) | `/ui/admin/users` |
 
-The sidebar is split into **App** (the product) and **Samples** (the original Bootstrap pages). To add a page, copy `app/ui/templates/pages/blank.html`, register it in `SHELL_PAGES` in `app/ui/pages_routes.py`, and add a sidebar link under the matching group in `app/ui/templates/partials/sidebar.html`.
+The sidebar is split into **App** (the product) and **Samples** (copy-source pages). To add a page, copy `app/ui/templates/pages/blank.html`, register it in `SHELL_PAGES` in `app/ui/pages_routes.py`, and add a sidebar link under the matching group in `app/ui/templates/partials/sidebar.html`.
 
 ## Auth in brief
 

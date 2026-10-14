@@ -276,9 +276,11 @@ class TestAuthWeb:
         assert users.status_code == 200
         assert "Users" in users.text
 
-        header = auth_client.get("/ui/headers/simple")
-        assert header.status_code == 200
-        assert "Simple header" in header.text
+        components = auth_client.get("/ui/components")
+        assert components.status_code == 200
+        assert 'class="badge"' in components.text
+        assert auth_client.get("/ui/headers/simple").status_code == 404
+        assert auth_client.get("/ui/cheatsheet").status_code == 404
 
     def test_books_hx_partial_and_search(self, auth_client: TestClient):
         headers = session_csrf_headers(auth_client)

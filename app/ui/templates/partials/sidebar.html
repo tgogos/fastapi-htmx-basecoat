@@ -36,65 +36,13 @@
             <a href="/ui/tables" {% if active == 'tables' %}aria-current="page"{% endif %}><span>Tables</span></a>
           </li>
           <li>
-            <a href="/ui/palette-lab" {% if active == 'palette-lab' %}aria-current="page"{% endif %}><span>Palette lab</span></a>
-          </li>
-          <li>
-            <details {% if nav_group == 'components' %}open{% endif %}>
-              <summary><span>Components</span></summary>
-              <ul>
-                <li><a href="/ui/components" {% if active == 'components' %}aria-current="page"{% endif %}><span>Overview</span></a></li>
-                <li><a href="/ui/components#alerts"><span>Alerts</span></a></li>
-                <li><a href="/ui/components#buttons"><span>Buttons</span></a></li>
-                <li><a href="/ui/components#cards"><span>Cards</span></a></li>
-                <li><a href="/ui/components#modals"><span>Modals</span></a></li>
-              </ul>
-            </details>
-          </li>
-          <li>
-            <details {% if nav_group == 'cheatsheet' %}open{% endif %}>
-              <summary><span>Cheatsheet</span></summary>
-              <ul>
-                <li><a href="/ui/cheatsheet#typography"><span>Typography</span></a></li>
-                <li><a href="/ui/cheatsheet#images"><span>Images</span></a></li>
-                <li><a href="/ui/cheatsheet#tables"><span>Tables</span></a></li>
-                <li><a href="/ui/cheatsheet#figures"><span>Figures</span></a></li>
-                <li><a href="/ui/cheatsheet#forms"><span>Forms</span></a></li>
-                <li><a href="/ui/cheatsheet#components"><span>Components</span></a></li>
-              </ul>
-            </details>
+            <a href="/ui/components" {% if active == 'components' %}aria-current="page"{% endif %}><span>Components</span></a>
           </li>
           <li>
             <a href="/ui/settings" {% if active == 'settings' %}aria-current="page"{% endif %}><span>Settings</span></a>
           </li>
           <li>
             <a href="/ui/blank" {% if active == 'blank' %}aria-current="page"{% endif %}><span>Blank</span></a>
-          </li>
-          <li>
-            <details {% if nav_group == 'headers' %}open{% endif %}>
-              <summary><span>Headers</span></summary>
-              <ul>
-                <li><a href="/ui/headers/simple" {% if active == 'headers-simple' %}aria-current="page"{% endif %}><span>Simple</span></a></li>
-                <li><a href="/ui/headers/centered" {% if active == 'headers-centered' %}aria-current="page"{% endif %}><span>Centered</span></a></li>
-                <li><a href="/ui/headers/buttons" {% if active == 'headers-buttons' %}aria-current="page"{% endif %}><span>With buttons</span></a></li>
-                <li><a href="/ui/headers/dark" {% if active == 'headers-dark' %}aria-current="page"{% endif %}><span>Dark</span></a></li>
-                <li><a href="/ui/headers/account" {% if active == 'headers-account' %}aria-current="page"{% endif %}><span>With account</span></a></li>
-                <li><a href="/ui/headers/product" {% if active == 'headers-product' %}aria-current="page"{% endif %}><span>Product</span></a></li>
-                <li><a href="/ui/headers/double" {% if active == 'headers-double' %}aria-current="page"{% endif %}><span>Double</span></a></li>
-                <li><a href="/ui/headers/icons" {% if active == 'headers-icons' %}aria-current="page"{% endif %}><span>Icons</span></a></li>
-              </ul>
-            </details>
-          </li>
-          <li>
-            <details {% if nav_group == 'sidebars' %}open{% endif %}>
-              <summary><span>Sidebars</span></summary>
-              <ul>
-                <li><a href="/ui/sidebars/dark" {% if active == 'sidebars-dark' %}aria-current="page"{% endif %}><span>Dark</span></a></li>
-                <li><a href="/ui/sidebars/light" {% if active == 'sidebars-light' %}aria-current="page"{% endif %}><span>Light</span></a></li>
-                <li><a href="/ui/sidebars/icons" {% if active == 'sidebars-icons' %}aria-current="page"{% endif %}><span>Icon-only</span></a></li>
-                <li><a href="/ui/sidebars/collapsible" {% if active == 'sidebars-collapsible' %}aria-current="page"{% endif %}><span>Collapsible</span></a></li>
-                <li><a href="/ui/sidebars/list-group" {% if active == 'sidebars-list-group' %}aria-current="page"{% endif %}><span>List group</span></a></li>
-              </ul>
-            </details>
           </li>
           <li>
             <a href="/ui/settings#help"><span>Help</span></a>

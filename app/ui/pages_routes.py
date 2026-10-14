@@ -1,4 +1,4 @@
-"""Bootstrap admin pages (dashboard shell and specimen pages)."""
+"""Admin pages: dashboard shell and sample pages."""
 
 from __future__ import annotations
 
@@ -30,50 +30,11 @@ SHELL_PAGES: list[tuple] = [
     ("/users", "pages/users.html", "users", None, [], [], ""),
     ("/forms", "pages/forms.html", "forms", None, [], [], ""),
     ("/tables", "pages/tables.html", "tables", None, [], [], ""),
-    (
-        "/palette-lab",
-        "pages/palette_lab.html",
-        "palette-lab",
-        None,
-        ["/static/css/palette-lab.css"],
-        ["/static/js/palette-lab.js"],
-        "",
-    ),
-    (
-        "/components",
-        "pages/components.html",
-        "components",
-        "components",
-        [],
-        [],
-        "",
-    ),
-    (
-        "/cheatsheet",
-        "pages/cheatsheet.html",
-        "cheatsheet",
-        "cheatsheet",
-        ["/static/css/cheatsheet.css"],
-        ["/static/js/cheatsheet.js"],
-        "bd-cheatsheet",
-    ),
+    ("/components", "pages/components.html", "components", None, [], [], ""),
     ("/settings", "pages/settings.html", "settings", None, [], [], ""),
     ("/blank", "pages/blank.html", "blank", None, [], [], ""),
     ("/404", "pages/not_found.html", "", None, [], [], ""),
 ]
-
-HEADER_PAGES = (
-    "simple",
-    "centered",
-    "buttons",
-    "dark",
-    "account",
-    "product",
-    "double",
-    "icons",
-)
-SIDEBAR_PAGES = ("dark", "light", "icons", "collapsible", "list-group")
-
 
 def shell_ctx(
     request: Request,
@@ -134,36 +95,6 @@ for _spec in SHELL_PAGES:
     router.add_api_route(
         _path, _handler, methods=["GET"], response_class=HTMLResponse, include_in_schema=False
     )
-
-for _name in HEADER_PAGES:
-    _path, _handler = _page(
-        f"/headers/{_name}",
-        f"gallery/headers_{_name}.html",
-        f"headers-{_name}",
-        "headers",
-        ["/static/css/headers.css"],
-        [],
-        "",
-    )
-    router.add_api_route(
-        _path, _handler, methods=["GET"], response_class=HTMLResponse, include_in_schema=False
-    )
-
-for _name in SIDEBAR_PAGES:
-    _template = "gallery/sidebars_" + _name.replace("-", "_") + ".html"
-    _path, _handler = _page(
-        f"/sidebars/{_name}",
-        _template,
-        f"sidebars-{_name}",
-        "sidebars",
-        ["/static/css/sidebars.css"],
-        [],
-        "",
-    )
-    router.add_api_route(
-        _path, _handler, methods=["GET"], response_class=HTMLResponse, include_in_schema=False
-    )
-
 
 async def render_not_found(request: Request) -> HTMLResponse:
     user = await get_session_user(request)
