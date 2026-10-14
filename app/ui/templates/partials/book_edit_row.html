@@ -39,9 +39,9 @@
         <label for="edit-notes-{{ book.id }}">Notes</label>
         <input class="input" id="edit-notes-{{ book.id }}" type="text" name="notes" value="{{ book.notes or '' }}" maxlength="2000">
       </div>
-      <div class="span-2">
-        <label class="check" for="edit-available-{{ book.id }}">
-          <input type="checkbox" id="edit-available-{{ book.id }}" name="available" value="1" {% if book.available %}checked{% endif %}>
+      <div class="field span-2">
+        <label>
+          <input class="input" type="checkbox" id="edit-available-{{ book.id }}" name="available" value="1" {% if book.available %}checked{% endif %}>
           Available
         </label>
       </div>

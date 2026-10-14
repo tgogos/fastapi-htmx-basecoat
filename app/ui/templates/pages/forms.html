@@ -68,12 +68,36 @@
     </fieldset>
     <fieldset class="page-stack">
       <legend>Access</legend>
-      <p>Seat type</p>
-      <label class="check"><input type="radio" name="seat" id="seat-standard" checked /> Standard</label>
-      <label class="check"><input type="radio" name="seat" id="seat-break-glass" /> Break-glass</label>
-      <label class="check"><input type="checkbox" id="notify-email" checked /> Email the invite</label>
-      <label class="check"><input type="checkbox" id="require-2fa" checked /> Require two-factor authentication</label>
-      <label class="check"><input type="checkbox" id="api-access" /> Allow personal API tokens</label>
+      <div class="field">
+        <label>
+          <input class="input" type="radio" name="seat" id="seat-standard" checked />
+          Standard
+        </label>
+      </div>
+      <div class="field">
+        <label>
+          <input class="input" type="radio" name="seat" id="seat-break-glass" />
+          Break-glass
+        </label>
+      </div>
+      <div class="field">
+        <label>
+          <input class="input" type="checkbox" id="notify-email" checked />
+          Email the invite
+        </label>
+      </div>
+      <div class="field">
+        <label>
+          <input class="input" type="checkbox" id="require-2fa" checked />
+          Require two-factor authentication
+        </label>
+      </div>
+      <div class="field">
+        <label>
+          <input class="input" type="checkbox" id="api-access" />
+          Allow personal API tokens
+        </label>
+      </div>
     </fieldset>
     <div class="row-actions">
       <a class="btn" data-variant="outline" href="/ui/users">Cancel</a>

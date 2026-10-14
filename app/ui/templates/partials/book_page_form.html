@@ -1,5 +1,7 @@
 {% if form_error %}
-<div class="alert" role="alert">{{ form_error }}</div>
+<div class="alert" role="alert">
+  <section>{{ form_error }}</section>
+</div>
 {% endif %}
 <form method="post" action="{{ form_action }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -37,9 +39,9 @@
       <label for="page-notes">Notes</label>
       <input class="input" id="page-notes" type="text" name="notes" value="{{ values.notes }}" maxlength="2000">
     </div>
-    <div class="span-2">
-      <label class="check" for="page-available">
-        <input type="checkbox" id="page-available" name="available" value="1" {% if values.available %}checked{% endif %}>
+    <div class="field span-2">
+      <label>
+        <input class="input" type="checkbox" id="page-available" name="available" value="1" {% if values.available %}checked{% endif %}>
         Available
       </label>
     </div>

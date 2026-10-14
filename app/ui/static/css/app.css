@@ -101,20 +101,9 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
-}
-
-.check {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.check input {
-  width: auto;
-}
-
-.table-wrap {
-  overflow-x: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .pager {

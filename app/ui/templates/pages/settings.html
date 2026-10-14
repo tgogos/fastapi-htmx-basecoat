@@ -65,10 +65,25 @@
         <header>
           <h2 id="notify-heading">Notifications</h2>
         </header>
-        <section class="page-stack">
-          <label class="check"><input type="checkbox" id="notify-access" checked /> Access requests</label>
-          <label class="check"><input type="checkbox" id="notify-jobs" checked /> Failed jobs</label>
-          <label class="check"><input type="checkbox" id="notify-digest" /> Daily digest</label>
+        <section class="stack">
+          <div class="field">
+            <label>
+              <input class="input" type="checkbox" id="notify-access" checked />
+              Access requests
+            </label>
+          </div>
+          <div class="field">
+            <label>
+              <input class="input" type="checkbox" id="notify-jobs" checked />
+              Failed jobs
+            </label>
+          </div>
+          <div class="field">
+            <label>
+              <input class="input" type="checkbox" id="notify-digest" />
+              Daily digest
+            </label>
+          </div>
         </section>
       </section>
       <section class="card" aria-labelledby="app-heading">
@@ -84,8 +99,11 @@
             <label for="support-email">Support email</label>
             <input class="input" id="support-email" type="email" value="ops@example.com" />
           </div>
-          <div class="span-2">
-            <label class="check"><input type="checkbox" id="maintenance-mode" /> Show maintenance banner</label>
+          <div class="field span-2">
+            <label>
+              <input class="input" type="checkbox" id="maintenance-mode" />
+              Show maintenance banner
+            </label>
           </div>
         </section>
       </section>

@@ -27,9 +27,11 @@
           <h2>Log in</h2>
           <p>Use the demo user from <code>DEMO_USERNAME</code> / <code>DEMO_PASSWORD</code> (default <code>admin</code> / <code>admin123</code>).</p>
         </header>
-        <section class="grid gap-4">
+        <section class="stack">
           {% if error %}
-          <div class="alert" role="alert">{{ error }}</div>
+          <div class="alert" role="alert">
+            <section>{{ error }}</section>
+          </div>
           {% endif %}
           <div class="field">
             <label for="signin-username">Username</label>

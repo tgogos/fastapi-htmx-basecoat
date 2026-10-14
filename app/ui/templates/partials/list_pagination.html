@@ -22,11 +22,13 @@
       <option value="{{ n }}" data-url="{{ size_urls[n] }}" {% if n == size %}selected{% endif %}>{{ n }}</option>
       {% endfor %}
     </select>
-    <nav class="row-actions" aria-label="{{ list_pagination_label }}">
-      {{ page_btn(first_url, "First") }}
-      {{ page_btn(prev_url, "Previous") }}
-      {{ page_btn(next_url, "Next") }}
-      {{ page_btn(last_url, "Last") }}
+    <nav aria-label="{{ list_pagination_label }}">
+      <ul class="row-actions">
+        <li>{{ page_btn(first_url, "First") }}</li>
+        <li>{{ page_btn(prev_url, "Previous") }}</li>
+        <li>{{ page_btn(next_url, "Next") }}</li>
+        <li>{{ page_btn(last_url, "Last") }}</li>
+      </ul>
     </nav>
   </div>
 </div>

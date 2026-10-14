@@ -1,7 +1,9 @@
 {% if form_error %}
-<div class="alert flash" role="alert">
-  {{ form_error }}
-  <button type="button" class="btn flash-dismiss" data-variant="ghost" aria-label="Dismiss">Dismiss</button>
+<div class="alert" role="alert">
+  <section>{{ form_error }}</section>
+  <footer>
+    <button type="button" class="btn flash-dismiss" data-size="xs" data-variant="outline">Dismiss</button>
+  </footer>
 </div>
 {% endif %}
 
@@ -20,7 +22,7 @@
 </div>
 {% endif %}
 
-<div class="table-wrap">
+<div class="table-container">
   <table class="table">
     <thead>
       <tr>

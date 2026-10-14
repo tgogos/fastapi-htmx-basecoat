@@ -11,14 +11,18 @@
   <a class="btn" href="{{ edit_href }}">Edit</a>
   {% endif %}
 </div>
-<dl class="stack">
-  <div><dt>Category</dt><dd>{{ category_labels.get(book.category, book.category) }}</dd></div>
-  <div><dt>Year</dt><dd>{{ book.year if book.year is not none else "—" }}</dd></div>
-  <div><dt>Pages</dt><dd>{{ book.page_count if book.page_count is not none else "—" }}</dd></div>
-  <div><dt>ISBN</dt><dd>{{ book.isbn or "—" }}</dd></div>
-  <div><dt>Available</dt><dd>{{ "Yes" if book.available else "No" }}</dd></div>
-  <div><dt>Added by</dt><dd>{{ book.added_by_username or "—" }}</dd></div>
-  <div><dt>Notes</dt><dd>{{ book.notes or "—" }}</dd></div>
-</dl>
+<article class="card">
+  <section>
+    <dl class="stack">
+      <div><dt>Category</dt><dd>{{ category_labels.get(book.category, book.category) }}</dd></div>
+      <div><dt>Year</dt><dd>{{ book.year if book.year is not none else "—" }}</dd></div>
+      <div><dt>Pages</dt><dd>{{ book.page_count if book.page_count is not none else "—" }}</dd></div>
+      <div><dt>ISBN</dt><dd>{{ book.isbn or "—" }}</dd></div>
+      <div><dt>Available</dt><dd>{{ "Yes" if book.available else "No" }}</dd></div>
+      <div><dt>Added by</dt><dd>{{ book.added_by_username or "—" }}</dd></div>
+      <div><dt>Notes</dt><dd>{{ book.notes or "—" }}</dd></div>
+    </dl>
+  </section>
+</article>
 <p><a href="{{ list_href }}">Back to the list</a></p>
 {% endblock %}
