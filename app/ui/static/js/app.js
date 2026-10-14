@@ -1,7 +1,7 @@
 /**
  * Small vanilla island for the HTMX UI.
- * - Bootstrap modal confirm before destructive HTMX deletes
- * - Bootstrap toasts (HX-Trigger: showToast)
+ * - Dialog confirm before destructive HTMX deletes
+ * - Basecoat toasts (HX-Trigger: showToast)
  * - Dismiss flash messages
  * - Send CSRF header on HTMX requests when meta csrf-token is present
  */
@@ -21,62 +21,38 @@
   function openConfirm(el) {
     var dialog = confirmDialog();
     var messageEl = confirmMessageEl();
-    if (!dialog || !messageEl || !window.bootstrap) {
+    if (!dialog || !messageEl || typeof dialog.showModal !== "function") {
       return false;
     }
     pendingConfirmEl = el;
     messageEl.textContent = el.getAttribute("data-confirm") || "Are you sure?";
-    window.bootstrap.Modal.getOrCreateInstance(dialog).show();
+    dialog.showModal();
     return true;
   }
 
   function closeConfirm() {
     var dialog = confirmDialog();
     pendingConfirmEl = null;
-    if (!dialog || !window.bootstrap) {
-      return;
+    if (dialog && dialog.open) {
+      dialog.close();
     }
-    var instance = window.bootstrap.Modal.getInstance(dialog);
-    if (instance) {
-      instance.hide();
-    }
-  }
-
-  function toastRegion() {
-    return document.getElementById("toast-region");
   }
 
   function showToast(message, level) {
-    var region = toastRegion();
-    if (!region || !message || !window.bootstrap) {
+    var region = document.getElementById("toaster");
+    if (!region || !message || typeof region.toast !== "function") {
       return;
     }
-    var toast = document.createElement("div");
-    toast.className = "toast " + (level === "error" ? "text-bg-danger" : "text-bg-success");
-    toast.setAttribute("role", "status");
-
-    var flex = document.createElement("div");
-    flex.className = "d-flex";
-
-    var body = document.createElement("div");
-    body.className = "toast-body";
-    body.textContent = message;
-
-    var dismiss = document.createElement("button");
-    dismiss.type = "button";
-    dismiss.className = "btn-close btn-close-white me-2 m-auto";
-    dismiss.setAttribute("data-bs-dismiss", "toast");
-    dismiss.setAttribute("aria-label", "Dismiss");
-
-    flex.appendChild(body);
-    flex.appendChild(dismiss);
-    toast.appendChild(flex);
-    region.appendChild(toast);
-
-    toast.addEventListener("hidden.bs.toast", function () {
-      toast.remove();
+    region.toast({
+      category: level === "error" ? "error" : "success",
+      description: message,
     });
-    window.bootstrap.Toast.getOrCreateInstance(toast, { delay: 3500 }).show();
+  }
+
+  function initBasecoat(force) {
+    if (window.basecoat && typeof window.basecoat.initAll === "function") {
+      window.basecoat.initAll(force ? { force: true } : undefined);
+    }
   }
 
   document.body.addEventListener("click", function (event) {
@@ -167,7 +143,23 @@
   });
 
   document.body.addEventListener("htmx:after:history:push", syncListFiltersFromUrl);
+  document.body.addEventListener("htmx:after:settle", function () {
+    initBasecoat(false);
+  });
+  document.body.addEventListener("htmx:after:history:update", function () {
+    initBasecoat(true);
+  });
   syncListFiltersFromUrl();
+
+  var themeToggle = document.getElementById("theme-toggle");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", function () {
+      var dark = !document.documentElement.classList.contains("dark");
+      document.documentElement.classList.toggle("dark", dark);
+      localStorage.setItem("theme", dark ? "dark" : "light");
+      document.documentElement.dispatchEvent(new CustomEvent("themechange"));
+    });
+  }
 
   var pendingToast = document.getElementById("pending-toast");
   if (pendingToast) {

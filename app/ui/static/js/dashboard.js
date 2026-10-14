@@ -10,7 +10,7 @@
 
   if (typeof Chart === 'undefined') {
     const note = document.createElement('p')
-    note.className = 'small text-body-secondary mb-0'
+    note.className = 'muted'
     note.textContent = 'Chart.js is not loaded. The rest of this page remains usable.'
     canvas.replaceWith(note)
     return
@@ -23,10 +23,10 @@
   const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 
   const palette = () => ({
-    color: cssVar('--bs-body-color'),
-    border: cssVar('--bs-border-color'),
-    primary: cssVar('--bs-primary'),
-    bodyBg: cssVar('--bs-body-bg')
+    color: cssVar('--foreground'),
+    border: cssVar('--border'),
+    primary: cssVar('--primary'),
+    bodyBg: cssVar('--background')
   })
 
   const buildOptions = colors => ({
@@ -80,5 +80,5 @@
     chart.update()
   }
 
-  window.addEventListener('admin:themechange', refresh)
+  document.documentElement.addEventListener('themechange', refresh)
 })()

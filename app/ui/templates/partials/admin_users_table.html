@@ -1,18 +1,18 @@
 {% if form_error %}
-<div class="alert alert-danger flash" role="alert">
+<div class="alert flash" role="alert">
   {{ form_error }}
-  <button type="button" class="btn-close flash-dismiss" aria-label="Dismiss"></button>
+  <button type="button" class="btn flash-dismiss" data-variant="ghost" aria-label="Dismiss">Dismiss</button>
 </div>
 {% endif %}
 {% if form_ok %}
-<div class="alert alert-success flash" role="status">
+<div class="alert flash" role="status">
   {{ form_ok }}
-  <button type="button" class="btn-close flash-dismiss" aria-label="Dismiss"></button>
+  <button type="button" class="btn flash-dismiss" data-variant="ghost" aria-label="Dismiss">Dismiss</button>
 </div>
 {% endif %}
 
-<div class="table-responsive">
-  <table class="table table-hover align-middle">
+<div class="table-wrap">
+  <table class="table">
     <thead>
       <tr>
         <th scope="col">Username</th>
@@ -23,23 +23,23 @@
     <tbody>
       {% for u in users %}
       <tr>
-        <td>{{ u.username }}{% if u.id == user.id %} <small class="text-body-secondary">(you)</small>{% endif %}</td>
+        <td>{{ u.username }}{% if u.id == user.id %} <small class="muted">(you)</small>{% endif %}</td>
         <td><code>{{ u.role }}</code></td>
         <td>
           <form
-            class="d-flex flex-wrap gap-2"
+            class="inline-form"
             hx-post="/ui/admin/users/{{ u.id }}/role"
             hx-target="#admin-users-panel"
             hx-swap="innerHTML"
           >
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <label class="visually-hidden" for="role-{{ u.id }}">Role for {{ u.username }}</label>
-            <select class="form-select form-select-sm w-auto" id="role-{{ u.id }}" name="role">
+            <select id="role-{{ u.id }}" name="role">
               {% for r in roles %}
               <option value="{{ r }}" {% if r == u.role %}selected{% endif %}>{{ r }}</option>
               {% endfor %}
             </select>
-            <button type="submit" class="btn btn-sm btn-outline-secondary">Save</button>
+            <button type="submit" class="btn" data-size="sm" data-variant="outline">Save</button>
           </form>
         </td>
       </tr>

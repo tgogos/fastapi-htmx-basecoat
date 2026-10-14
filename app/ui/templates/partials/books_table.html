@@ -1,27 +1,27 @@
 {% if form_error %}
-<div class="alert alert-danger flash" role="alert">
+<div class="alert flash" role="alert">
   {{ form_error }}
-  <button type="button" class="btn-close flash-dismiss" aria-label="Dismiss"></button>
+  <button type="button" class="btn flash-dismiss" data-variant="ghost" aria-label="Dismiss">Dismiss</button>
 </div>
 {% endif %}
 
 {% if show_filter_summary %}
-<div class="mb-3" aria-live="polite">
+<div aria-live="polite">
   {% if active_filters %}
-  <p class="mb-2"><strong>Active filters</strong></p>
-  <ul class="list-inline mb-0">
+  <p><strong>Active filters</strong></p>
+  <ul class="row-actions">
     {% for chip in active_filters %}
-    <li class="list-inline-item"><span class="badge text-bg-secondary">{{ chip }}</span></li>
+    <li><span class="badge" data-variant="secondary">{{ chip }}</span></li>
     {% endfor %}
   </ul>
   {% else %}
-  <p class="text-body-secondary mb-0">No filters — showing all books.</p>
+  <p class="muted">No filters — showing all books.</p>
   {% endif %}
 </div>
 {% endif %}
 
-<div class="table-responsive">
-  <table class="table table-hover align-middle">
+<div class="table-wrap">
+  <table class="table">
     <thead>
       <tr>
         {% with sort_column="title", sort_label="Title", sort_href=sort_urls.title, sort_ordering=ordering, sort_panel="#books-panel", sort_indicator="#books-indicator" %}
@@ -58,7 +58,7 @@
       {% else %}
         <tr>
           <td colspan="{% if can_edit %}8{% else %}7{% endif %}">
-            <span class="text-body-secondary">{% if active_filters %}No books match these filters.{% else %}No books found.{% endif %}</span>
+            <span class="muted">{% if active_filters %}No books match these filters.{% else %}No books found.{% endif %}</span>
           </td>
         </tr>
       {% endif %}

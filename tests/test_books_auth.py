@@ -270,7 +270,7 @@ class TestAuthWeb:
         assert 'href="/ui/books"' in page.text
         assert 'aria-label="App"' in page.text
         assert 'aria-label="Samples"' in page.text
-        assert "bootstrap.min.css" in page.text
+        assert "basecoat.min.css" in page.text
 
         users = auth_client.get("/ui/users")
         assert users.status_code == 200

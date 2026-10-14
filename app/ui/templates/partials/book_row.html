@@ -1,7 +1,7 @@
 <tr id="book-row-{{ book.id }}">
   <td>
     <a href="/ui/books/{{ book.id }}{% if carry_query %}?{{ carry_query }}{% endif %}">{{ book.title }}</a>
-    {% if book.isbn %}<br><small class="text-body-secondary">{{ book.isbn }}</small>{% endif %}
+    {% if book.isbn %}<br><small class="muted">{{ book.isbn }}</small>{% endif %}
   </td>
   <td>{{ book.author }}</td>
   <td>{{ category_labels.get(book.category, book.category) }}</td>
@@ -9,25 +9,29 @@
   <td>{{ book.page_count if book.page_count is not none else "—" }}</td>
   <td>
     {% if book.available %}
-    <span class="badge text-bg-success">Yes</span>
+    <span class="badge">Yes</span>
     {% else %}
-    <span class="badge text-bg-secondary">No</span>
+    <span class="badge" data-variant="secondary">No</span>
     {% endif %}
   </td>
   <td>{{ book.added_by_username or "—" }}</td>
   {% if can_edit %}
   <td>
-    <div class="d-flex flex-wrap gap-2">
+    <div class="row-actions">
       <button
         type="button"
-        class="btn btn-sm btn-outline-secondary"
+        class="btn"
+        data-size="sm"
+        data-variant="outline"
         hx-get="/ui/books/{{ book.id }}/edit"
         hx-target="#book-row-{{ book.id }}"
         hx-swap="outerHTML"
       >Edit</button>
       <button
         type="button"
-        class="btn btn-sm btn-outline-danger js-confirm-delete"
+        class="btn js-confirm-delete"
+        data-size="sm"
+        data-variant="destructive"
         data-confirm="Delete “{{ book.title }}”? This cannot be undone."
         hx-delete="/ui/books/{{ book.id }}?{{ results_query }}"
         hx-trigger="confirmed-delete"

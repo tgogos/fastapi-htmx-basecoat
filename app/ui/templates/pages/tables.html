@@ -1,17 +1,11 @@
 {% extends "layout.html" %}
 {% block title %}Tables · Admin{% endblock %}
-{% block description %}Bootstrap 5 admin starter — Tables{% endblock %}
+{% block description %}Tables{% endblock %}
 {% block content %}
-          <nav aria-label="Breadcrumb">
-            <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/ui/dashboard">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Tables</li>
-            </ol>
-          </nav>
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom gap-2">
+          <div class="page-head">
             <div>
-              <h1 class="h2">Tables</h1>
-              <p class="text-body-secondary mb-0">Standard, striped, hoverable, and responsive tables using Bootstrap’s default classes.</p>
+              <h1>Tables</h1>
+              <p class="muted">A few table layouts using the same table styles as the books list.</p>
             </div>
           </div>
           <section class="mb-4" aria-labelledby="basic-table-heading">
@@ -49,7 +43,7 @@
           </section>
           <section class="mb-4" aria-labelledby="striped-table-heading">
             <h2 id="striped-table-heading" class="h5">Striped</h2>
-            <table class="table table-striped mil-row-groups">
+            <table class="table">
               <thead>
                 <tr>
                   <th scope="col">Audit event</th>
@@ -88,7 +82,7 @@
           </section>
           <section class="mb-4" aria-labelledby="hover-table-heading">
             <h2 id="hover-table-heading" class="h5">Hoverable</h2>
-            <table class="table table-hover mil-row-groups">
+            <table class="table">
               <thead>
                 <tr>
                   <th scope="col">Ticket</th>
@@ -121,9 +115,9 @@
           </section>
           <section aria-labelledby="responsive-table-heading">
             <h2 id="responsive-table-heading" class="h5">Responsive</h2>
-            <p class="text-body-secondary">This table keeps additional columns and scrolls horizontally on narrow screens instead of breaking the layout.</p>
-            <div class="table-responsive">
-              <table class="table table-striped table-hover">
+            <p class="muted">This table keeps additional columns and scrolls horizontally on narrow screens.</p>
+            <div class="table-wrap">
+              <table class="table">
                 <thead>
                   <tr>
                     <th scope="col">Host</th>
