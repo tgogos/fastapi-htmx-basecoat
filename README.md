@@ -49,7 +49,7 @@ uv run pytest
 
 ## UI
 
-The shell is `app/ui/templates/layout.html` (navbar, sidebar, footer). Sample pages keep their own routes:
+The shell is `app/ui/templates/layout.html`: a Basecoat sidebar (brand, navigation, theme, and sign-out) and a button that toggles it. Sample pages keep their own routes:
 
 | Page | Path |
 |------|------|

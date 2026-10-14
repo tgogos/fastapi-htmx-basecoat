@@ -1,7 +1,7 @@
 <aside id="sidebar" class="sidebar" data-side="left">
   <nav aria-label="Primary">
     <header>
-      <h2 id="sidebarLabel">Navigation</h2>
+      <a href="/ui/dashboard">Admin</a>
     </header>
     <section>
       <div role="group" aria-label="App">
@@ -102,5 +102,18 @@
         </ul>
       </div>
     </section>
+    <footer>
+      {% if user %}
+      <p>{{ user.username }}</p>
+      <button class="btn" type="button" data-variant="ghost" id="theme-toggle">Theme</button>
+      <form action="/auth/logout" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="btn" type="submit" data-variant="ghost">Sign out</button>
+      </form>
+      {% else %}
+      <button class="btn" type="button" data-variant="ghost" id="theme-toggle">Theme</button>
+      <a class="btn" href="/auth/login">Log in</a>
+      {% endif %}
+    </footer>
   </nav>
 </aside>
