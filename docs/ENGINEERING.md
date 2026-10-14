@@ -55,7 +55,7 @@ Dashboard, books, staff, and the sample pages (users, forms, tables, components,
 
 The sidebar has two groups. **App** is the product: Dashboard, Books, Search books, and Staff (`/ui/admin/users`, admin only). **Samples** is the page set kept as UI copy sources (users, forms, tables, components, settings, blank). Sample pages are not the product. The Users sample stays separate from Staff. Move a link from Samples to App when that page starts reading or writing application data.
 
-Tables use Basecoat’s `table` inside `table-container`. Basecoat has no pagination component, so page controls are `btn` links in a list. `app/ui/static/css/app.css` is the shell layout helpers, the HTMX indicator, and the books table sort caret. `app/ui/static/js/app.js` is the HTMX island (confirm dialog, toasts, CSRF header, page-size select, theme toggle).
+Tables use Basecoat’s `table` inside `table-container`. Basecoat has no pagination component. A table that already has rows per page uses Previous and Next ghost buttons. A numbered pager uses ghost buttons for the other pages and an outline button for the current page. `app/ui/static/css/app.css` is the shell layout helpers, the HTMX indicator, and the books table sort caret. `app/ui/static/js/app.js` is the HTMX island (confirm dialog, toasts, CSRF header, page-size select, theme toggle).
 
 To add a page: copy `templates/pages/blank.html`, add a row to `SHELL_PAGES` in `app/ui/pages_routes.py`, and add a sidebar link in `partials/sidebar.html` under App or Samples with an `active` key. Do not introduce a client-side HTML include loader.
 

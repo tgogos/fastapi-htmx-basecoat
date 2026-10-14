@@ -1,10 +1,10 @@
 {# Expects count_summary, list_panel_target, list_indicator, list_pagination_label,
-   list_page_size_id, page_sizes, size, size_urls, first_url, prev_url, next_url, last_url. #}
+   list_page_size_id, page_sizes, size, size_urls, prev_url, next_url. #}
 {% macro page_btn(url, label) %}
 {% if url %}
-<a class="btn" data-size="sm" data-variant="outline" href="{{ url }}" aria-label="{{ label }}" hx-get="{{ url }}" hx-target="{{ list_panel_target }}" hx-swap="innerHTML" hx-push-url="true" hx-indicator="{{ list_indicator }}">{{ label }}</a>
+<a class="btn" data-size="sm" data-variant="ghost" href="{{ url }}" aria-label="{{ label }}" hx-get="{{ url }}" hx-target="{{ list_panel_target }}" hx-swap="innerHTML" hx-push-url="true" hx-indicator="{{ list_indicator }}">{{ label }}</a>
 {% else %}
-<button type="button" class="btn" data-size="sm" data-variant="outline" disabled aria-label="{{ label }}">{{ label }}</button>
+<button type="button" class="btn" data-size="sm" data-variant="ghost" disabled aria-label="{{ label }}">{{ label }}</button>
 {% endif %}
 {% endmacro %}
 <div class="pager">
@@ -24,10 +24,8 @@
     </select>
     <nav aria-label="{{ list_pagination_label }}">
       <ul class="row-actions">
-        <li>{{ page_btn(first_url, "First") }}</li>
         <li>{{ page_btn(prev_url, "Previous") }}</li>
         <li>{{ page_btn(next_url, "Next") }}</li>
-        <li>{{ page_btn(last_url, "Last") }}</li>
       </ul>
     </nav>
   </div>
