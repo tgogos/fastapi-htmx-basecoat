@@ -187,6 +187,9 @@ class TestRoles:
         table = client.get("/ui/books/table")
         assert table.status_code == 200
         assert "Select all on this page" not in table.text
+        assert "Add book" not in table.text
+        listed = client.get("/ui/books")
+        assert "Add book" not in listed.text
         denied = client.post(
             "/ui/books/table/delete",
             data={"ids": "missing"},
@@ -286,6 +289,9 @@ class TestAuthWeb:
         assert "table-sort-link" in response.text
         assert 'aria-label="Rows per page"' in response.text
         assert "ordering=title" in response.text
+        assert 'href="/ui/books/new"' in response.text
+        assert "Add book" in response.text
+        assert 'id="book-title"' not in response.text
 
         resorted = auth_client.get("/ui/books", params={"ordering": "-author"})
         assert 'aria-sort="descending"' in resorted.text

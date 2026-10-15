@@ -11,79 +11,10 @@
     <h1>Books</h1>
     <p class="muted">SQLite catalog. <a href="/ui/books/search">Advanced search</a> for filters.</p>
   </div>
-  {% if can_edit %}
-  <a class="btn" data-variant="outline" href="/ui/books/new">New book</a>
-  {% endif %}
+  {% include "partials/add_book_action.html" %}
 </div>
 
-{% if can_edit %}
-<div class="card">
-  <header>
-    <h2>Add book</h2>
-  </header>
-  <section>
-    <form
-      data-list-filters
-      hx-post="/ui/books"
-      hx-target="#books-panel"
-      hx-swap="innerHTML"
-      hx-indicator="#books-indicator"
-    >
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <input type="hidden" name="page" value="1">
-      <input type="hidden" name="size" value="{{ size }}">
-      <input type="hidden" name="ordering" value="{{ ordering }}">
-      <input type="hidden" name="q" value="{{ q }}">
-      <div class="form-grid">
-        <div class="field">
-          <label for="book-title">Title</label>
-          <input class="input" id="book-title" type="text" name="title" required maxlength="200">
-        </div>
-        <div class="field">
-          <label for="book-author">Author</label>
-          <input class="input" id="book-author" type="text" name="author" required maxlength="200">
-        </div>
-        <div class="field">
-          <label for="book-category">Category</label>
-          <select id="book-category" name="category">
-            {% for value, label in categories %}
-            <option value="{{ value }}" {% if value == 'fiction' %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="field">
-          <label for="book-year">Year</label>
-          <input class="input" id="book-year" type="number" name="year" min="0" max="9999">
-        </div>
-        <div class="field">
-          <label for="book-pages">Pages</label>
-          <input class="input" id="book-pages" type="number" name="page_count" min="1" max="100000">
-        </div>
-        <div class="field">
-          <label for="book-isbn">ISBN</label>
-          <input class="input" id="book-isbn" type="text" name="isbn" maxlength="32">
-        </div>
-        <div class="field span-2">
-          <label for="book-notes">Notes</label>
-          <input class="input" id="book-notes" type="text" name="notes" maxlength="2000">
-        </div>
-        <div class="field span-2">
-          <label>
-            <input class="input" type="checkbox" id="book-available" name="available" value="1" checked>
-            Available
-          </label>
-        </div>
-        <div class="span-2 row-actions">
-          <button class="btn" type="submit">Create</button>
-          <span id="books-indicator" class="htmx-indicator muted" role="status" aria-live="polite">Loading</span>
-        </div>
-      </div>
-    </form>
-  </section>
-</div>
-{% else %}
 <p id="books-indicator" class="htmx-indicator muted" role="status" aria-live="polite">Loading</p>
-{% endif %}
 
 <form
   id="books-filters"
