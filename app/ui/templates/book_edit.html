@@ -6,8 +6,12 @@
 {{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": "/ui/books", "label": "Books"}, {"href": "/ui/books/" ~ book.id, "label": book.title}, {"label": "Edit"}]) }}
 {% endblock %}
 {% block content %}
-<h1>Edit {{ book.title }}</h1>
-<p class="muted">Saving returns to the book page. The Edit button on the list still replaces the row in the table.</p>
+<div class="page-head">
+  <div>
+    <h1>Edit {{ book.title }}</h1>
+    <p class="muted">Saving returns to the book page. The Edit button on the list still replaces the row in the table.</p>
+  </div>
+</div>
 <div class="card">
   <section>
     {% with form_action=edit_href, next="", submit_label="Save", cancel_href=detail_href %}

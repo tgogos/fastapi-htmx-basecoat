@@ -7,9 +7,11 @@
 {% endblock %}
 {% block content %}
 <div class="page-head">
-  <h1>Page not found</h1>
+  <div>
+    <h1>Page not found</h1>
+    <p>That address is not part of this application.</p>
+    <p class="muted">Check the URL or return to the dashboard. If you followed a bookmark, the page may have been renamed.</p>
+  </div>
 </div>
-<p>That address is not part of this application.</p>
-<p class="muted">Check the URL or return to the dashboard. If you followed a bookmark, the page may have been renamed.</p>
 <a class="btn" href="/ui/dashboard">Back to dashboard</a>
 {% endblock %}
