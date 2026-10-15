@@ -303,6 +303,7 @@ class TestAuthWeb:
         sidebar = auth_client.get("/ui/dashboard")
         assert 'class="shell-header"' not in sidebar.text
         assert 'class="shell-toggle"' in sidebar.text
+        assert 'aria-label="Breadcrumb"' in sidebar.text
         assert sidebar.text.count('aria-label="Toggle dark mode"') == 1
 
         rejected = auth_client.post(

@@ -18,7 +18,6 @@
       <header class="shell-header">
         <div class="shell-header-start">
           {% include "partials/sidebar_toggle.html" %}
-          {% block breadcrumb %}{% endblock %}
         </div>
         <div class="shell-header-end">
           {% set account_menu_side = "bottom" %}
@@ -28,6 +27,7 @@
       </header>
       {% endif %}
       <main id="main" class="shell-content {{ main_class }}" tabindex="-1">
+        {% block breadcrumb %}{% endblock %}
         {% block content %}{% endblock %}
       </main>
     </div>

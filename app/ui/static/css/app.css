@@ -111,6 +111,10 @@ html.dark .theme-switch .when-dark {
   padding: 1.5rem;
 }
 
+.shell-content > .breadcrumb {
+  margin-bottom: 0.75rem;
+}
+
 .shell-choice {
   margin-bottom: 1rem;
 }
