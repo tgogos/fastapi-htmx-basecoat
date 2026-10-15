@@ -372,3 +372,96 @@ html.dark .theme-switch .when-dark {
 .table-sort-link--desc::after {
   content: "↓";
 }
+
+#books-table-panel,
+.table-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.table-toolbar {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-trigger {
+  height: auto;
+  min-height: 2.25rem;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.filter-menu > [data-popover] {
+  min-width: 14rem;
+}
+
+.filter-menu [role="menuitemcheckbox"] {
+  padding-inline-end: 1.75rem;
+}
+
+.filter-count {
+  margin-inline-start: auto;
+  color: var(--muted-foreground);
+}
+
+.table-check,
+.table-actions {
+  width: 1%;
+  white-space: nowrap;
+  position: sticky;
+  z-index: 1;
+  background: var(--background);
+}
+
+.table-check {
+  left: 0;
+}
+
+.table-actions {
+  right: 0;
+  text-align: end;
+}
+
+.table tr:hover > .table-check,
+.table tr:hover > .table-actions {
+  background: color-mix(in oklab, var(--muted) 50%, var(--background));
+}
+
+.input[type="checkbox"]:indeterminate {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.input[type="checkbox"]:indeterminate::after {
+  content: "";
+  display: block;
+  width: 0.875rem;
+  height: 0.875rem;
+  background-color: currentColor;
+  -webkit-mask: center / 0.875rem no-repeat url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'><path d='M5 12h14'/></svg>");
+  mask: center / 0.875rem no-repeat url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'><path d='M5 12h14'/></svg>");
+}
+
+.table-actions .dropdown-menu {
+  display: inline-flex;
+}
+
+.table-selection:not([hidden]) {
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.5rem 0.4rem 0.4rem;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+}

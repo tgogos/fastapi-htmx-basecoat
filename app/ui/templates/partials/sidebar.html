@@ -16,6 +16,9 @@
           <li>
             <a href="/ui/books/search" {% if active == 'books-search' %}aria-current="page"{% endif %}><span>Search books</span></a>
           </li>
+          <li>
+            <a href="/ui/books/table" {% if active == 'books-table' %}aria-current="page"{% endif %}><span>Books table</span></a>
+          </li>
           {% if is_admin %}
           <li>
             <a href="/ui/admin/users" {% if active == 'staff' %}aria-current="page"{% endif %}><span>Staff</span></a>

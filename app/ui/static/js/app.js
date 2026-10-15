@@ -114,7 +114,7 @@
     var params = new URLSearchParams(window.location.search);
     document.querySelectorAll("form[data-list-filters] input[type='hidden']").forEach(function (input) {
       var name = input.getAttribute("name");
-      if (!name || name === "page" || name === "csrf_token" || !params.has(name)) {
+      if (!name || name === "page" || name === "csrf_token" || input.hasAttribute("data-table-facet") || !params.has(name)) {
         return;
       }
       input.value = params.get(name);
@@ -142,14 +142,105 @@
     });
   });
 
-  document.body.addEventListener("htmx:after:history:push", syncListFiltersFromUrl);
+  function syncTableFacetsFromUrl() {
+    var form = document.querySelector("form[data-table-filters]");
+    if (!form) {
+      return;
+    }
+    var params = new URLSearchParams(window.location.search);
+    form.querySelectorAll("[data-table-facet]").forEach(function (input) {
+      input.remove();
+    });
+    ["category", "available"].forEach(function (name) {
+      params.getAll(name).forEach(function (value) {
+        var input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value;
+        input.setAttribute("data-table-facet", "");
+        form.appendChild(input);
+      });
+    });
+  }
+
+  function syncTableSelection() {
+    var form = document.getElementById("books-table-select");
+    if (!form) {
+      return;
+    }
+    var rows = form.querySelectorAll("[data-select-row]");
+    var checked = form.querySelectorAll("[data-select-row]:checked");
+    var all = form.querySelector("[data-select-page]");
+    var bar = form.querySelector("[data-table-selection]");
+    var countEl = form.querySelector("[data-selection-count]");
+    var remove = form.querySelector("[data-selection-delete]");
+    var count = checked.length;
+    if (bar) {
+      bar.hidden = count === 0;
+    }
+    if (countEl) {
+      countEl.textContent = String(count);
+    }
+    if (all) {
+      all.checked = rows.length > 0 && count === rows.length;
+      all.indeterminate = count > 0 && count < rows.length;
+    }
+    if (remove) {
+      remove.disabled = count === 0;
+      var noun = count === 1 ? "book" : "books";
+      remove.setAttribute(
+        "data-confirm",
+        "Delete " + count + " selected " + noun + "? This cannot be undone."
+      );
+    }
+  }
+
+  document.body.addEventListener("change", function (event) {
+    var el = event.target;
+    if (!el || !el.closest || !el.closest("#books-table-select")) {
+      return;
+    }
+    if (el.matches("[data-select-page]")) {
+      var form = document.getElementById("books-table-select");
+      form.querySelectorAll("[data-select-row]").forEach(function (box) {
+        box.checked = el.checked;
+      });
+    }
+    if (el.matches("[data-select-row], [data-select-page]")) {
+      syncTableSelection();
+    }
+  });
+
+  document.body.addEventListener("click", function (event) {
+    var clear = event.target.closest("[data-selection-clear]");
+    if (!clear) {
+      return;
+    }
+    var form = document.getElementById("books-table-select");
+    if (!form) {
+      return;
+    }
+    form.querySelectorAll("[data-select-row], [data-select-page]").forEach(function (box) {
+      box.checked = false;
+      box.indeterminate = false;
+    });
+    syncTableSelection();
+  });
+
+  document.body.addEventListener("htmx:after:history:push", function () {
+    syncListFiltersFromUrl();
+    syncTableFacetsFromUrl();
+  });
   document.body.addEventListener("htmx:after:settle", function () {
     initBasecoat(false);
+    syncTableSelection();
+    syncTableFacetsFromUrl();
   });
   document.body.addEventListener("htmx:after:history:update", function () {
     initBasecoat(true);
   });
   syncListFiltersFromUrl();
+  syncTableFacetsFromUrl();
 
   document.addEventListener("basecoat:themechange", function () {
     document.documentElement.dispatchEvent(new CustomEvent("themechange"));

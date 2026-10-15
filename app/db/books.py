@@ -6,6 +6,7 @@ List/get use a LEFT JOIN to users so added_by_username is loaded in one query
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import datetime, timezone
 from math import ceil
 from typing import Any, Optional
@@ -106,11 +107,48 @@ def _row_to_dict(row) -> dict[str, Any]:
     }
 
 
+def _category_values(
+    category: Optional[str],
+    categories: Optional[Sequence[str]],
+) -> list[str]:
+    """One category, or a set. Unknown values are dropped. Empty means no filter."""
+    if categories is not None:
+        chosen: list[str] = []
+        for value in categories:
+            if value in BOOK_CATEGORIES and value not in chosen:
+                chosen.append(value)
+        return chosen
+    if category and category in BOOK_CATEGORIES:
+        return [category]
+    return []
+
+
+def _availability_values(
+    available: Optional[bool],
+    availability: Optional[Sequence[bool]],
+) -> list[bool]:
+    """One availability flag. Both values selected is the whole set, so no filter."""
+    if availability is not None:
+        chosen: list[bool] = []
+        for value in availability:
+            flag = bool(value)
+            if flag not in chosen:
+                chosen.append(flag)
+        if len(chosen) == 1:
+            return chosen
+        return []
+    if available is not None:
+        return [available]
+    return []
+
+
 def _build_filters(
     *,
     q: Optional[str] = None,
     category: Optional[str] = None,
+    categories: Optional[Sequence[str]] = None,
     available: Optional[bool] = None,
+    availability: Optional[Sequence[bool]] = None,
     added_by_user_id: Optional[int] = None,
     year_min: Optional[int] = None,
     year_max: Optional[int] = None,
@@ -130,13 +168,19 @@ def _build_filters(
         )
         params.extend([like, like, like])
 
-    if category and category in BOOK_CATEGORIES:
+    chosen_categories = _category_values(category, categories)
+    if len(chosen_categories) == 1:
         clauses.append("b.category = ?")
-        params.append(category)
+        params.append(chosen_categories[0])
+    elif len(chosen_categories) > 1:
+        marks = ", ".join("?" for _ in chosen_categories)
+        clauses.append(f"b.category IN ({marks})")
+        params.extend(chosen_categories)
 
-    if available is not None:
+    chosen_availability = _availability_values(available, availability)
+    if len(chosen_availability) == 1:
         clauses.append("b.available = ?")
-        params.append(1 if available else 0)
+        params.append(1 if chosen_availability[0] else 0)
 
     if added_by_user_id is not None:
         clauses.append("b.added_by_user_id = ?")
@@ -212,19 +256,28 @@ async def list_books(
     *,
     q: Optional[str] = None,
     category: Optional[str] = None,
+    categories: Optional[Sequence[str]] = None,
     available: Optional[bool] = None,
+    availability: Optional[Sequence[bool]] = None,
     added_by_user_id: Optional[int] = None,
     year_min: Optional[int] = None,
     year_max: Optional[int] = None,
     ordering: Optional[str] = None,
 ) -> tuple[list[dict[str, Any]], int]:
-    """List books with filters. Username comes from JOIN (not per-row lookups)."""
+    """List books with filters. Username comes from JOIN (not per-row lookups).
+
+    ``categories`` is a set: a book matches when its category is any of them.
+    A second filter, such as availability, is applied as well. Passing both
+    available and unavailable is the whole set, so that filter is omitted.
+    """
     conn = get_connection()
     order_sql = ORDER_SQL[normalize_ordering(ordering)]
     where, params = _build_filters(
         q=q,
         category=category,
+        categories=categories,
         available=available,
+        availability=availability,
         added_by_user_id=added_by_user_id,
         year_min=year_min,
         year_max=year_max,
@@ -332,6 +385,49 @@ async def delete_book(book_id: str) -> bool:
     cursor = await conn.execute("DELETE FROM books WHERE id = ?", (book_id,))
     await conn.commit()
     return cursor.rowcount > 0
+
+
+async def delete_books(book_ids: Sequence[str]) -> int:
+    """Delete the given ids. The placeholders are built from the list length."""
+    ids = [book_id for book_id in book_ids if book_id]
+    if not ids:
+        return 0
+    conn = get_connection()
+    marks = ", ".join("?" for _ in ids)
+    cursor = await conn.execute(
+        f"DELETE FROM books WHERE id IN ({marks})",
+        ids,
+    )
+    await conn.commit()
+    return cursor.rowcount
+
+
+async def count_grouped(
+    column: str,
+    *,
+    q: Optional[str] = None,
+    category: Optional[str] = None,
+    categories: Optional[Sequence[str]] = None,
+    available: Optional[bool] = None,
+    availability: Optional[Sequence[bool]] = None,
+) -> dict[str, int]:
+    """Counts for one allowlisted column, using the other filters."""
+    if column not in {"category", "available"}:
+        raise ValueError(f"Unknown group column: {column}")
+    where, params = _build_filters(
+        q=q,
+        category=category,
+        categories=categories,
+        available=available,
+        availability=availability,
+    )
+    conn = get_connection()
+    async with conn.execute(
+        f"SELECT b.{column} AS key, COUNT(*) AS c FROM books b {where} GROUP BY b.{column}",
+        params,
+    ) as cursor:
+        rows = await cursor.fetchall()
+    return {str(row["key"]): int(row["c"]) for row in rows}
 
 
 async def clear_books() -> None:

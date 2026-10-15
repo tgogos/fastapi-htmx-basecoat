@@ -1,0 +1,221 @@
+{% macro facet_menu(menu_id, label, options, clear_url) %}
+<div class="dropdown-menu filter-menu" id="{{ menu_id }}">
+  <button
+    type="button"
+    class="btn filter-trigger"
+    data-variant="outline"
+    id="{{ menu_id }}-trigger"
+    aria-haspopup="menu"
+    aria-controls="{{ menu_id }}-menu"
+    aria-expanded="false"
+  >
+    {{ label }}
+    {% for option in options if option.selected %}
+    <span class="badge" data-variant="secondary">{{ option.label }}</span>
+    {% endfor %}
+  </button>
+  <div id="{{ menu_id }}-popover" data-popover aria-hidden="true" data-side="bottom" data-align="start">
+    <div role="menu" id="{{ menu_id }}-menu" aria-labelledby="{{ menu_id }}-trigger">
+      {% for option in options %}
+      <a
+        role="menuitemcheckbox"
+        aria-checked="{{ 'true' if option.selected else 'false' }}"
+        href="{{ option.href }}"
+        hx-get="{{ option.href }}"
+        hx-target="#books-table-panel"
+        hx-swap="innerHTML"
+        hx-push-url="true"
+        hx-indicator="#books-table-indicator"
+      >
+        <span>{{ option.label }}</span>
+        <span class="filter-count">{{ option.count }}</span>
+        <svg data-indicator xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+      </a>
+      {% endfor %}
+      {% if options | selectattr("selected") | list %}
+      <hr role="separator" />
+      <a
+        role="menuitem"
+        href="{{ clear_url }}"
+        hx-get="{{ clear_url }}"
+        hx-target="#books-table-panel"
+        hx-swap="innerHTML"
+        hx-push-url="true"
+        hx-indicator="#books-table-indicator"
+      >Clear</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% if form_error %}
+<div class="alert" role="alert">
+  <section>{{ form_error }}</section>
+  <footer>
+    <button type="button" class="btn flash-dismiss" data-size="xs" data-variant="outline">Dismiss</button>
+  </footer>
+</div>
+{% endif %}
+
+<div class="table-toolbar">
+  {{ facet_menu("category-filter", "Category", category_options, clear_category_url) }}
+  {{ facet_menu("availability-filter", "Availability", availability_options, clear_availability_url) }}
+  {% if facets_active %}
+  <a
+    class="btn"
+    data-variant="ghost"
+    href="{{ reset_url }}"
+    hx-get="{{ reset_url }}"
+    hx-target="#books-table-panel"
+    hx-swap="innerHTML"
+    hx-push-url="true"
+    hx-indicator="#books-table-indicator"
+  >Reset</a>
+  {% endif %}
+</div>
+
+<form id="books-table-select">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          {% if can_edit %}
+          <th scope="col" class="table-check">
+            <input class="input" type="checkbox" data-select-page aria-label="Select all on this page">
+          </th>
+          {% endif %}
+          {% with sort_column="title", sort_label="Title", sort_href=sort_urls.title, sort_ordering=ordering, sort_panel="#books-table-panel", sort_indicator="#books-table-indicator" %}
+          {% include "partials/sortable_th.html" %}
+          {% endwith %}
+          {% with sort_column="author", sort_label="Author", sort_href=sort_urls.author, sort_ordering=ordering, sort_panel="#books-table-panel", sort_indicator="#books-table-indicator" %}
+          {% include "partials/sortable_th.html" %}
+          {% endwith %}
+          {% with sort_column="category", sort_label="Category", sort_href=sort_urls.category, sort_ordering=ordering, sort_panel="#books-table-panel", sort_indicator="#books-table-indicator" %}
+          {% include "partials/sortable_th.html" %}
+          {% endwith %}
+          {% with sort_column="year", sort_label="Year", sort_href=sort_urls.year, sort_ordering=ordering, sort_panel="#books-table-panel", sort_indicator="#books-table-indicator" %}
+          {% include "partials/sortable_th.html" %}
+          {% endwith %}
+          {% with sort_column="page_count", sort_label="Pages", sort_href=sort_urls.page_count, sort_ordering=ordering, sort_panel="#books-table-panel", sort_indicator="#books-table-indicator" %}
+          {% include "partials/sortable_th.html" %}
+          {% endwith %}
+          {% with sort_column="available", sort_label="Avail.", sort_href=sort_urls.available, sort_ordering=ordering, sort_panel="#books-table-panel", sort_indicator="#books-table-indicator" %}
+          {% include "partials/sortable_th.html" %}
+          {% endwith %}
+          {% with sort_column="added_by", sort_label="Added by", sort_href=sort_urls.added_by, sort_ordering=ordering, sort_panel="#books-table-panel", sort_indicator="#books-table-indicator" %}
+          {% include "partials/sortable_th.html" %}
+          {% endwith %}
+          {% if can_edit %}
+          <th scope="col" class="table-actions"><span class="visually-hidden">Actions</span></th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% if books %}
+          {% for book in books %}
+          <tr>
+            {% if can_edit %}
+            <td class="table-check">
+              <input class="input" type="checkbox" name="ids" value="{{ book.id }}" data-select-row aria-label="Select {{ book.title }}">
+            </td>
+            {% endif %}
+            <td>
+              <a href="/ui/books/{{ book.id }}?{{ carry_query }}">{{ book.title }}</a>
+              {% if book.isbn %}<br><small class="muted">{{ book.isbn }}</small>{% endif %}
+            </td>
+            <td>{{ book.author }}</td>
+            <td>{{ category_labels.get(book.category, book.category) }}</td>
+            <td>{{ book.year if book.year is not none else "—" }}</td>
+            <td>{{ book.page_count if book.page_count is not none else "—" }}</td>
+            <td>
+              {% if book.available %}
+              <span class="badge">Yes</span>
+              {% else %}
+              <span class="badge" data-variant="secondary">No</span>
+              {% endif %}
+            </td>
+            <td>{{ book.added_by_username or "—" }}</td>
+            {% if can_edit %}
+            <td class="table-actions">
+              <div class="dropdown-menu" id="book-actions-{{ book.id }}">
+                <button
+                  type="button"
+                  class="btn"
+                  data-variant="ghost"
+                  data-size="icon"
+                  id="book-actions-{{ book.id }}-trigger"
+                  aria-haspopup="menu"
+                  aria-controls="book-actions-{{ book.id }}-menu"
+                  aria-expanded="false"
+                  aria-label="Actions for {{ book.title }}"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg>
+                </button>
+                <div id="book-actions-{{ book.id }}-popover" data-popover aria-hidden="true" data-side="bottom" data-align="end">
+                  <div role="menu" id="book-actions-{{ book.id }}-menu" aria-labelledby="book-actions-{{ book.id }}-trigger">
+                    <a role="menuitem" href="/ui/books/{{ book.id }}/edit?{{ carry_query }}">Edit</a>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      class="js-confirm-delete"
+                      data-confirm="Delete “{{ book.title }}”? This cannot be undone."
+                      hx-delete="/ui/books/{{ book.id }}?{{ results_query }}"
+                      hx-trigger="confirmed-delete"
+                      hx-target="#books-table-panel"
+                      hx-swap="innerHTML"
+                      hx-indicator="#books-table-indicator"
+                    >Delete</button>
+                  </div>
+                </div>
+              </div>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="{% if can_edit %}9{% else %}7{% endif %}">
+              <span class="muted">{% if facets_active or q %}No books match these filters.{% else %}No books found.{% endif %}</span>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if can_edit %}
+  <div class="table-selection" data-table-selection hidden>
+    <button type="button" class="btn" data-variant="ghost" data-size="icon" data-selection-clear aria-label="Clear selection">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+    </button>
+    <span><strong data-selection-count>0</strong> selected on this page</span>
+    <button
+      type="button"
+      class="btn js-confirm-delete"
+      data-variant="destructive"
+      data-size="sm"
+      data-selection-delete
+      data-confirm="Delete the selected books? This cannot be undone."
+      hx-post="/ui/books/table/delete?{{ results_query }}"
+      hx-include="#books-table-select"
+      hx-target="#books-table-panel"
+      hx-swap="innerHTML"
+      hx-trigger="confirmed-delete"
+      hx-indicator="#books-table-indicator"
+      disabled
+    >Delete</button>
+  </div>
+  {% endif %}
+</form>
+
+{% set count_summary = total ~ " book" ~ ("s" if total != 1 else "") %}
+{% if total_pages %}
+{% set count_summary = count_summary ~ " · page " ~ page ~ " of " ~ total_pages %}
+{% endif %}
+{% set list_panel_target = "#books-table-panel" %}
+{% set list_indicator = "#books-table-indicator" %}
+{% set list_pagination_label = "Books table pagination" %}
+{% set list_page_size_id = "books-table-page-size" %}
+{% include "partials/list_pagination.html" %}

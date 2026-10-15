@@ -272,16 +272,29 @@ def _list_place(
     size: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=100),
     ordering: str | None = Query(None),
     q: str | None = Query(None),
-    category: str | None = Query(None),
-    available: str | None = Query(None),
     added_by_user_id: int | None = Query(None),
     year_min: int | None = Query(None),
     year_max: int | None = Query(None),
     return_to: str = Query("list"),
 ) -> dict[str, str]:
-    """FastAPI dependency: where a book page should send the reader back."""
+    """FastAPI dependency: where a book page should send the reader back.
+
+    Category and availability are read from the request so a repeated
+    ``category`` parameter (the table page) does not fail validation.
+    """
     if not _has_list_query(request):
         return {"list_href": "/ui/books", "carry_query": "", "active": "books"}
+    if return_to == "table":
+        return _table_place(
+            page=page,
+            size=size,
+            ordering=ordering,
+            q=q,
+            categories=list(request.query_params.getlist("category")),
+            availability=list(request.query_params.getlist("available")),
+        )
+    category = request.query_params.get("category")
+    available = request.query_params.get("available")
     list_href, carry_query, active = _list_return(
         page=page,
         size=size,
@@ -551,6 +564,225 @@ def _form_values_from_book(book: dict) -> dict:
     }
 
 
+TABLE_PATH = "/ui/books/table"
+AVAILABILITY_CHOICES: list[tuple[str, str]] = [
+    ("1", "Available"),
+    ("0", "Unavailable"),
+]
+
+
+def _table_categories(values: list[str]) -> list[str]:
+    chosen: list[str] = []
+    for value in values:
+        if value in BOOK_CATEGORIES and value not in chosen:
+            chosen.append(value)
+    return chosen
+
+
+def _table_availability(values: list[str]) -> list[str]:
+    chosen: list[str] = []
+    for value in values:
+        if value in {"0", "1"} and value not in chosen:
+            chosen.append(value)
+    return chosen
+
+
+def _availability_flags(values: list[str]) -> list[bool] | None:
+    """One selected flag filters. Both selected is the whole set."""
+    flags: list[bool] = []
+    for value in _table_availability(values):
+        flag = value == "1"
+        if flag not in flags:
+            flags.append(flag)
+    if len(flags) == 1:
+        return flags
+    return None
+
+
+def _table_pairs(
+    *,
+    page: int,
+    size: int,
+    ordering: str,
+    q: str | None,
+    categories: list[str],
+    availability: list[str],
+) -> list[tuple[str, str]]:
+    pairs: list[tuple[str, str]] = [
+        ("page", str(page)),
+        ("size", str(size)),
+        ("ordering", ordering),
+    ]
+    if q:
+        pairs.append(("q", q))
+    pairs.extend(("category", value) for value in categories)
+    pairs.extend(("available", value) for value in availability)
+    return pairs
+
+
+def _table_url(**kwargs: object) -> str:
+    return f"{TABLE_PATH}?{urlencode(_table_pairs(**kwargs))}"  # type: ignore[arg-type]
+
+
+def _toggle_value(values: list[str], value: str) -> list[str]:
+    if value in values:
+        return [item for item in values if item != value]
+    return [*values, value]
+
+
+def _table_place(
+    *,
+    page: int,
+    size: int,
+    ordering: str | None,
+    q: str | None,
+    categories: list[str],
+    availability: list[str],
+) -> dict[str, str]:
+    ordering_value = books_repo.normalize_ordering(ordering)
+    size_value = page_size(size)
+    q_value = q.strip() if q and q.strip() else None
+    chosen_categories = _table_categories(categories)
+    chosen_availability = _table_availability(availability)
+    pairs = _table_pairs(
+        page=page,
+        size=size_value,
+        ordering=ordering_value,
+        q=q_value,
+        categories=chosen_categories,
+        availability=chosen_availability,
+    )
+    carry = urlencode([("return_to", "table"), *pairs])
+    return {
+        "list_href": f"{TABLE_PATH}?{urlencode(pairs)}",
+        "carry_query": carry,
+        "active": "books-table",
+    }
+
+
+async def _books_table_page_data(
+    *,
+    page: int,
+    size: int,
+    ordering: str | None,
+    q: str | None,
+    categories: list[str],
+    availability: list[str],
+) -> dict:
+    size = page_size(size)
+    ordering = books_repo.normalize_ordering(ordering)
+    q_value = q.strip() if q and q.strip() else None
+    chosen_categories = _table_categories(categories)
+    chosen_availability = _table_availability(availability)
+    flags = _availability_flags(chosen_availability)
+
+    async def _load(page_num: int) -> tuple[list, int, int]:
+        rows, total = await books_repo.list_books(
+            page=page_num,
+            size=size,
+            q=q_value,
+            categories=chosen_categories or None,
+            availability=flags,
+            ordering=ordering,
+        )
+        pages = books_repo.total_pages(total, size)
+        return rows, total, pages
+
+    rows, total, pages = await _load(page)
+    if pages and page > pages:
+        page = pages
+        rows, total, pages = await _load(page)
+
+    state = {
+        "page": page,
+        "size": size,
+        "ordering": ordering,
+        "q": q_value,
+        "categories": chosen_categories,
+        "availability": chosen_availability,
+    }
+
+    def href(**overrides: object) -> str:
+        kwargs = dict(state)
+        kwargs.update(overrides)
+        return _table_url(**kwargs)
+
+    category_counts = await books_repo.count_grouped(
+        "category",
+        q=q_value,
+        availability=flags,
+    )
+    available_counts = await books_repo.count_grouped(
+        "available",
+        q=q_value,
+        categories=chosen_categories or None,
+    )
+    category_options = [
+        {
+            "value": value,
+            "label": label,
+            "count": category_counts.get(value, 0),
+            "selected": value in chosen_categories,
+            "href": href(
+                page=1,
+                categories=_toggle_value(chosen_categories, value),
+            ),
+        }
+        for value, label in CATEGORY_CHOICES
+    ]
+    availability_options = [
+        {
+            "value": value,
+            "label": label,
+            "count": available_counts.get(value, 0),
+            "selected": value in chosen_availability,
+            "href": href(
+                page=1,
+                availability=_toggle_value(chosen_availability, value),
+            ),
+        }
+        for value, label in AVAILABILITY_CHOICES
+    ]
+    carry = _table_place(
+        page=page,
+        size=size,
+        ordering=ordering,
+        q=q_value,
+        categories=chosen_categories,
+        availability=chosen_availability,
+    )["carry_query"]
+    return {
+        "books": rows,
+        "total": total,
+        "page": page,
+        "size": size,
+        "page_sizes": PAGE_SIZES,
+        "total_pages": pages,
+        "ordering": ordering,
+        "sort_urls": {
+            col: href(page=1, ordering=_toggle_order(ordering, col))
+            for col in SORT_COLUMNS
+        },
+        "size_urls": {n: href(page=1, size=n) for n in PAGE_SIZES},
+        "q": q_value or "",
+        "selected_categories": chosen_categories,
+        "selected_availability": chosen_availability,
+        "category_options": category_options,
+        "availability_options": availability_options,
+        "clear_category_url": href(page=1, categories=[]),
+        "clear_availability_url": href(page=1, availability=[]),
+        "reset_url": href(page=1, categories=[], availability=[]),
+        "facets_active": bool(chosen_categories or chosen_availability),
+        "results_query": carry,
+        "carry_query": carry,
+        "first_url": href(page=1) if page > 1 else None,
+        "prev_url": href(page=page - 1) if page > 1 else None,
+        "next_url": href(page=page + 1) if pages and page < pages else None,
+        "last_url": href(page=pages) if pages and page < pages else None,
+        "active": "books-table",
+    }
+
+
 @router.get("/books", response_class=HTMLResponse)
 async def books_page(
     request: Request,
@@ -627,6 +859,85 @@ async def books_search_page(
         template,
         _ctx(request, user, filter_users=users, active="books-search", **data),
     )
+
+
+@router.get("/books/table", response_class=HTMLResponse)
+async def books_table_page(
+    request: Request,
+    user: dict = Depends(require_user_html),
+    page: int = Query(1, ge=1),
+    size: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=100),
+    ordering: str | None = Query(None),
+    q: str | None = Query(None),
+):
+    data = await _books_table_page_data(
+        page=page,
+        size=size,
+        ordering=ordering,
+        q=q,
+        categories=list(request.query_params.getlist("category")),
+        availability=list(request.query_params.getlist("available")),
+    )
+    template = (
+        "partials/books_table_panel.html"
+        if _wants_books_partial(request)
+        else "books_table.html"
+    )
+    return templates.TemplateResponse(request, template, _ctx(request, user, **data))
+
+
+@router.post(
+    "/books/table/delete",
+    response_class=HTMLResponse,
+    dependencies=[Depends(verify_csrf)],
+)
+async def delete_selected_books(
+    request: Request,
+    user: dict = Depends(require_editor_html),
+    page: int = Query(1, ge=1),
+    size: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=100),
+    ordering: str | None = Query(None),
+    q: str | None = Query(None),
+):
+    form = await request.form()
+    selected = [str(book_id) for book_id in form.getlist("ids") if str(book_id)][:100]
+    categories = list(request.query_params.getlist("category"))
+    availability = list(request.query_params.getlist("available"))
+
+    async def _reload(page_num: int) -> dict:
+        return await _books_table_page_data(
+            page=page_num,
+            size=size,
+            ordering=ordering,
+            q=q,
+            categories=categories,
+            availability=availability,
+        )
+
+    if not selected:
+        data = await _reload(page)
+        response = templates.TemplateResponse(
+            request,
+            "partials/books_table_panel.html",
+            _ctx(request, user, form_error="Select at least one book.", **data),
+            status_code=400,
+        )
+        return response
+
+    deleted = await books_repo.delete_books(selected)
+    data = await _reload(page)
+    if data["total"] and page > data["total_pages"]:
+        data = await _reload(data["total_pages"])
+    noun = "book" if deleted == 1 else "books"
+    response = templates.TemplateResponse(
+        request,
+        "partials/books_table_panel.html",
+        _ctx(request, user, **data),
+    )
+    response.headers["HX-Trigger"] = json.dumps(
+        {"showToast": {"message": f"Deleted {deleted} {noun}", "level": "ok"}}
+    )
+    return response
 
 
 @router.get("/books/new", response_class=HTMLResponse)
@@ -988,8 +1299,6 @@ async def delete_book(
     size: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=100),
     ordering: str | None = Query(None),
     q: str | None = Query(None),
-    category: str | None = Query(None),
-    available: str | None = Query(None),
     added_by_user_id: str | None = Query(None),
     year_min: str | None = Query(None),
     year_max: str | None = Query(None),
@@ -997,12 +1306,57 @@ async def delete_book(
     redirect: int = Query(0, ge=0, le=1),
 ):
     await books_repo.delete_book(book_id)
+    categories = list(request.query_params.getlist("category"))
+    availability = list(request.query_params.getlist("available"))
+    category = request.query_params.get("category")
+    available = request.query_params.get("available")
     try:
         ymin = _parse_optional_int(year_min)
         ymax = _parse_optional_int(year_max)
         added_by = _parse_optional_int(added_by_user_id)
     except ValueError:
         return HTMLResponse("Invalid filter value", status_code=400)
+
+    if return_to == "table":
+        place = _table_place(
+            page=page,
+            size=size,
+            ordering=ordering,
+            q=q,
+            categories=categories,
+            availability=availability,
+        )
+        if redirect:
+            _remember_toast(request, "Book deleted")
+            response = HTMLResponse("")
+            response.headers["HX-Redirect"] = place["list_href"]
+            return response
+        data = await _books_table_page_data(
+            page=page,
+            size=size,
+            ordering=ordering,
+            q=q,
+            categories=categories,
+            availability=availability,
+        )
+        if data["total"] and page > data["total_pages"]:
+            data = await _books_table_page_data(
+                page=data["total_pages"],
+                size=size,
+                ordering=ordering,
+                q=q,
+                categories=categories,
+                availability=availability,
+            )
+        response = templates.TemplateResponse(
+            request,
+            "partials/books_table_panel.html",
+            _ctx(request, user, **data),
+        )
+        response.headers["HX-Trigger"] = json.dumps(
+            {"showToast": {"message": "Book deleted", "level": "ok"}}
+        )
+        return response
 
     if redirect:
         _remember_toast(request, "Book deleted")

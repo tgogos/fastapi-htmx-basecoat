@@ -128,6 +128,7 @@ Primary mounts:
 | New book page | `/ui/books/new` (editor+). The list form still posts into the table. |
 | Edit book page | `/ui/books/{id}/edit` — full page on a visit; the table row when `HX-Request` is set |
 | Advanced search | `/ui/books/search` (filters outside swap target) |
+| Books table | `/ui/books/table` (set filters, row menu, page selection) |
 | Staff | `/ui/admin/users` (admin only) |
 | JSON API | `/api/books` (reads: login; writes: editor+; filter query params) |
 | Root | `/` → `/ui/dashboard` |
@@ -147,6 +148,7 @@ See **UI architecture** for the HTML-first contract. Patterns below are what thi
 - **Search** — `q` on title/author/ISBN with debounce + `hx-push-url`. Keep the search/filter form **outside** the HTMX swap target so inputs are not replaced (focus stays while typing).
 - **Advanced filters** — `/ui/books/search`: selects + debounced text update live; year inputs update on `change`/explicit Apply (avoid mid-typing requests). Active filter chips render inside the results partial. Delete keeps filter query params via `return_to`.
 - **Pagination and sort** — URL is the source of truth: `page`, `size` (`10`, `25`, `50`, `100`; default 10), and `ordering` (allowlisted column, prefix `-` for descending; default `title`). Sort links and the page-size control swap `#books-panel` with `innerHTML` and `hx-push-url`. Filter forms keep a hidden `ordering` so a search does not drop the sort. Unknown `ordering` values fall back to the default. Same contract on `/api/books`. Swaps stay `innerHTML`; do not add Idiomorph for this.
+- **Books table** — `/ui/books/table` is the tabular pattern to copy. It keeps `page`, `size`, and `ordering`. Category is a repeated query parameter (`category=fiction&category=mystery`): a book matches when its category is any of those values. Availability is the same kind of set (`available=1` and `available=0`); selecting both means no availability filter. Different filters apply together, and that filtering happens in SQL before `LIMIT`/`OFFSET`. Clear drops one filter. Reset drops the sets and keeps the search text. The search box stays outside `#books-table-panel`. Row actions sit in a menu. Checkboxes select rows on the current page only; Delete posts those ids. Column visibility is not part of this pattern. `/api/books` accepts the same repeated `category` parameter. The original `/ui/books` list is unchanged.
 - **Indicator** — shared `#books-indicator` via `hx-indicator` (search, pagination, sort, create). CSS-only spinner; HTMX toggles `.htmx-request` / opacity. Keep the indicator outside the swap target.
 - Progressive enhancement: pagination links keep usable `href`s.
 - **Confirm modal** — Bootstrap modal + small JS (`app/ui/static/js/app.js`); delete buttons use `hx-trigger="confirmed-delete"` after the user confirms (no `window.confirm`).

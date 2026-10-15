@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block title %}Books table · Admin{% endblock %}
+{% block description %}Books table{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"label": "Books table"}]) }}
+{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Books table</h1>
+    <p class="muted">Values in one filter match any of them. Category and availability both apply. Selection is this page.</p>
+  </div>
+</div>
+
+<form
+  id="books-table-filters"
+  data-list-filters
+  data-table-filters
+  method="get"
+  action="/ui/books/table"
+  hx-get="/ui/books/table"
+  hx-target="#books-table-panel"
+  hx-swap="innerHTML"
+  hx-trigger="keyup changed delay:300ms from:input[name='q'], search from:input[name='q']"
+  hx-push-url="true"
+  hx-indicator="#books-table-indicator"
+>
+  <input type="hidden" name="page" value="1">
+  <input type="hidden" name="size" value="{{ size }}">
+  <input type="hidden" name="ordering" value="{{ ordering }}">
+  {% for value in selected_categories %}
+  <input type="hidden" name="category" value="{{ value }}" data-table-facet>
+  {% endfor %}
+  {% for value in selected_availability %}
+  <input type="hidden" name="available" value="{{ value }}" data-table-facet>
+  {% endfor %}
+  <div class="field">
+    <label for="books-table-q">Search</label>
+    <input
+      class="input"
+      id="books-table-q"
+      type="search"
+      name="q"
+      value="{{ q }}"
+      placeholder="Title, author, or ISBN"
+      aria-label="Search books"
+      autocomplete="off"
+    >
+  </div>
+  <noscript><button class="btn" type="submit" data-variant="outline">Search</button></noscript>
+</form>
+<p id="books-table-indicator" class="htmx-indicator muted" role="status" aria-live="polite">Loading</p>
+
+<div id="books-table-panel">
+  {% include "partials/books_table_panel.html" %}
+</div>
+{% endblock %}

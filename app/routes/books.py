@@ -64,7 +64,10 @@ async def list_books(
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
     q: str | None = Query(None, description="Search title, author, or ISBN"),
-    category: str | None = Query(None, description="Book category"),
+    category: list[str] | None = Query(
+        None,
+        description="Category set. Repeat the parameter to match any of those categories.",
+    ),
     available: str | None = Query(
         None, description="Filter by availability (true/false)"
     ),
@@ -76,14 +79,15 @@ async def list_books(
         description="Sort key. Prefix - for descending. Unknown values use the default (title).",
     ),
 ) -> PaginatedBooks:
-    if category is not None and category not in BOOK_CATEGORIES:
+    chosen = [value for value in (category or []) if value != ""]
+    if any(value not in BOOK_CATEGORIES for value in chosen):
         raise HTTPException(status_code=422, detail="Invalid category")
     avail = _parse_available(available)
     rows, total = await books_repo.list_books(
         page=page,
         size=size,
         q=q,
-        category=category,
+        categories=chosen or None,
         available=avail,
         added_by_user_id=added_by_user_id,
         year_min=year_min,

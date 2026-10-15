@@ -2,6 +2,7 @@
 
 import logging
 import os
+from urllib.parse import urlencode
 
 from fastapi.testclient import TestClient
 
@@ -111,6 +112,28 @@ class TestBooksApi:
         assert by_isbn.status_code == 200
         assert by_isbn.json()["total_count"] == 1
 
+        either = auth_client.get(
+            f"{API_BOOKS}/",
+            params=[("category", "mystery"), ("category", "biography")],
+        )
+        assert either.status_code == 200
+        titles = {item["title"] for item in either.json()["items"]}
+        assert titles == {sample_book_data["title"], "Other Book"}
+
+        both = auth_client.get(
+            f"{API_BOOKS}/",
+            params=[
+                ("category", "mystery"),
+                ("category", "biography"),
+                ("available", "false"),
+            ],
+        )
+        assert both.status_code == 200
+        assert [item["title"] for item in both.json()["items"]] == ["Other Book"]
+
+        invalid = auth_client.get(f"{API_BOOKS}/", params={"category": "not-a-category"})
+        assert invalid.status_code == 422
+
     def test_list_ordering(self, auth_client: TestClient):
         headers = session_csrf_headers(auth_client)
         for title, year in (("Zebra Tales", 1999), ("Aardvark Tales", 2001)):
@@ -160,6 +183,16 @@ class TestRoles:
 
         listed = client.get(f"{API_BOOKS}/")
         assert listed.status_code == 200
+
+        table = client.get("/ui/books/table")
+        assert table.status_code == 200
+        assert "Select all on this page" not in table.text
+        denied = client.post(
+            "/ui/books/table/delete",
+            data={"ids": "missing"},
+            headers=headers,
+        )
+        assert denied.status_code == 403
 
     def test_editor_can_write(self, client: TestClient, sample_book_data: dict):
         create_user_sync("editor1", "editorpass", role="editor")
@@ -425,6 +458,77 @@ class TestAuthWeb:
         assert "Active filters" in filtered.text
         assert "Fantasy" in filtered.text
         assert "<html" not in filtered.text.lower()
+
+    def test_books_table_set_filters_and_bulk_delete(self, auth_client: TestClient):
+        headers = session_csrf_headers(auth_client)
+        created = {}
+        for title, category, available in (
+            ("Table Fiction", "fiction", True),
+            ("Table Mystery", "mystery", False),
+            ("Table Biography", "biography", True),
+        ):
+            response = auth_client.post(
+                f"{API_BOOKS}/",
+                json={
+                    "title": title,
+                    "author": "Table",
+                    "category": category,
+                    "available": available,
+                },
+                headers=headers,
+            )
+            assert response.status_code == 201
+            created[title] = response.json()["id"]
+
+        page = auth_client.get("/ui/books/table")
+        assert page.status_code == 200
+        assert "Books table" in page.text
+        assert "Select all on this page" in page.text
+        assert "return_to=table" in page.text
+
+        either = auth_client.get(
+            "/ui/books/table",
+            params=[("category", "fiction"), ("category", "mystery")],
+            headers={"HX-Request": "true"},
+        )
+        assert either.status_code == 200
+        assert "Table Fiction" in either.text
+        assert "Table Mystery" in either.text
+        assert "Table Biography" not in either.text
+        assert "Clear" in either.text
+        assert "<html" not in either.text.lower()
+
+        narrowed = auth_client.get(
+            "/ui/books/table",
+            params=[
+                ("category", "fiction"),
+                ("category", "mystery"),
+                ("available", "0"),
+            ],
+            headers={"HX-Request": "true"},
+        )
+        assert "Table Mystery" in narrowed.text
+        assert "Table Fiction" not in narrowed.text
+
+        deleted = auth_client.post(
+            "/ui/books/table/delete",
+            content=urlencode(
+                [
+                    ("ids", created["Table Fiction"]),
+                    ("ids", created["Table Mystery"]),
+                ]
+            ).encode(),
+            headers={
+                **headers,
+                "HX-Request": "true",
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+        )
+        assert deleted.status_code == 200
+        assert "Deleted 2 books" in deleted.headers["HX-Trigger"]
+        assert "Table Fiction" not in deleted.text
+        assert "Table Mystery" not in deleted.text
+        assert "Table Biography" in deleted.text
 
     def test_ui_delete_triggers_toast_header(self, auth_client: TestClient):
         headers = session_csrf_headers(auth_client)
