@@ -1,8 +1,8 @@
 # FastAPI HTMX Basecoat
 
-Server-driven admin UI: the FastAPI + HTMX backend (SQLite books, session/CSRF, Bearer API) with a [Basecoat](https://basecoatui.com/introduction/) 1.0.2 shell.
+Server-driven admin UI: the FastAPI + HTMX backend (SQLite books, session/CSRF, Bearer API) with a [Basecoat](https://basecoatui.com/introduction/) (shadcn/ui components as CSS and JavaScript) 1.0.2 shell.
 
-The books API, session, and roles are unchanged. Basecoat's Vega stylesheet and JavaScript are vendored under `app/ui/static/vendor/basecoat/`.
+The books API, session, and roles are unchanged from the [FastAPI HTMX starter](https://github.com/tgogos/fastapi-htmx-starter), the starting point for this repo. Basecoat's Vega stylesheet and JavaScript are vendored under `app/ui/static/vendor/basecoat/`.
 
 Browsers get HTML (Jinja + HTMX 4.0.0). Machines get `/api` with Bearer tokens. One user store, Docker Compose, pytest.
 
