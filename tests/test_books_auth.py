@@ -283,6 +283,7 @@ class TestAuthWeb:
         assert auth_client.get("/ui/cheatsheet").status_code == 404
         assert 'class="shell-header"' in page.text
         assert 'aria-label="Breadcrumb"' in page.text
+        assert 'aria-label="Toggle dark mode"' in page.text
 
     def test_shell_layout_cookie(self, auth_client: TestClient):
         page = auth_client.get("/ui/settings")
@@ -299,7 +300,7 @@ class TestAuthWeb:
         sidebar = auth_client.get("/ui/dashboard")
         assert 'class="shell-header"' not in sidebar.text
         assert 'class="shell-toggle"' in sidebar.text
-        assert sidebar.text.count('id="theme-toggle"') == 1
+        assert sidebar.text.count('aria-label="Toggle dark mode"') == 1
 
         rejected = auth_client.post(
             "/ui/shell",

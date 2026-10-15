@@ -151,15 +151,9 @@
   });
   syncListFiltersFromUrl();
 
-  var themeToggle = document.getElementById("theme-toggle");
-  if (themeToggle) {
-    themeToggle.addEventListener("click", function () {
-      var dark = !document.documentElement.classList.contains("dark");
-      document.documentElement.classList.toggle("dark", dark);
-      localStorage.setItem("theme", dark ? "dark" : "light");
-      document.documentElement.dispatchEvent(new CustomEvent("themechange"));
-    });
-  }
+  document.addEventListener("basecoat:themechange", function () {
+    document.documentElement.dispatchEvent(new CustomEvent("themechange"));
+  });
 
   var pendingToast = document.getElementById("pending-toast");
   if (pendingToast) {

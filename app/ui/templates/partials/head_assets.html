@@ -1,11 +1,18 @@
 <script>
       (() => {
-        const stored = localStorage.getItem("theme");
-        const dark =
-          stored === "dark" ||
-          (stored !== "light" &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches);
-        document.documentElement.classList.toggle("dark", dark);
+        try {
+          let stored = localStorage.getItem("themeMode");
+          if (stored !== "dark" && stored !== "light") {
+            const legacy = localStorage.getItem("theme");
+            if (legacy === "dark" || legacy === "light") {
+              stored = legacy;
+              localStorage.setItem("themeMode", legacy);
+            }
+          }
+          if (stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.documentElement.classList.add("dark");
+          }
+        } catch (_) {}
       })();
     </script>
     <link rel="stylesheet" href="/static/vendor/basecoat/basecoat.min.css" />

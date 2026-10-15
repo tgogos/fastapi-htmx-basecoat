@@ -79,9 +79,22 @@
   text-decoration: none;
 }
 
-.sidebar nav > footer .btn {
+.sidebar nav > footer .btn:not(.theme-switch) {
   width: 100%;
   justify-content: flex-start;
+}
+
+/* The theme switcher docs use Tailwind's dark: utilities. This bundle does not include them. */
+.theme-switch .when-dark {
+  display: none;
+}
+
+html.dark .theme-switch .when-light {
+  display: none;
+}
+
+html.dark .theme-switch .when-dark {
+  display: inline-flex;
 }
 
 .shell-content {
