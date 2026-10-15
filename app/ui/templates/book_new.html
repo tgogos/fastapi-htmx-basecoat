@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}New book · Admin{% endblock %}
 {% block description %}Add a book{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": "/ui/books", "label": "Books"}, {"label": "New book"}]) }}
+{% endblock %}
 {% block content %}
 <h1>New book</h1>
 <p class="muted">This page posts the same fields as the form on the list. A successful save opens the new book's page.</p>

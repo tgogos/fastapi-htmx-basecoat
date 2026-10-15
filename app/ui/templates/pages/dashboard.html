@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}Dashboard · Admin{% endblock %}
 {% block description %}Operator activity and service health{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"label": "Dashboard"}]) }}
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>

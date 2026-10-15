@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}Forms · Admin{% endblock %}
 {% block description %}Invite an operator{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"label": "Forms"}]) }}
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>

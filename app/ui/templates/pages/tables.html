@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}Tables · Admin{% endblock %}
 {% block description %}Tables{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"label": "Tables"}]) }}
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>

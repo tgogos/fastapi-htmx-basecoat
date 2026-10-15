@@ -12,7 +12,19 @@
     <a class="visually-hidden" href="#main">Skip to main content</a>
     {% include "partials/sidebar.html" %}
     <div class="shell-main">
+      {% if shell_layout|default("header") == "sidebar" %}
       {% include "partials/navbar.html" %}
+      {% else %}
+      <header class="shell-header">
+        <div class="shell-header-start">
+          {% include "partials/sidebar_toggle.html" %}
+          {% block breadcrumb %}{% endblock %}
+        </div>
+        <div class="shell-header-end">
+          {% include "partials/account_actions.html" %}
+        </div>
+      </header>
+      {% endif %}
       <main id="main" class="shell-content {{ main_class }}" tabindex="-1">
         {% block content %}{% endblock %}
       </main>

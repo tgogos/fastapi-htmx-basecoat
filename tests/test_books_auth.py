@@ -281,6 +281,33 @@ class TestAuthWeb:
         assert 'class="badge"' in components.text
         assert auth_client.get("/ui/headers/simple").status_code == 404
         assert auth_client.get("/ui/cheatsheet").status_code == 404
+        assert 'class="shell-header"' in page.text
+        assert 'aria-label="Breadcrumb"' in page.text
+
+    def test_shell_layout_cookie(self, auth_client: TestClient):
+        page = auth_client.get("/ui/settings")
+        csrf = page.text.split('name="csrf_token" value="', 1)[1].split('"', 1)[0]
+        switched = auth_client.post(
+            "/ui/shell",
+            data={"csrf_token": csrf, "layout": "sidebar", "next": "/ui/dashboard"},
+            follow_redirects=False,
+        )
+        assert switched.status_code == 303
+        assert switched.headers["location"] == "/ui/dashboard"
+        assert "shell_layout=sidebar" in switched.headers["set-cookie"]
+
+        sidebar = auth_client.get("/ui/dashboard")
+        assert 'class="shell-header"' not in sidebar.text
+        assert 'class="shell-toggle"' in sidebar.text
+        assert sidebar.text.count('id="theme-toggle"') == 1
+
+        rejected = auth_client.post(
+            "/ui/shell",
+            data={"csrf_token": csrf, "layout": "sidebar", "next": "https://example.com"},
+            follow_redirects=False,
+        )
+        assert rejected.status_code == 303
+        assert rejected.headers["location"] == "/ui/settings"
 
     def test_books_hx_partial_and_search(self, auth_client: TestClient):
         headers = session_csrf_headers(auth_client)

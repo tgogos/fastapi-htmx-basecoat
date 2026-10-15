@@ -2,13 +2,25 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Depends, Form, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from app.auth.deps import get_or_create_csrf_token, get_session_user, require_user_html
+from app.auth.deps import (
+    get_or_create_csrf_token,
+    get_session_user,
+    require_user_html,
+    verify_csrf,
+)
 from app.auth.users import role_at_least
 from app.ui.paths import TEMPLATES_DIR
+from app.ui.shell import (
+    DEFAULT_SHELL_LAYOUT,
+    SHELL_COOKIE,
+    SHELL_LAYOUTS,
+    current_shell_layout,
+    safe_shell_next,
+)
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
@@ -56,6 +68,7 @@ def shell_ctx(
         "extra_css": extra_css or [],
         "extra_js": extra_js or [],
         "main_class": main_class,
+        "shell_layout": current_shell_layout(request),
     }
 
 
@@ -88,6 +101,24 @@ def _page(
 
     handler.__name__ = "page_" + path.strip("/").replace("/", "_").replace("-", "_")
     return path, handler
+
+
+@router.post("/shell", dependencies=[Depends(require_user_html), Depends(verify_csrf)])
+async def set_shell_layout(
+    layout: str = Form(...),
+    next_url: str = Form("/ui/settings", alias="next"),
+):
+    choice = layout if layout in SHELL_LAYOUTS else DEFAULT_SHELL_LAYOUT
+    response = RedirectResponse(url=safe_shell_next(next_url), status_code=303)
+    response.set_cookie(
+        SHELL_COOKIE,
+        choice,
+        max_age=60 * 60 * 24 * 365,
+        httponly=True,
+        samesite="lax",
+        path="/",
+    )
+    return response
 
 
 for _spec in SHELL_PAGES:

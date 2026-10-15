@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}Edit {{ book.title }} · Admin{% endblock %}
 {% block description %}Edit a book{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": "/ui/books", "label": "Books"}, {"href": "/ui/books/" ~ book.id, "label": book.title}, {"label": "Edit"}]) }}
+{% endblock %}
 {% block content %}
 <h1>Edit {{ book.title }}</h1>
 <p class="muted">Saving returns to the book page. The Edit button on the list still replaces the row in the table.</p>

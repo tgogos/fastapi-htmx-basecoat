@@ -1,13 +1,17 @@
 {% extends "layout.html" %}
 {% block title %}Blank page · Admin{% endblock %}
 {% block description %}Empty page inside the admin shell{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"label": "Blank page"}]) }}
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
     <h1>Blank page</h1>
-    <p class="muted">Replace this main region with your content. The sidebar is the application shell.</p>
+    <p class="muted">Replace this main region with your content. The shell is the sidebar. The default layout also puts a breadcrumb and account actions in a content header.</p>
   </div>
   <button type="button" class="btn" data-size="sm">Primary action</button>
 </div>
-<p>This file is the canonical copy of a content page. Duplicate it when you add a page, then update the document title, heading, and the active sidebar link.</p>
+<p>This file is the canonical copy of a content page. Duplicate it when you add a page, then update the document title, heading, breadcrumb, and the active sidebar link.</p>
 {% endblock %}

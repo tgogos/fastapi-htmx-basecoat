@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}Page not found · Admin{% endblock %}
 {% block description %}Page not found{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"label": "Page not found"}]) }}
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <h1>Page not found</h1>

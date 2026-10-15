@@ -49,7 +49,7 @@ uv run pytest
 
 ## UI
 
-The shell is `app/ui/templates/layout.html`: a Basecoat sidebar (brand, navigation, theme, and sign-out) and a button that toggles it. Sample pages keep their own routes:
+The shell is `app/ui/templates/layout.html`. The default is a Basecoat sidebar plus a content header (sidebar toggle, breadcrumb, theme, and sign-out). Settings can switch to the sidebar alone, which keeps theme and sign-out in the sidebar footer. Sample pages keep their own routes:
 
 | Page | Path |
 |------|------|

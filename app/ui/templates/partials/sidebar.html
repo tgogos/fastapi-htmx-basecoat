@@ -50,18 +50,15 @@
         </ul>
       </div>
     </section>
+    {% if user or shell_layout|default("header") == "sidebar" %}
     <footer>
       {% if user %}
       <p>{{ user.username }}</p>
-      <button class="btn" type="button" data-variant="ghost" id="theme-toggle">Theme</button>
-      <form action="/auth/logout" method="post">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <button class="btn" type="submit" data-variant="ghost">Sign out</button>
-      </form>
-      {% else %}
-      <button class="btn" type="button" data-variant="ghost" id="theme-toggle">Theme</button>
-      <a class="btn" href="/auth/login">Log in</a>
+      {% endif %}
+      {% if shell_layout|default("header") == "sidebar" %}
+      {% include "partials/account_actions.html" %}
       {% endif %}
     </footer>
+    {% endif %}
   </nav>
 </aside>

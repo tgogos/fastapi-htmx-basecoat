@@ -1,0 +1,9 @@
+<button class="btn" type="button" data-variant="ghost" id="theme-toggle">Theme</button>
+{% if user %}
+<form action="/auth/logout" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <button class="btn" type="submit" data-variant="ghost">Sign out</button>
+</form>
+{% else %}
+<a class="btn" href="/auth/login">Log in</a>
+{% endif %}

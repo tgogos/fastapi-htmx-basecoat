@@ -27,6 +27,7 @@ from app.auth.users import (
 from app.db import books as books_repo
 from app.db.books import BOOK_CATEGORIES, normalize_category
 from app.ui.pages_routes import render_not_found
+from app.ui.shell import current_shell_layout
 from app.ui.pagination import DEFAULT_PAGE_SIZE, PAGE_SIZES, page_size, sort_column_state
 from app.ui.paths import TEMPLATES_DIR
 
@@ -86,6 +87,7 @@ def _ctx(request: Request, user: dict, **extra):
         "extra_css": [],
         "extra_js": [],
         "main_class": "",
+        "shell_layout": current_shell_layout(request),
     }
     ctx.update(extra)
     if not _wants_books_partial(request):

@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}Settings · Admin{% endblock %}
 {% block description %}Account and application settings{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"label": "Settings"}]) }}
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
@@ -8,6 +12,33 @@
     <p class="muted">Account preferences and application configuration for this environment.</p>
   </div>
 </div>
+<section class="card shell-choice">
+  <header>
+    <h2>Shell</h2>
+  </header>
+  <section>
+    <form method="post" action="/ui/shell">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="next" value="/ui/settings">
+      <div class="stack">
+        <div class="field">
+          <label>
+            <input class="input" type="radio" name="layout" value="header" {% if shell_layout|default("header") != "sidebar" %}checked{% endif %} />
+            Sidebar and header
+          </label>
+        </div>
+        <div class="field">
+          <label>
+            <input class="input" type="radio" name="layout" value="sidebar" {% if shell_layout|default("header") == "sidebar" %}checked{% endif %} />
+            Sidebar only
+          </label>
+        </div>
+        <p class="muted">Sidebar and header is the default. Sidebar only keeps theme and sign-out in the sidebar footer.</p>
+        <button type="submit" class="btn">Save shell</button>
+      </div>
+    </form>
+  </section>
+</section>
 <form>
   <div class="split">
     <div class="page-stack">
@@ -120,7 +151,7 @@
         <p>These forms are samples. They do not save.</p>
         <details open>
           <summary>Where is the page shell?</summary>
-          <p class="muted">Copy <code>blank.html</code>. Pages extend <code>layout.html</code> and replace the content block.</p>
+          <p class="muted">Copy <code>blank.html</code>. Pages extend <code>layout.html</code> and replace the content and breadcrumb blocks. The Shell card on this page stores <code>shell_layout</code> as <code>header</code> or <code>sidebar</code>.</p>
         </details>
         <details>
           <summary>How is colour mode stored?</summary>

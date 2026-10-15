@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}Components · Admin{% endblock %}
 {% block description %}Basecoat component reference{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"label": "Components"}]) }}
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
