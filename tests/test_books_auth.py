@@ -284,6 +284,9 @@ class TestAuthWeb:
         assert 'class="shell-header"' in page.text
         assert 'aria-label="Breadcrumb"' in page.text
         assert 'aria-label="Toggle dark mode"' in page.text
+        assert 'id="account-menu"' in page.text
+        assert 'role="menuitem" href="/ui/settings"' in page.text
+        assert 'action="/auth/logout"' in page.text
 
     def test_shell_layout_cookie(self, auth_client: TestClient):
         page = auth_client.get("/ui/settings")

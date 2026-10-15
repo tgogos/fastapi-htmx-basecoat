@@ -50,14 +50,11 @@
         </ul>
       </div>
     </section>
-    {% if user or shell_layout|default("header") == "sidebar" %}
+    {% if shell_layout|default("header") == "sidebar" %}
     <footer>
-      {% if user %}
-      <p>{{ user.username }}</p>
-      {% endif %}
-      {% if shell_layout|default("header") == "sidebar" %}
+      {% set account_menu_side = "top" %}
+      {% set account_menu_align = "start" %}
       {% include "partials/account_actions.html" %}
-      {% endif %}
     </footer>
     {% endif %}
   </nav>

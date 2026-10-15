@@ -16,10 +16,22 @@
   </span>
 </button>
 {% if user %}
-<form action="/auth/logout" method="post">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-  <button class="btn" type="submit" data-variant="ghost">Sign out</button>
-</form>
+<div class="dropdown-menu account-menu" id="account-menu">
+  <button type="button" class="avatar" id="account-menu-trigger" aria-haspopup="menu" aria-controls="account-menu-menu" aria-expanded="false" aria-label="{{ user.username }}">
+    <span>{{ user.username[:2]|upper }}</span>
+  </button>
+  <div id="account-menu-popover" data-popover aria-hidden="true" data-side="{{ account_menu_side|default('bottom') }}" data-align="{{ account_menu_align|default('end') }}">
+    <div role="menu" id="account-menu-menu" aria-labelledby="account-menu-trigger">
+      <div role="heading" id="account-menu-label">{{ user.username }}</div>
+      <a role="menuitem" href="/ui/settings">Settings</a>
+      <hr role="separator" />
+      <form action="/auth/logout" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" role="menuitem">Sign out</button>
+      </form>
+    </div>
+  </div>
+</div>
 {% else %}
 <a class="btn" href="/auth/login">Log in</a>
 {% endif %}

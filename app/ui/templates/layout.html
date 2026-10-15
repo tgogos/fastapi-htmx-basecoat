@@ -21,6 +21,8 @@
           {% block breadcrumb %}{% endblock %}
         </div>
         <div class="shell-header-end">
+          {% set account_menu_side = "bottom" %}
+          {% set account_menu_align = "end" %}
           {% include "partials/account_actions.html" %}
         </div>
       </header>

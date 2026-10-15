@@ -63,8 +63,17 @@
   flex: 1;
 }
 
-.shell-header form {
+.shell-header form,
+.account-menu form {
   margin: 0;
+}
+
+.sidebar nav > footer .account-menu {
+  width: 100%;
+}
+
+.account-menu > [data-popover] {
+  min-width: 11rem;
 }
 
 .sidebar nav > header,
