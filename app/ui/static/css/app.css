@@ -271,6 +271,16 @@ html.dark .theme-switch .when-dark {
   gap: 0.5rem;
 }
 
+.pager-status {
+  white-space: nowrap;
+  font-size: var(--text-sm);
+}
+
+.pager-ellipsis {
+  color: var(--muted-foreground);
+  padding-inline: 0.15rem;
+}
+
 .pager select,
 .inline-form select {
   width: auto;

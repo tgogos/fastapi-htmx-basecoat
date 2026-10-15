@@ -213,9 +213,6 @@
 </form>
 
 {% set count_summary = total ~ " book" ~ ("s" if total != 1 else "") %}
-{% if total_pages %}
-{% set count_summary = count_summary ~ " · page " ~ page ~ " of " ~ total_pages %}
-{% endif %}
 {% set list_panel_target = "#books-table-panel" %}
 {% set list_indicator = "#books-table-indicator" %}
 {% set list_pagination_label = "Books table pagination" %}

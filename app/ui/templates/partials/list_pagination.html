@@ -1,16 +1,30 @@
-{# Expects count_summary, list_panel_target, list_indicator, list_pagination_label,
-   list_page_size_id, page_sizes, size, size_urls, prev_url, next_url. #}
-{% macro page_btn(url, label) %}
+{# Expects count_summary, page, total_pages, page_links, list_panel_target,
+   list_indicator, list_pagination_label, list_page_size_id, page_sizes, size,
+   size_urls, first_url, prev_url, next_url, last_url. #}
+{% macro step(url, label, which) %}
 {% if url %}
-<a class="btn" data-size="sm" data-variant="ghost" href="{{ url }}" aria-label="{{ label }}" hx-get="{{ url }}" hx-target="{{ list_panel_target }}" hx-swap="innerHTML" hx-push-url="true" hx-indicator="{{ list_indicator }}">{{ label }}</a>
+<a class="btn" data-size="icon-sm" data-variant="ghost" href="{{ url }}" aria-label="{{ label }}" hx-get="{{ url }}" hx-target="{{ list_panel_target }}" hx-swap="innerHTML" hx-push-url="true" hx-indicator="{{ list_indicator }}">
 {% else %}
-<button type="button" class="btn" data-size="sm" data-variant="ghost" disabled aria-label="{{ label }}">{{ label }}</button>
+<button type="button" class="btn" data-size="icon-sm" data-variant="ghost" disabled aria-label="{{ label }}">
+{% endif %}
+  {% if which == "first" %}
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg>
+  {% elif which == "prev" %}
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+  {% elif which == "next" %}
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+  {% else %}
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 17 5-5-5-5"/><path d="m13 17 5-5-5-5"/></svg>
+  {% endif %}
+{% if url %}
+</a>
+{% else %}
+</button>
 {% endif %}
 {% endmacro %}
 <div class="pager">
-  <p class="muted">{{ count_summary }}</p>
   <div class="pager-controls">
-    <label for="{{ list_page_size_id }}">Rows per page</label>
+    <label class="visually-hidden" for="{{ list_page_size_id }}">Rows per page</label>
     <select
       id="{{ list_page_size_id }}"
       data-list-page-size
@@ -22,10 +36,28 @@
       <option value="{{ n }}" data-url="{{ size_urls[n] }}" {% if n == size %}selected{% endif %}>{{ n }}</option>
       {% endfor %}
     </select>
+    <span class="muted">Rows per page</span>
+    <span class="muted">{{ count_summary }}</span>
+  </div>
+  <div class="pager-controls">
+    {% if total_pages %}
+    <span class="pager-status">Page {{ page }} of {{ total_pages }}</span>
+    {% endif %}
     <nav aria-label="{{ list_pagination_label }}">
       <ul class="row-actions">
-        <li>{{ page_btn(prev_url, "Previous") }}</li>
-        <li>{{ page_btn(next_url, "Next") }}</li>
+        <li>{{ step(first_url, "Go to first page", "first") }}</li>
+        <li>{{ step(prev_url, "Go to previous page", "prev") }}</li>
+        {% for link in page_links %}
+          {% if link.ellipsis %}
+          <li aria-hidden="true"><span class="pager-ellipsis">…</span></li>
+          {% elif link.current %}
+          <li><a class="btn" data-size="sm" data-variant="outline" href="{{ link.url }}" aria-current="page" aria-label="Page {{ link.number }}" hx-get="{{ link.url }}" hx-target="{{ list_panel_target }}" hx-swap="innerHTML" hx-push-url="true" hx-indicator="{{ list_indicator }}">{{ link.number }}</a></li>
+          {% else %}
+          <li><a class="btn" data-size="sm" data-variant="ghost" href="{{ link.url }}" aria-label="Go to page {{ link.number }}" hx-get="{{ link.url }}" hx-target="{{ list_panel_target }}" hx-swap="innerHTML" hx-push-url="true" hx-indicator="{{ list_indicator }}">{{ link.number }}</a></li>
+          {% endif %}
+        {% endfor %}
+        <li>{{ step(next_url, "Go to next page", "next") }}</li>
+        <li>{{ step(last_url, "Go to last page", "last") }}</li>
       </ul>
     </nav>
   </div>

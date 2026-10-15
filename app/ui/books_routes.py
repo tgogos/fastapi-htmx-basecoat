@@ -28,7 +28,13 @@ from app.db import books as books_repo
 from app.db.books import BOOK_CATEGORIES, normalize_category
 from app.ui.pages_routes import render_not_found
 from app.ui.shell import current_shell_layout
-from app.ui.pagination import DEFAULT_PAGE_SIZE, PAGE_SIZES, page_size, sort_column_state
+from app.ui.pagination import (
+    DEFAULT_PAGE_SIZE,
+    PAGE_SIZES,
+    page_size,
+    page_window,
+    sort_column_state,
+)
 from app.ui.paths import TEMPLATES_DIR
 
 router = APIRouter()
@@ -116,6 +122,23 @@ def _parse_available_form(raw: str | None) -> bool | None:
     if raw in {"0", "false", "no"}:
         return False
     return None
+
+
+def _page_links(href, page: int, total_pages: int) -> list[dict[str, object]]:
+    links: list[dict[str, object]] = []
+    for item in page_window(page, total_pages):
+        if item is None:
+            links.append({"ellipsis": True})
+            continue
+        links.append(
+            {
+                "ellipsis": False,
+                "number": item,
+                "url": href(page=item),
+                "current": item == page,
+            }
+        )
+    return links
 
 
 def _toggle_order(current: str, column: str) -> str:
@@ -472,6 +495,7 @@ async def _books_page_data(
         "carry_query": carry_query,
         "active_filters": chips,
         "show_filter_summary": base_path.rstrip("/").endswith("/search"),
+        "page_links": _page_links(href, page, pages),
         "first_url": href(page=1) if page > 1 else None,
         "prev_url": href(page=page - 1) if page > 1 else None,
         "next_url": href(page=page + 1) if pages and page < pages else None,
@@ -775,6 +799,7 @@ async def _books_table_page_data(
         "facets_active": bool(chosen_categories or chosen_availability),
         "results_query": carry,
         "carry_query": carry,
+        "page_links": _page_links(href, page, pages),
         "first_url": href(page=1) if page > 1 else None,
         "prev_url": href(page=page - 1) if page > 1 else None,
         "next_url": href(page=page + 1) if pages and page < pages else None,

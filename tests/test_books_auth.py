@@ -291,6 +291,33 @@ class TestAuthWeb:
         assert 'aria-sort="descending"' in resorted.text
         assert "table-sort-link--desc" in resorted.text
 
+    def test_books_pager_numbers_keep_the_query(self, auth_client: TestClient):
+        headers = session_csrf_headers(auth_client)
+        for index in range(11):
+            created = auth_client.post(
+                f"{API_BOOKS}/",
+                json={"title": f"Pager {index:02d}", "author": "Ada", "category": "other"},
+                headers=headers,
+            )
+            assert created.status_code == 201
+
+        page = auth_client.get("/ui/books", params={"ordering": "-title"})
+        assert page.status_code == 200
+        assert "11 books" in page.text
+        assert "Page 1 of 2" in page.text
+        assert "· page" not in page.text
+        assert 'aria-current="page"' in page.text
+        assert 'aria-label="Go to page 2"' in page.text
+        assert "page=2" in page.text
+        assert "ordering=-title" in page.text
+        assert 'aria-label="Go to last page"' in page.text
+        assert "…" not in page.text
+
+        table = auth_client.get("/ui/books/table", params={"ordering": "-title"})
+        assert "Page 1 of 2" in table.text
+        assert 'aria-label="Go to page 2"' in table.text
+        assert "ordering=-title" in table.text
+
     def test_dashboard_requires_login(self, client: TestClient):
         anonymous = client.get("/ui/dashboard", follow_redirects=False)
         assert anonymous.status_code == 303
