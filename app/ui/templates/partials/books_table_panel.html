@@ -4,11 +4,13 @@
     type="button"
     class="btn filter-trigger"
     data-variant="outline"
+    data-icon="inline-start"
     id="{{ menu_id }}-trigger"
     aria-haspopup="menu"
     aria-controls="{{ menu_id }}-menu"
     aria-expanded="false"
   >
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
     {{ label }}
     {% for option in options if option.selected %}
     <span class="badge" data-variant="secondary">{{ option.label }}</span>

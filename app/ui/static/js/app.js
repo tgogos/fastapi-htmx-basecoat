@@ -227,6 +227,55 @@
     syncTableSelection();
   });
 
+  function placeRowMenu(pop) {
+    var menu = pop.parentElement;
+    var trigger = menu && menu.querySelector(":scope > button");
+    if (!trigger) {
+      return;
+    }
+    var rect = trigger.getBoundingClientRect();
+    var margin = 4;
+    pop.style.position = "fixed";
+    pop.style.margin = "0";
+    pop.style.translate = "none";
+    pop.style.inset = "auto";
+    pop.style.minWidth = "max-content";
+    pop.style.zIndex = "50";
+    var top = rect.bottom + margin;
+    var height = pop.offsetHeight;
+    if (top + height > window.innerHeight && rect.top - margin - height > 0) {
+      top = rect.top - margin - height;
+    }
+    pop.style.top = Math.round(top) + "px";
+    pop.style.left = "auto";
+    pop.style.right = Math.max(8, Math.round(window.innerWidth - rect.right)) + "px";
+  }
+
+  function clearRowMenu(pop) {
+    ["position", "margin", "translate", "inset", "top", "left", "right", "minWidth", "zIndex"].forEach(function (name) {
+      pop.style[name] = "";
+    });
+  }
+
+  function syncRowMenus() {
+    document.querySelectorAll(".table-actions [data-popover]").forEach(function (pop) {
+      if (pop.getAttribute("aria-hidden") === "false") {
+        placeRowMenu(pop);
+      } else {
+        clearRowMenu(pop);
+      }
+    });
+  }
+
+  function scheduleRowMenus() {
+    window.setTimeout(syncRowMenus, 0);
+  }
+
+  document.addEventListener("click", scheduleRowMenus);
+  document.addEventListener("keydown", scheduleRowMenus);
+  document.addEventListener("scroll", syncRowMenus, true);
+  window.addEventListener("resize", syncRowMenus);
+
   document.body.addEventListener("htmx:after:history:push", function () {
     syncListFiltersFromUrl();
     syncTableFacetsFromUrl();

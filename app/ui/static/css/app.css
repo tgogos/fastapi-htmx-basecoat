@@ -373,24 +373,42 @@ html.dark .theme-switch .when-dark {
   content: "↓";
 }
 
-#books-table-panel,
-.table-toolbar {
+.table-controls {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.table-controls > #books-table-filters {
+  flex: 0 1 16rem;
+  min-width: 12rem;
+}
+
+#books-table-panel {
+  display: contents;
 }
 
 .table-toolbar {
-  flex-direction: row;
-  flex-wrap: wrap;
+  display: flex;
+  flex-flow: row wrap;
   align-items: center;
+  gap: 0.5rem;
+}
+
+#books-table-panel > .alert,
+#books-table-select,
+#books-table-panel > .pager {
+  flex: 1 0 100%;
+}
+
+#books-table-panel > .alert {
+  order: -1;
 }
 
 .filter-trigger {
   height: auto;
   min-height: 2.25rem;
-  flex-wrap: wrap;
-  gap: 0.35rem;
 }
 
 .filter-menu > [data-popover] {
@@ -422,6 +440,10 @@ html.dark .theme-switch .when-dark {
 .table-actions {
   right: 0;
   text-align: end;
+}
+
+.table-actions:has([data-popover][aria-hidden="false"]) {
+  z-index: 40;
 }
 
 .table tr:hover > .table-check,
