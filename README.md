@@ -49,7 +49,7 @@ uv run pytest
 
 ## UI
 
-The shell is `app/ui/templates/layout.html`. The default is a Basecoat sidebar plus a content header (sidebar toggle, theme, and an account menu with Settings and Sign out). The breadcrumb is the first line of the page in both layouts. Settings can switch to the sidebar alone, which keeps the theme switcher and that menu in the sidebar footer. Sample pages keep their own routes:
+The shell is `app/ui/templates/layout.html`. The default is a Basecoat sidebar plus a content header (sidebar toggle, color theme, light/dark theme, and an account menu with Settings and Sign out). The breadcrumb is the first line of the page in both layouts. Settings can switch to the sidebar alone, which keeps the theme switcher and that menu in the sidebar footer. Sample pages keep their own routes:
 
 | Page | Path |
 |------|------|

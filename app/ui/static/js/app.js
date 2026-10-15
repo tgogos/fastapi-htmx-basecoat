@@ -155,6 +155,37 @@
     document.documentElement.dispatchEvent(new CustomEvent("themechange"));
   });
 
+  var colorThemes = ["default", "blue", "teal", "grey"];
+
+  function syncColorMenu() {
+    var current = document.documentElement.getAttribute("data-color") || "default";
+    document.querySelectorAll("[data-color-value]").forEach(function (item) {
+      item.setAttribute("aria-checked", item.getAttribute("data-color-value") === current ? "true" : "false");
+    });
+  }
+
+  document.addEventListener("click", function (event) {
+    var item = event.target.closest("[data-color-value]");
+    if (!item) {
+      return;
+    }
+    var next = item.getAttribute("data-color-value");
+    if (colorThemes.indexOf(next) === -1) {
+      return;
+    }
+    if (next === "default") {
+      document.documentElement.removeAttribute("data-color");
+    } else {
+      document.documentElement.setAttribute("data-color", next);
+    }
+    try {
+      localStorage.setItem("colorTheme", next);
+    } catch (_) {}
+    syncColorMenu();
+    document.documentElement.dispatchEvent(new CustomEvent("themechange"));
+  });
+  syncColorMenu();
+
   var pendingToast = document.getElementById("pending-toast");
   if (pendingToast) {
     showToast(pendingToast.getAttribute("data-message"), pendingToast.getAttribute("data-level"));

@@ -284,6 +284,8 @@ class TestAuthWeb:
         assert 'class="shell-header"' in page.text
         assert 'aria-label="Breadcrumb"' in page.text
         assert 'aria-label="Toggle dark mode"' in page.text
+        assert 'aria-label="Color theme"' in page.text
+        assert 'data-color-value="teal"' in page.text
         assert 'id="account-menu"' in page.text
         assert 'role="menuitem" href="/ui/settings"' in page.text
         assert 'action="/auth/logout"' in page.text
@@ -305,6 +307,7 @@ class TestAuthWeb:
         assert 'class="shell-toggle"' in sidebar.text
         assert 'aria-label="Breadcrumb"' in sidebar.text
         assert sidebar.text.count('aria-label="Toggle dark mode"') == 1
+        assert sidebar.text.count('aria-label="Color theme"') == 1
 
         rejected = auth_client.post(
             "/ui/shell",

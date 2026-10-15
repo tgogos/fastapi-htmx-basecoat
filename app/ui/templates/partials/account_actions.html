@@ -1,3 +1,44 @@
+<div class="dropdown-menu color-menu" id="color-menu">
+  <button
+    type="button"
+    class="btn color-switch"
+    data-variant="ghost"
+    data-size="icon"
+    id="color-menu-trigger"
+    aria-haspopup="menu"
+    aria-controls="color-menu-menu"
+    aria-expanded="false"
+    aria-label="Color theme"
+    data-tooltip="Color theme"
+    data-side="bottom"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg>
+  </button>
+  <div id="color-menu-popover" data-popover aria-hidden="true" data-side="{{ account_menu_side|default('bottom') }}" data-align="{{ account_menu_align|default('end') }}">
+    <div role="menu" id="color-menu-menu" aria-labelledby="color-menu-trigger">
+      <button type="button" role="menuitemradio" data-color-value="default" aria-checked="true">
+        <span class="color-swatch" data-swatch="default"></span>
+        Default
+        <svg data-indicator xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+      </button>
+      <button type="button" role="menuitemradio" data-color-value="blue" aria-checked="false">
+        <span class="color-swatch" data-swatch="blue"></span>
+        Blue
+        <svg data-indicator xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+      </button>
+      <button type="button" role="menuitemradio" data-color-value="teal" aria-checked="false">
+        <span class="color-swatch" data-swatch="teal"></span>
+        Teal
+        <svg data-indicator xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+      </button>
+      <button type="button" role="menuitemradio" data-color-value="grey" aria-checked="false">
+        <span class="color-swatch" data-swatch="grey"></span>
+        Grey
+        <svg data-indicator xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+      </button>
+    </div>
+  </div>
+</div>
 <button
   class="btn theme-switch"
   type="button"

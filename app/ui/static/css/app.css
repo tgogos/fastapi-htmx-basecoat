@@ -72,8 +72,87 @@
   width: 100%;
 }
 
-.account-menu > [data-popover] {
+.account-menu > [data-popover],
+.color-menu > [data-popover] {
   min-width: 11rem;
+}
+
+.color-swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.color-swatch[data-swatch="default"] {
+  background: oklch(20.5% 0 0);
+}
+
+.color-swatch[data-swatch="blue"] {
+  background: oklch(48.8% 0.243 264.376);
+}
+
+.color-swatch[data-swatch="teal"] {
+  background: oklch(62% 0.13 170);
+}
+
+.color-swatch[data-swatch="grey"] {
+  background: oklch(44% 0.02 260);
+}
+
+html[data-color="blue"] {
+  --primary: oklch(48.8% 0.243 264.376);
+  --primary-foreground: oklch(98.5% 0.01 264);
+  --ring: oklch(48.8% 0.243 264.376);
+  --sidebar-primary: oklch(48.8% 0.243 264.376);
+  --sidebar-primary-foreground: oklch(98.5% 0 0);
+  --sidebar-ring: oklch(48.8% 0.243 264.376);
+}
+
+html.dark[data-color="blue"] {
+  --primary: oklch(72% 0.14 264);
+  --primary-foreground: oklch(22% 0.04 264);
+  --ring: oklch(64% 0.14 264);
+  --sidebar-primary: oklch(64% 0.16 264);
+  --sidebar-primary-foreground: oklch(98.5% 0 0);
+  --sidebar-ring: oklch(64% 0.14 264);
+}
+
+html[data-color="teal"] {
+  --primary: oklch(62% 0.13 170);
+  --primary-foreground: oklch(98% 0.01 170);
+  --ring: oklch(62% 0.13 170);
+  --sidebar-primary: oklch(62% 0.13 170);
+  --sidebar-primary-foreground: oklch(98% 0.01 170);
+  --sidebar-ring: oklch(62% 0.13 170);
+}
+
+html.dark[data-color="teal"] {
+  --primary: oklch(80% 0.13 170);
+  --primary-foreground: oklch(24% 0.04 170);
+  --ring: oklch(74% 0.12 170);
+  --sidebar-primary: oklch(74% 0.12 170);
+  --sidebar-primary-foreground: oklch(22% 0.04 170);
+  --sidebar-ring: oklch(74% 0.12 170);
+}
+
+html[data-color="grey"] {
+  --primary: oklch(44% 0.02 260);
+  --primary-foreground: oklch(98% 0 0);
+  --ring: oklch(55% 0.02 260);
+  --sidebar-primary: oklch(44% 0.02 260);
+  --sidebar-primary-foreground: oklch(98% 0 0);
+  --sidebar-ring: oklch(55% 0.02 260);
+}
+
+html.dark[data-color="grey"] {
+  --primary: oklch(78% 0.02 260);
+  --primary-foreground: oklch(24% 0.01 260);
+  --ring: oklch(68% 0.02 260);
+  --sidebar-primary: oklch(72% 0.02 260);
+  --sidebar-primary-foreground: oklch(20% 0.01 260);
+  --sidebar-ring: oklch(68% 0.02 260);
 }
 
 .sidebar nav > header,
@@ -88,7 +167,7 @@
   text-decoration: none;
 }
 
-.sidebar nav > footer .btn:not(.theme-switch) {
+.sidebar nav > footer .btn:not(.theme-switch):not(.color-switch) {
   width: 100%;
   justify-content: flex-start;
 }

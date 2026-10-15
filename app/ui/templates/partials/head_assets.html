@@ -12,6 +12,10 @@
           if (stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches) {
             document.documentElement.classList.add("dark");
           }
+          const color = localStorage.getItem("colorTheme");
+          if (color === "blue" || color === "teal" || color === "grey") {
+            document.documentElement.setAttribute("data-color", color);
+          }
         } catch (_) {}
       })();
     </script>
