@@ -69,7 +69,7 @@ Working data pages use the same shell:
 | Edit book | `/ui/books/{id}/edit` |
 | Search books | `/ui/books/search` |
 | Users (admin) | `/ui/admin/users` |
-| Settings | `/ui/settings`, `/ui/settings/profile`, `/ui/settings/account` |
+| Settings | `/ui/settings` (profile), `/ui/settings/account`, `/ui/settings/appearance` |
 
 The sidebar is split into **App** (the product) and **Samples** (copy-source pages). To add a page, copy `app/ui/templates/pages/blank.html`, register it in `SHELL_PAGES` in `app/ui/pages_routes.py`, and add a sidebar link under the matching group in `app/ui/templates/partials/sidebar.html`.
 

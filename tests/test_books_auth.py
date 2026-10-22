@@ -364,17 +364,19 @@ class TestAuthWeb:
     def test_shell_layout_cookie(self, auth_client: TestClient):
         page = auth_client.get("/ui/settings")
         assert 'aria-label="Settings"' in page.text
-        assert 'aria-current="page">Appearance</a>' in page.text
-        assert 'href="/ui/settings/profile"' in page.text
+        assert 'aria-current="page">Profile</a>' in page.text
         assert 'href="/ui/settings/account"' in page.text
+        assert 'href="/ui/settings/appearance"' in page.text
         nav = page.text.split('aria-label="Settings"', 1)[1].split("</nav>", 1)[0]
         assert nav.find(">Profile</a>") < nav.find(">Account</a>") < nav.find(">Appearance</a>")
-        assert 'action="/ui/shell"' in page.text
-        assert 'action="/ui/view"' in page.text
-        assert 'id="help"' in page.text
         assert "Alex Rivera" not in page.text
         assert "These forms are samples" not in page.text
-        csrf = page.text.split('name="csrf_token" value="', 1)[1].split('"', 1)[0]
+        appearance = auth_client.get("/ui/settings/appearance")
+        assert 'aria-current="page">Appearance</a>' in appearance.text
+        assert 'action="/ui/shell"' in appearance.text
+        assert 'action="/ui/view"' in appearance.text
+        assert 'id="help"' in appearance.text
+        csrf = appearance.text.split('name="csrf_token" value="', 1)[1].split('"', 1)[0]
         switched = auth_client.post(
             "/ui/shell",
             data={"csrf_token": csrf, "layout": "sidebar", "next": "/ui/dashboard"},
@@ -401,7 +403,7 @@ class TestAuthWeb:
         assert rejected.headers["location"] == "/ui/settings"
 
     def test_content_width_cookie(self, auth_client: TestClient):
-        page = auth_client.get("/ui/settings")
+        page = auth_client.get("/ui/settings/appearance")
         assert 'data-width="wide"' in page.text
         assert 'action="/ui/view"' in page.text
         csrf = page.text.split('name="csrf_token" value="', 1)[1].split('"', 1)[0]

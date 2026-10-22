@@ -277,10 +277,13 @@ def test_staff_list_uses_the_table_contract(auth_client: TestClient):
 def test_profile_saves_own_display_name(client: TestClient):
     create_user_sync("ada", "editorpass", role="viewer")
     login_as(client, "ada", "editorpass")
-    page = client.get("/ui/settings/profile")
+    page = client.get("/ui/settings")
     assert page.status_code == 200
     assert 'aria-current="page">Profile</a>' in page.text
-    assert 'href="/ui/settings"' in page.text
+    assert 'href="/ui/settings/appearance"' in page.text
+    legacy = client.get("/ui/settings/profile", follow_redirects=False)
+    assert legacy.status_code == 303
+    assert legacy.headers["location"] == "/ui/settings"
     assert 'id="profile-username"' in page.text
     assert 'value="ada"' in page.text
     assert 'value="viewer"' in page.text
@@ -290,14 +293,14 @@ def test_profile_saves_own_display_name(client: TestClient):
     assert ">Settings</span>" in page.text
 
     too_long = client.post(
-        "/ui/settings/profile",
+        "/ui/settings",
         data={"csrf_token": _csrf(page.text), "display_name": "x" * 81},
     )
     assert too_long.status_code == 400
     assert "at most 80" in too_long.text
 
     saved = client.post(
-        "/ui/settings/profile",
+        "/ui/settings",
         data={
             "csrf_token": _csrf(page.text),
             "display_name": "Ada Lovelace",
@@ -306,9 +309,9 @@ def test_profile_saves_own_display_name(client: TestClient):
         follow_redirects=False,
     )
     assert saved.status_code == 303
-    assert saved.headers["location"] == "/ui/settings/profile"
+    assert saved.headers["location"] == "/ui/settings"
 
-    again = client.get("/ui/settings/profile")
+    again = client.get("/ui/settings")
     assert 'value="Ada Lovelace"' in again.text
     assert 'value="viewer"' in again.text
     assert "Display name saved" in again.text
@@ -319,7 +322,7 @@ def test_profile_saves_own_display_name(client: TestClient):
     assert me.json()["username"] == "ada"
 
     cleared = client.post(
-        "/ui/settings/profile",
+        "/ui/settings",
         data={"csrf_token": _csrf(again.text), "display_name": "   "},
         follow_redirects=False,
     )

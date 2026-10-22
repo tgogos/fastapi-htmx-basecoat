@@ -25,7 +25,7 @@
         {% if form_error %}
         <div class="alert" role="alert"><section>{{ form_error }}</section></div>
         {% endif %}
-        <form method="post" action="/ui/settings/profile">
+        <form method="post" action="/ui/settings">
           <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
           <div class="form-grid">
             <div class="field">

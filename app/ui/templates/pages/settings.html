@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
-{% block title %}Settings · Admin{% endblock %}
+{% block title %}Appearance · Settings · Admin{% endblock %}
 {% block description %}Appearance preferences{% endblock %}
 {% block breadcrumb %}
 {% from "partials/breadcrumb.html" import crumbs %}
-{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"label": "Settings"}]) }}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": "/ui/settings", "label": "Settings"}, {"label": "Appearance"}]) }}
 {% endblock %}
 {% block content %}
 <div class="page-head">
@@ -27,7 +27,7 @@
   <section>
     <form method="post" action="/ui/shell">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <input type="hidden" name="next" value="/ui/settings">
+      <input type="hidden" name="next" value="/ui/settings/appearance">
       <div class="stack">
         <div class="field">
           <label>
@@ -54,7 +54,7 @@
   <section>
     <form method="post" action="/ui/view">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <input type="hidden" name="next" value="/ui/settings">
+      <input type="hidden" name="next" value="/ui/settings/appearance">
       <div class="stack">
         <div class="field">
           <label>

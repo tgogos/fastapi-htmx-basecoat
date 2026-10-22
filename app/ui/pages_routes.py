@@ -37,7 +37,7 @@ from app.ui.shell import (
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
-PROFILE_PATH = "/ui/settings/profile"
+PROFILE_PATH = "/ui/settings"
 ACCOUNT_PATH = "/ui/settings/account"
 
 # path, template, active, nav_group, extra_css, extra_js, main_class
@@ -58,7 +58,6 @@ SHELL_PAGES: list[tuple] = [
     ("/forms", "pages/forms.html", "forms", None, [], [], ""),
     ("/tables", "pages/tables.html", "tables", None, [], [], ""),
     ("/components", "pages/components.html", "components", None, [], [], ""),
-    ("/settings", "pages/settings.html", "settings", None, [], [], ""),
     ("/blank", "pages/blank.html", "blank", None, [], [], ""),
     ("/404", "pages/not_found.html", "", None, [], [], ""),
 ]
@@ -161,7 +160,7 @@ def _profile_page(
     )
 
 
-@router.get("/settings/profile", response_class=HTMLResponse)
+@router.get("/settings", response_class=HTMLResponse)
 async def settings_profile(
     request: Request,
     user: dict = Depends(require_user_html),
@@ -174,6 +173,28 @@ async def settings_profile(
     )
 
 
+@router.get("/settings/profile", response_class=HTMLResponse)
+async def settings_profile_redirect():
+    return RedirectResponse(url=PROFILE_PATH, status_code=303)
+
+
+@router.get("/settings/appearance", response_class=HTMLResponse)
+async def settings_appearance(
+    request: Request,
+    user: dict = Depends(require_user_html),
+):
+    return templates.TemplateResponse(
+        request,
+        "pages/settings.html",
+        shell_ctx(request, user, active="settings"),
+    )
+
+
+@router.post(
+    "/settings",
+    response_class=HTMLResponse,
+    dependencies=[Depends(verify_csrf)],
+)
 @router.post(
     "/settings/profile",
     response_class=HTMLResponse,
