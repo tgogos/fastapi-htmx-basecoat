@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block title %}Settings · Admin{% endblock %}
-{% block description %}Account and application settings{% endblock %}
+{% block description %}Appearance preferences{% endblock %}
 {% block breadcrumb %}
 {% from "partials/breadcrumb.html" import crumbs %}
 {{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"label": "Settings"}]) }}
@@ -9,9 +9,18 @@
 <div class="page-head">
   <div>
     <h1>Settings</h1>
-    <p class="muted">Account preferences and application configuration for this environment.</p>
+    <p class="muted">Preferences for this environment.</p>
   </div>
 </div>
+<div class="settings-layout">
+  <nav class="settings-nav" aria-label="Settings">
+    <a href="/ui/settings" aria-current="page">Appearance</a>
+  </nav>
+  <div class="settings-panel">
+    <div>
+      <h2>Appearance</h2>
+      <p class="muted">How the shell and the page column are arranged.</p>
+    </div>
 <section class="card shell-choice">
   <header>
     <h2>Shell</h2>
@@ -66,117 +75,12 @@
     </form>
   </section>
 </section>
-<form>
-  <div class="split">
-    <div class="page-stack">
-      <section class="card" aria-labelledby="profile-heading">
-        <header>
-          <h2 id="profile-heading">Profile</h2>
-        </header>
-        <section class="form-grid">
-          <div class="field">
-            <label for="display-name">Display name</label>
-            <input class="input" id="display-name" type="text" value="Alex Rivera" required />
-          </div>
-          <div class="field">
-            <label for="profile-email">Email</label>
-            <input class="input" id="profile-email" type="email" value="alex.rivera@example.com" required />
-          </div>
-          <div class="field">
-            <label for="profile-timezone">Timezone</label>
-            <select id="profile-timezone">
-              <option>UTC</option>
-              <option selected>Europe/Athens</option>
-              <option>America/New_York</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="profile-language">Language</label>
-            <select id="profile-language">
-              <option selected>English</option>
-              <option>Greek</option>
-            </select>
-          </div>
-        </section>
-      </section>
-      <section class="card" aria-labelledby="password-heading">
-        <header>
-          <h2 id="password-heading">Password</h2>
-        </header>
-        <section class="form-grid">
-          <div class="field">
-            <label for="current-password">Current password</label>
-            <input class="input" id="current-password" type="password" autocomplete="current-password" />
-          </div>
-          <div class="field">
-            <label for="new-password">New password</label>
-            <input class="input" id="new-password" type="password" autocomplete="new-password" />
-            <p class="muted">At least 12 characters, with a number and a symbol.</p>
-          </div>
-          <div class="field span-2">
-            <label for="confirm-password">Confirm password</label>
-            <input class="input" id="confirm-password" type="password" autocomplete="new-password" />
-          </div>
-        </section>
-      </section>
-      <section class="card" aria-labelledby="notify-heading">
-        <header>
-          <h2 id="notify-heading">Notifications</h2>
-        </header>
-        <section class="stack">
-          <div class="field">
-            <label>
-              <input class="input" type="checkbox" id="notify-access" checked />
-              Access requests
-            </label>
-          </div>
-          <div class="field">
-            <label>
-              <input class="input" type="checkbox" id="notify-jobs" checked />
-              Failed jobs
-            </label>
-          </div>
-          <div class="field">
-            <label>
-              <input class="input" type="checkbox" id="notify-digest" />
-              Daily digest
-            </label>
-          </div>
-        </section>
-      </section>
-      <section class="card" aria-labelledby="app-heading">
-        <header>
-          <h2 id="app-heading">Application</h2>
-        </header>
-        <section class="form-grid">
-          <div class="field">
-            <label for="org-name">Organisation name</label>
-            <input class="input" id="org-name" type="text" value="Operations" required />
-          </div>
-          <div class="field">
-            <label for="support-email">Support email</label>
-            <input class="input" id="support-email" type="email" value="ops@example.com" />
-          </div>
-          <div class="field span-2">
-            <label>
-              <input class="input" type="checkbox" id="maintenance-mode" />
-              Show maintenance banner
-            </label>
-          </div>
-        </section>
-      </section>
-      <div class="row-actions">
-        <button type="submit" class="btn">Save changes</button>
-        <a class="btn" data-variant="outline" href="/ui/dashboard">Cancel</a>
-      </div>
-    </div>
     <section class="card" id="help" aria-labelledby="help-heading">
       <header>
-        <h2 id="help-heading">Help &amp; support</h2>
+        <h2 id="help-heading">Help</h2>
       </header>
       <section class="page-stack">
-        <p>These forms are samples. They do not save.</p>
-        <details open>
+        <details>
           <summary>Where is the page shell?</summary>
           <p class="muted">Copy <code>blank.html</code>. Pages extend <code>layout.html</code> and replace the content and breadcrumb blocks. The Shell card stores <code>shell_layout</code> as <code>header</code> or <code>sidebar</code>. The View card stores <code>content_width</code> as <code>wide</code> or <code>centered</code>.</p>
         </details>
@@ -187,5 +91,5 @@
       </section>
     </section>
   </div>
-</form>
+</div>
 {% endblock %}

@@ -363,6 +363,13 @@ class TestAuthWeb:
 
     def test_shell_layout_cookie(self, auth_client: TestClient):
         page = auth_client.get("/ui/settings")
+        assert 'aria-label="Settings"' in page.text
+        assert 'aria-current="page">Appearance</a>' in page.text
+        assert 'action="/ui/shell"' in page.text
+        assert 'action="/ui/view"' in page.text
+        assert 'id="help"' in page.text
+        assert "Alex Rivera" not in page.text
+        assert "These forms are samples" not in page.text
         csrf = page.text.split('name="csrf_token" value="', 1)[1].split('"', 1)[0]
         switched = auth_client.post(
             "/ui/shell",
