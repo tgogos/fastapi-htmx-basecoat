@@ -1,4 +1,4 @@
-"""Users directory: display name, role, and admin password changes."""
+"""Users directory and the signed-in person's profile."""
 
 import os
 import re
@@ -272,3 +272,60 @@ def test_staff_list_uses_the_table_contract(auth_client: TestClient):
     assert 'id="staff-q"' in restored.text
     assert "Add user" in restored.text
     assert "data-staff-return" in restored.text
+
+
+def test_profile_saves_own_display_name(client: TestClient):
+    create_user_sync("ada", "editorpass", role="viewer")
+    login_as(client, "ada", "editorpass")
+    page = client.get("/ui/settings/profile")
+    assert page.status_code == 200
+    assert 'aria-current="page">Profile</a>' in page.text
+    assert 'href="/ui/settings"' in page.text
+    assert 'id="profile-username"' in page.text
+    assert 'value="ada"' in page.text
+    assert 'value="viewer"' in page.text
+    assert 'name="role"' not in page.text
+    assert 'name="username"' not in page.text
+    assert 'type="password"' not in page.text
+    assert ">Settings</span>" in page.text
+
+    too_long = client.post(
+        "/ui/settings/profile",
+        data={"csrf_token": _csrf(page.text), "display_name": "x" * 81},
+    )
+    assert too_long.status_code == 400
+    assert "at most 80" in too_long.text
+
+    saved = client.post(
+        "/ui/settings/profile",
+        data={
+            "csrf_token": _csrf(page.text),
+            "display_name": "Ada Lovelace",
+            "role": "admin",
+        },
+        follow_redirects=False,
+    )
+    assert saved.status_code == 303
+    assert saved.headers["location"] == "/ui/settings/profile"
+
+    again = client.get("/ui/settings/profile")
+    assert 'value="Ada Lovelace"' in again.text
+    assert 'value="viewer"' in again.text
+    assert "Display name saved" in again.text
+    assert 'aria-label="Ada Lovelace"' in again.text
+    me = client.get("/api/auth/me", headers=session_csrf_headers(client))
+    assert me.json()["display_name"] == "Ada Lovelace"
+    assert me.json()["role"] == "viewer"
+    assert me.json()["username"] == "ada"
+
+    cleared = client.post(
+        "/ui/settings/profile",
+        data={"csrf_token": _csrf(again.text), "display_name": "   "},
+        follow_redirects=False,
+    )
+    assert cleared.status_code == 303
+    home = client.get("/ui/dashboard")
+    assert 'aria-label="ada"' in home.text
+    cleared_me = client.get("/api/auth/me", headers=session_csrf_headers(client))
+    assert cleared_me.json()["display_name"] is None
+    assert cleared_me.json()["role"] == "viewer"

@@ -12,7 +12,7 @@ from app.auth.deps import (
     require_user_html,
     verify_csrf,
 )
-from app.auth.users import role_at_least
+from app.auth.users import clean_display_name, role_at_least, set_display_name
 from app.ui.paths import TEMPLATES_DIR
 from app.ui.shell import (
     CONTENT_WIDTH_COOKIE,
@@ -28,6 +28,7 @@ from app.ui.shell import (
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+PROFILE_PATH = "/ui/settings/profile"
 
 # path, template, active, nav_group, extra_css, extra_js, main_class
 SHELL_PAGES: list[tuple] = [
@@ -124,6 +125,70 @@ async def set_shell_layout(
         path="/",
     )
     return response
+
+
+def _remember_toast(request: Request, message: str) -> None:
+    request.session["toast"] = {"message": message, "level": "ok"}
+
+
+def _profile_page(
+    request: Request,
+    user: dict,
+    *,
+    display_name: str,
+    form_error: str | None,
+    status_code: int = 200,
+):
+    ctx = shell_ctx(request, user, active="settings")
+    ctx["toast"] = request.session.pop("toast", None)
+    ctx["display_name_value"] = display_name
+    ctx["form_error"] = form_error
+    return templates.TemplateResponse(
+        request,
+        "pages/settings_profile.html",
+        ctx,
+        status_code=status_code,
+    )
+
+
+@router.get("/settings/profile", response_class=HTMLResponse)
+async def settings_profile(
+    request: Request,
+    user: dict = Depends(require_user_html),
+):
+    return _profile_page(
+        request,
+        user,
+        display_name=user.get("display_name") or "",
+        form_error=None,
+    )
+
+
+@router.post(
+    "/settings/profile",
+    response_class=HTMLResponse,
+    dependencies=[Depends(verify_csrf)],
+)
+async def save_settings_profile(
+    request: Request,
+    user: dict = Depends(require_user_html),
+    display_name: str = Form(""),
+):
+    try:
+        clean_label = clean_display_name(display_name)
+    except ValueError as exc:
+        return _profile_page(
+            request,
+            user,
+            display_name=display_name,
+            form_error=str(exc),
+            status_code=400,
+        )
+    updated = await set_display_name(user["id"], clean_label)
+    if updated is None:
+        return await render_not_found(request)
+    _remember_toast(request, "Display name saved")
+    return RedirectResponse(url=PROFILE_PATH, status_code=303)
 
 
 @router.post("/view", dependencies=[Depends(require_user_html), Depends(verify_csrf)])

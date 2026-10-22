@@ -289,6 +289,21 @@ async def create_user(
     return user
 
 
+async def set_display_name(
+    user_id: int, display_name: str | None
+) -> Optional[dict[str, Any]]:
+    """Set the signed-in person's shell label. Does not change the role."""
+    conn = get_connection()
+    cursor = await conn.execute(
+        "UPDATE users SET display_name = ? WHERE id = ?",
+        (display_name, user_id),
+    )
+    await conn.commit()
+    if cursor.rowcount == 0:
+        return None
+    return await get_user_by_id(user_id)
+
+
 async def update_user(
     user_id: int,
     *,

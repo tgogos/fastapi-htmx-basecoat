@@ -13,9 +13,8 @@
   </div>
 </div>
 <div class="settings-layout">
-  <nav class="settings-nav" aria-label="Settings">
-    <a href="/ui/settings" aria-current="page">Appearance</a>
-  </nav>
+  {% set settings_section = "appearance" %}
+  {% include "partials/settings_nav.html" %}
   <div class="settings-panel">
     <div>
       <h2>Appearance</h2>

@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block title %}Profile · Settings · Admin{% endblock %}
+{% block description %}Your display name{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": "/ui/settings", "label": "Settings"}, {"label": "Profile"}]) }}
+{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Settings</h1>
+    <p class="muted">Preferences for this environment.</p>
+  </div>
+</div>
+<div class="settings-layout">
+  {% set settings_section = "profile" %}
+  {% include "partials/settings_nav.html" %}
+  <div class="settings-panel">
+    <div>
+      <h2>Profile</h2>
+      <p class="muted">The name shown in the account menu. The username stays the sign-in name.</p>
+    </div>
+    <section class="card">
+      <section>
+        {% if form_error %}
+        <div class="alert" role="alert"><section>{{ form_error }}</section></div>
+        {% endif %}
+        <form method="post" action="/ui/settings/profile">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <div class="form-grid">
+            <div class="field">
+              <label for="profile-username">Username</label>
+              <input class="input" id="profile-username" type="text" value="{{ user.username }}" disabled>
+            </div>
+            <div class="field">
+              <label for="profile-role">Role</label>
+              <input class="input" id="profile-role" type="text" value="{{ user.role }}" disabled>
+            </div>
+            <div class="field span-2">
+              <label for="profile-display-name">Display name</label>
+              <input class="input" id="profile-display-name" type="text" name="display_name" value="{{ display_name_value }}" maxlength="80" autocomplete="name">
+              <p class="muted">Leave this empty to show the username in the account menu.</p>
+            </div>
+            <div class="span-2 row-actions">
+              <button class="btn" type="submit">Save profile</button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </section>
+  </div>
+</div>
+{% endblock %}

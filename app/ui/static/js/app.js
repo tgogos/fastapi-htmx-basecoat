@@ -380,9 +380,26 @@
   });
   syncColorMenu();
 
-  var pendingToast = document.getElementById("pending-toast");
-  if (pendingToast) {
+  function showPendingToast() {
+    var pendingToast = document.getElementById("pending-toast");
+    var region = document.getElementById("toaster");
+    if (!pendingToast || !region) {
+      return;
+    }
+    // Basecoat attaches toaster.toast on DOMContentLoaded, after this script.
+    if (typeof region.toast !== "function") {
+      initBasecoat(false);
+    }
+    if (typeof region.toast !== "function") {
+      return;
+    }
     showToast(pendingToast.getAttribute("data-message"), pendingToast.getAttribute("data-level"));
     pendingToast.remove();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", showPendingToast);
+  } else {
+    showPendingToast();
   }
 })();

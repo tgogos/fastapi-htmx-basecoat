@@ -49,7 +49,7 @@ uv run pytest
 
 ## UI
 
-The shell is `app/ui/templates/layout.html`. The default is a Basecoat sidebar plus a content header (sidebar toggle, color theme, light/dark theme, and an account menu with Settings and Sign out). The breadcrumb is the first line of the page in both layouts. Settings can switch to the sidebar alone, which keeps the theme switcher and that menu in the sidebar footer. It can also keep the page wide, or center it at 80rem. Sample pages keep their own routes:
+The shell is `app/ui/templates/layout.html`. The default is a Basecoat sidebar plus a content header (sidebar toggle, color theme, light/dark theme, and an account menu with Settings and Sign out). The breadcrumb is the first line of the page in both layouts. Settings can switch to the sidebar alone, which keeps the theme switcher and that menu in the sidebar footer. It can also keep the page wide, or center it at 80rem. Profile saves the signed-in person's display name. Sample pages keep their own routes:
 
 | Page | Path |
 |------|------|
@@ -69,7 +69,7 @@ Working data pages use the same shell:
 | Edit book | `/ui/books/{id}/edit` |
 | Search books | `/ui/books/search` |
 | Users (admin) | `/ui/admin/users` |
-| Settings | `/ui/settings` |
+| Settings | `/ui/settings`, `/ui/settings/profile` |
 
 The sidebar is split into **App** (the product) and **Samples** (copy-source pages). To add a page, copy `app/ui/templates/pages/blank.html`, register it in `SHELL_PAGES` in `app/ui/pages_routes.py`, and add a sidebar link under the matching group in `app/ui/templates/partials/sidebar.html`.
 

@@ -365,6 +365,9 @@ class TestAuthWeb:
         page = auth_client.get("/ui/settings")
         assert 'aria-label="Settings"' in page.text
         assert 'aria-current="page">Appearance</a>' in page.text
+        assert 'href="/ui/settings/profile"' in page.text
+        nav = page.text.split('aria-label="Settings"', 1)[1].split("</nav>", 1)[0]
+        assert nav.find(">Profile</a>") < nav.find(">Appearance</a>")
         assert 'action="/ui/shell"' in page.text
         assert 'action="/ui/view"' in page.text
         assert 'id="help"' in page.text
