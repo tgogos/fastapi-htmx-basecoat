@@ -286,6 +286,7 @@ html.dark .theme-switch .when-dark {
   .settings-layout {
     flex-direction: row;
     align-items: flex-start;
+    gap: 3rem;
   }
 
   .settings-nav {
