@@ -329,3 +329,79 @@ def test_profile_saves_own_display_name(client: TestClient):
     cleared_me = client.get("/api/auth/me", headers=session_csrf_headers(client))
     assert cleared_me.json()["display_name"] is None
     assert cleared_me.json()["role"] == "viewer"
+
+
+def test_account_changes_own_password(client: TestClient):
+    create_user_sync("ada", "oldpass123", role="viewer")
+    token = client.post(
+        "/api/auth/token",
+        json={"username": "ada", "password": "oldpass123"},
+    )
+    assert token.status_code == 200
+    raw = token.json()["access_token"]
+
+    login_as(client, "ada", "oldpass123")
+    page = client.get("/ui/settings/account")
+    assert page.status_code == 200
+    assert 'aria-current="page">Account</a>' in page.text
+    nav = page.text.split('aria-label="Settings"', 1)[1].split("</nav>", 1)[0]
+    assert nav.find(">Profile</a>") < nav.find(">Account</a>") < nav.find(">Appearance</a>")
+    assert 'name="current_password"' in page.text
+    assert 'name="role"' not in page.text
+
+    wrong = client.post(
+        "/ui/settings/account",
+        data={
+            "csrf_token": _csrf(page.text),
+            "current_password": "not-the-password",
+            "password": "newpass123",
+            "password_confirm": "newpass123",
+        },
+    )
+    assert wrong.status_code == 400
+    assert "Current password is incorrect." in wrong.text
+
+    mismatch = client.post(
+        "/ui/settings/account",
+        data={
+            "csrf_token": _csrf(page.text),
+            "current_password": "oldpass123",
+            "password": "newpass123",
+            "password_confirm": "otherpass1",
+        },
+    )
+    assert mismatch.status_code == 400
+    assert "do not match" in mismatch.text
+
+    saved = client.post(
+        "/ui/settings/account",
+        data={
+            "csrf_token": _csrf(page.text),
+            "current_password": "oldpass123",
+            "password": "newpass123",
+            "password_confirm": "newpass123",
+        },
+        follow_redirects=False,
+    )
+    assert saved.status_code == 303
+    assert saved.headers["location"] == "/ui/settings/account"
+
+    again = client.get("/ui/settings/account")
+    assert again.status_code == 200
+    assert "Password updated" in again.text
+    me = client.get("/api/auth/me", headers=session_csrf_headers(client))
+    assert me.json()["username"] == "ada"
+    assert me.json()["role"] == "viewer"
+
+    stale = client.get("/api/auth/me", headers={"Authorization": f"Bearer {raw}"})
+    assert stale.status_code == 401
+    old = client.post(
+        "/api/auth/token",
+        json={"username": "ada", "password": "oldpass123"},
+    )
+    assert old.status_code == 401
+    new = client.post(
+        "/api/auth/token",
+        json={"username": "ada", "password": "newpass123"},
+    )
+    assert new.status_code == 200

@@ -384,22 +384,33 @@
     var pendingToast = document.getElementById("pending-toast");
     var region = document.getElementById("toaster");
     if (!pendingToast || !region) {
-      return;
+      return true;
     }
-    // Basecoat attaches toaster.toast on DOMContentLoaded, after this script.
     if (typeof region.toast !== "function") {
       initBasecoat(false);
     }
     if (typeof region.toast !== "function") {
-      return;
+      return false;
     }
     showToast(pendingToast.getAttribute("data-message"), pendingToast.getAttribute("data-level"));
     pendingToast.remove();
+    return true;
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", showPendingToast);
-  } else {
-    showPendingToast();
+  function watchPendingToast(attempt) {
+    if (showPendingToast() || attempt > 20) {
+      return;
+    }
+    setTimeout(function () {
+      watchPendingToast(attempt + 1);
+    }, 50);
+  }
+
+  // Basecoat attaches toaster.toast on DOMContentLoaded, after this script.
+  window.addEventListener("load", function () {
+    watchPendingToast(0);
+  });
+  if (document.readyState === "complete") {
+    watchPendingToast(0);
   }
 })();

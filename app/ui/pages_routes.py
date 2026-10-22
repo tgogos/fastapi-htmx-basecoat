@@ -7,12 +7,21 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.auth.deps import (
+    SESSION_VERSION_KEY,
     get_or_create_csrf_token,
     get_session_user,
     require_user_html,
     verify_csrf,
 )
-from app.auth.users import clean_display_name, role_at_least, set_display_name
+from app.auth.passwords import hash_password, verify_password
+from app.auth.users import (
+    clean_display_name,
+    clean_password,
+    get_user_by_id,
+    role_at_least,
+    set_display_name,
+    set_password,
+)
 from app.ui.paths import TEMPLATES_DIR
 from app.ui.shell import (
     CONTENT_WIDTH_COOKIE,
@@ -29,6 +38,7 @@ from app.ui.shell import (
 router = APIRouter()
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 PROFILE_PATH = "/ui/settings/profile"
+ACCOUNT_PATH = "/ui/settings/account"
 
 # path, template, active, nav_group, extra_css, extra_js, main_class
 SHELL_PAGES: list[tuple] = [
@@ -189,6 +199,71 @@ async def save_settings_profile(
         return await render_not_found(request)
     _remember_toast(request, "Display name saved")
     return RedirectResponse(url=PROFILE_PATH, status_code=303)
+
+
+def _account_page(
+    request: Request,
+    user: dict,
+    *,
+    form_error: str | None,
+    status_code: int = 200,
+):
+    ctx = shell_ctx(request, user, active="settings")
+    ctx["toast"] = request.session.pop("toast", None)
+    ctx["form_error"] = form_error
+    return templates.TemplateResponse(
+        request,
+        "pages/settings_account.html",
+        ctx,
+        status_code=status_code,
+    )
+
+
+@router.get("/settings/account", response_class=HTMLResponse)
+async def settings_account(
+    request: Request,
+    user: dict = Depends(require_user_html),
+):
+    return _account_page(request, user, form_error=None)
+
+
+@router.post(
+    "/settings/account",
+    response_class=HTMLResponse,
+    dependencies=[Depends(verify_csrf)],
+)
+async def save_settings_account(
+    request: Request,
+    user: dict = Depends(require_user_html),
+    current_password: str = Form(""),
+    password: str = Form(""),
+    password_confirm: str = Form(""),
+):
+    record = await get_user_by_id(user["id"])
+    if record is None:
+        return await render_not_found(request)
+    if not verify_password(current_password, record["password_hash"]):
+        return _account_page(
+            request,
+            user,
+            form_error="Current password is incorrect.",
+            status_code=400,
+        )
+    try:
+        clean_secret = clean_password(password, password_confirm)
+    except ValueError as exc:
+        return _account_page(
+            request,
+            user,
+            form_error=str(exc),
+            status_code=400,
+        )
+    updated = await set_password(user["id"], hash_password(clean_secret))
+    if updated is None:
+        return await render_not_found(request)
+    request.session[SESSION_VERSION_KEY] = updated["session_version"]
+    _remember_toast(request, "Password updated")
+    return RedirectResponse(url=ACCOUNT_PATH, status_code=303)
 
 
 @router.post("/view", dependencies=[Depends(require_user_html), Depends(verify_csrf)])

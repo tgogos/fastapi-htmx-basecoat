@@ -257,6 +257,10 @@ html.dark .theme-switch .when-dark {
   font-weight: 600;
 }
 
+.settings-panel .alert {
+  margin-bottom: 1rem;
+}
+
 @media (min-width: 48rem) {
   .settings-layout {
     flex-direction: row;
