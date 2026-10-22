@@ -200,11 +200,19 @@ html.dark .theme-switch .when-dark {
   padding: 1.5rem;
 }
 
+.shell-content[data-width="centered"] {
+  box-sizing: border-box;
+  width: min(100%, 80rem);
+  align-self: center;
+  padding: 1rem;
+}
+
 .shell-content > .btn {
   align-self: flex-start;
 }
 
-.shell-choice .stack > .btn {
+.shell-choice .stack > .btn,
+.view-choice .stack > .btn {
   align-self: flex-start;
 }
 

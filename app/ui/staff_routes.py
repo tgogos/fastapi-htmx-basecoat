@@ -46,7 +46,7 @@ from app.ui.pagination import (
     sort_column_state,
 )
 from app.ui.paths import TEMPLATES_DIR
-from app.ui.shell import current_shell_layout
+from app.ui.shell import current_content_width, current_shell_layout
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
@@ -68,6 +68,7 @@ def _ctx(request: Request, user: dict, **extra):
         "extra_js": [],
         "main_class": "",
         "shell_layout": current_shell_layout(request),
+        "content_width": current_content_width(request),
         "roles": ROLE_ORDER,
     }
     ctx.update(extra)

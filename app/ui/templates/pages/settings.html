@@ -39,6 +39,33 @@
     </form>
   </section>
 </section>
+<section class="card view-choice">
+  <header>
+    <h2>View</h2>
+  </header>
+  <section>
+    <form method="post" action="/ui/view">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="next" value="/ui/settings">
+      <div class="stack">
+        <div class="field">
+          <label>
+            <input class="input" type="radio" name="width" value="wide" {% if content_width|default("wide") != "centered" %}checked{% endif %} />
+            Wide
+          </label>
+        </div>
+        <div class="field">
+          <label>
+            <input class="input" type="radio" name="width" value="centered" {% if content_width|default("wide") == "centered" %}checked{% endif %} />
+            Centered
+          </label>
+        </div>
+        <p class="muted">Wide uses the full column beside the sidebar. Centered keeps the page at 80rem and centers it, so a wider window leaves equal space on both sides.</p>
+        <button type="submit" class="btn">Save view</button>
+      </div>
+    </form>
+  </section>
+</section>
 <form>
   <div class="split">
     <div class="page-stack">
@@ -151,7 +178,7 @@
         <p>These forms are samples. They do not save.</p>
         <details open>
           <summary>Where is the page shell?</summary>
-          <p class="muted">Copy <code>blank.html</code>. Pages extend <code>layout.html</code> and replace the content and breadcrumb blocks. The Shell card on this page stores <code>shell_layout</code> as <code>header</code> or <code>sidebar</code>.</p>
+          <p class="muted">Copy <code>blank.html</code>. Pages extend <code>layout.html</code> and replace the content and breadcrumb blocks. The Shell card stores <code>shell_layout</code> as <code>header</code> or <code>sidebar</code>. The View card stores <code>content_width</code> as <code>wide</code> or <code>centered</code>.</p>
         </details>
         <details>
           <summary>How is colour mode stored?</summary>

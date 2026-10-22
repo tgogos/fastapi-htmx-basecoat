@@ -336,6 +336,9 @@ class TestAuthWeb:
         assert 'href="/ui/books"' in page.text
         assert 'aria-label="App"' in page.text
         assert 'aria-label="Samples"' in page.text
+        app_nav, samples_nav = page.text.split('aria-label="Samples"', 1)
+        assert ">Settings</span>" in app_nav
+        assert ">Settings</span>" not in samples_nav.split("</aside>", 1)[0]
         assert "basecoat.min.css" in page.text
 
         users = auth_client.get("/ui/users")
@@ -385,6 +388,32 @@ class TestAuthWeb:
         )
         assert rejected.status_code == 303
         assert rejected.headers["location"] == "/ui/settings"
+
+    def test_content_width_cookie(self, auth_client: TestClient):
+        page = auth_client.get("/ui/settings")
+        assert 'data-width="wide"' in page.text
+        assert 'action="/ui/view"' in page.text
+        csrf = page.text.split('name="csrf_token" value="', 1)[1].split('"', 1)[0]
+        switched = auth_client.post(
+            "/ui/view",
+            data={"csrf_token": csrf, "width": "centered", "next": "/ui/admin/users"},
+            follow_redirects=False,
+        )
+        assert switched.status_code == 303
+        assert switched.headers["location"] == "/ui/admin/users"
+        assert "content_width=centered" in switched.headers["set-cookie"]
+
+        users = auth_client.get("/ui/admin/users")
+        assert 'data-width="centered"' in users.text
+
+        rejected = auth_client.post(
+            "/ui/view",
+            data={"csrf_token": csrf, "width": "narrow", "next": "/ui/settings"},
+            follow_redirects=False,
+        )
+        assert rejected.status_code == 303
+        assert "content_width=wide" in rejected.headers["set-cookie"]
+        assert auth_client.get("/ui/settings").text.count('data-width="wide"') == 1
 
     def test_books_hx_partial_and_search(self, auth_client: TestClient):
         headers = session_csrf_headers(auth_client)

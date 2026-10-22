@@ -15,9 +15,13 @@ from app.auth.deps import (
 from app.auth.users import role_at_least
 from app.ui.paths import TEMPLATES_DIR
 from app.ui.shell import (
+    CONTENT_WIDTH_COOKIE,
+    CONTENT_WIDTHS,
+    DEFAULT_CONTENT_WIDTH,
     DEFAULT_SHELL_LAYOUT,
     SHELL_COOKIE,
     SHELL_LAYOUTS,
+    current_content_width,
     current_shell_layout,
     safe_shell_next,
 )
@@ -69,6 +73,7 @@ def shell_ctx(
         "extra_js": extra_js or [],
         "main_class": main_class,
         "shell_layout": current_shell_layout(request),
+        "content_width": current_content_width(request),
     }
 
 
@@ -112,6 +117,24 @@ async def set_shell_layout(
     response = RedirectResponse(url=safe_shell_next(next_url), status_code=303)
     response.set_cookie(
         SHELL_COOKIE,
+        choice,
+        max_age=60 * 60 * 24 * 365,
+        httponly=True,
+        samesite="lax",
+        path="/",
+    )
+    return response
+
+
+@router.post("/view", dependencies=[Depends(require_user_html), Depends(verify_csrf)])
+async def set_content_width(
+    width: str = Form(...),
+    next_url: str = Form("/ui/settings", alias="next"),
+):
+    choice = width if width in CONTENT_WIDTHS else DEFAULT_CONTENT_WIDTH
+    response = RedirectResponse(url=safe_shell_next(next_url), status_code=303)
+    response.set_cookie(
+        CONTENT_WIDTH_COOKIE,
         choice,
         max_age=60 * 60 * 24 * 365,
         httponly=True,

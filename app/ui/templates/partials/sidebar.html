@@ -53,6 +53,9 @@
             <a href="/ui/admin/users" {% if active == 'staff' %}aria-current="page"{% endif %}>{{ icon("staff") }}<span>Users</span></a>
           </li>
           {% endif %}
+          <li>
+            <a href="/ui/settings" {% if active == 'settings' %}aria-current="page"{% endif %}>{{ icon("settings") }}<span>Settings</span></a>
+          </li>
         </ul>
       </div>
       <div role="group" aria-label="Samples">
@@ -69,9 +72,6 @@
           </li>
           <li>
             <a href="/ui/components" {% if active == 'components' %}aria-current="page"{% endif %}>{{ icon("components") }}<span>Components</span></a>
-          </li>
-          <li>
-            <a href="/ui/settings" {% if active == 'settings' %}aria-current="page"{% endif %}>{{ icon("settings") }}<span>Settings</span></a>
           </li>
           <li>
             <a href="/ui/blank" {% if active == 'blank' %}aria-current="page"{% endif %}>{{ icon("blank") }}<span>Blank</span></a>
