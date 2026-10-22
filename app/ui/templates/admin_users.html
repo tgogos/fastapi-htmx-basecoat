@@ -11,74 +11,48 @@
     <h1>Staff</h1>
     <p class="muted">Sign-in names, display names, and roles for people who use this environment.</p>
   </div>
-  <a class="btn" data-icon="inline-start" href="/ui/admin/users/new?return_to={{ list_href|urlencode }}">
+  <a class="btn" data-icon="inline-start" data-staff-return href="/ui/admin/users/new?return_to={{ list_href|urlencode }}">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
     Add user
   </a>
 </div>
-<form class="staff-filters" method="get" action="/ui/admin/users">
-  <input class="input" type="search" name="q" value="{{ q }}" aria-label="Search staff" placeholder="Name or username">
-  <label class="visually-hidden" for="staff-role">Role</label>
-  <select id="staff-role" name="role" aria-label="Role">
-    <option value="" {% if not role %}selected{% endif %}>Any role</option>
-    {% for r in roles %}
-    <option value="{{ r }}" {% if role == r %}selected{% endif %}>{{ r }}</option>
+
+<p id="staff-indicator" class="htmx-indicator muted" role="status" aria-live="polite">Loading</p>
+<div class="table-controls">
+  <form
+    id="staff-filters"
+    data-list-filters
+    data-table-filters
+    method="get"
+    action="/ui/admin/users"
+    hx-get="/ui/admin/users"
+    hx-target="#staff-panel"
+    hx-swap="innerHTML"
+    hx-trigger="keyup changed delay:300ms from:input[name='q'], search from:input[name='q']"
+    hx-push-url="true"
+    hx-indicator="#staff-indicator"
+  >
+    <input type="hidden" name="page" value="1">
+    <input type="hidden" name="size" value="{{ size }}">
+    <input type="hidden" name="ordering" value="{{ ordering }}">
+    {% for value in selected_roles %}
+    <input type="hidden" name="role" value="{{ value }}" data-table-facet>
     {% endfor %}
-  </select>
-  <button type="submit" class="btn" data-variant="outline">Filter</button>
-  {% if q or role %}
-  <a class="btn" data-variant="ghost" href="/ui/admin/users">Reset</a>
-  {% endif %}
-</form>
-<p class="muted">{{ users|length }} {{ "person" if users|length == 1 else "people" }}</p>
-<div class="table-container">
-  <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">Display name</th>
-        <th scope="col">Username</th>
-        <th scope="col">Role</th>
-        <th scope="col">Created</th>
-        <th scope="col"><span class="visually-hidden">Actions</span></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for u in users %}
-      <tr>
-        <td>{{ u.display_name or "—" }}</td>
-        <td>{{ u.username }}{% if u.id == user.id %} <small class="muted">(you)</small>{% endif %}</td>
-        <td><code>{{ u.role }}</code></td>
-        <td>{{ u.created_at or "—" }}</td>
-        <td class="table-actions">
-          <div class="dropdown-menu" id="staff-actions-{{ u.id }}">
-            <button
-              type="button"
-              class="btn"
-              data-variant="ghost"
-              data-size="icon"
-              id="staff-actions-{{ u.id }}-trigger"
-              aria-haspopup="menu"
-              aria-controls="staff-actions-{{ u.id }}-menu"
-              aria-expanded="false"
-              aria-label="Actions for {{ u.username }}"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg>
-            </button>
-            <div id="staff-actions-{{ u.id }}-popover" data-popover aria-hidden="true" data-side="bottom" data-align="end">
-              <div role="menu" id="staff-actions-{{ u.id }}-menu" aria-labelledby="staff-actions-{{ u.id }}-trigger">
-                <a role="menuitem" href="/ui/admin/users/{{ u.id }}/edit?return_to={{ list_href|urlencode }}">Edit</a>
-                <a role="menuitem" href="/ui/admin/users/{{ u.id }}/password?return_to={{ list_href|urlencode }}">Set password</a>
-              </div>
-            </div>
-          </div>
-        </td>
-      </tr>
-      {% else %}
-      <tr>
-        <td colspan="5">No staff match.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <input
+      class="input"
+      id="staff-q"
+      type="search"
+      name="q"
+      value="{{ q }}"
+      placeholder="Name or username"
+      aria-label="Search staff"
+      autocomplete="off"
+    >
+    <noscript><button class="btn" type="submit" data-variant="outline">Search</button></noscript>
+  </form>
+
+  <div id="staff-panel">
+    {% include "partials/staff_panel.html" %}
+  </div>
 </div>
 {% endblock %}

@@ -110,6 +110,15 @@
     }
   });
 
+  function syncStaffReturn() {
+    var link = document.querySelector("[data-staff-return]");
+    if (!link) {
+      return;
+    }
+    var back = window.location.pathname + window.location.search;
+    link.setAttribute("href", "/ui/admin/users/new?return_to=" + encodeURIComponent(back));
+  }
+
   function syncListFiltersFromUrl() {
     var params = new URLSearchParams(window.location.search);
     document.querySelectorAll("form[data-list-filters] input[type='hidden']").forEach(function (input) {
@@ -151,7 +160,7 @@
     form.querySelectorAll("[data-table-facet]").forEach(function (input) {
       input.remove();
     });
-    ["category", "available"].forEach(function (name) {
+    ["category", "available", "role"].forEach(function (name) {
       params.getAll(name).forEach(function (value) {
         var input = document.createElement("input");
         input.type = "hidden";
@@ -276,9 +285,10 @@
   document.addEventListener("scroll", syncRowMenus, true);
   window.addEventListener("resize", syncRowMenus);
 
-  document.body.addEventListener("htmx:after:history:push", function () {
+  document.addEventListener("htmx:after:history:push", function () {
     syncListFiltersFromUrl();
     syncTableFacetsFromUrl();
+    syncStaffReturn();
   });
   document.body.addEventListener("htmx:after:settle", function () {
     initBasecoat(false);
@@ -290,6 +300,7 @@
   });
   syncListFiltersFromUrl();
   syncTableFacetsFromUrl();
+  syncStaffReturn();
 
   document.addEventListener("basecoat:themechange", function () {
     document.documentElement.dispatchEvent(new CustomEvent("themechange"));

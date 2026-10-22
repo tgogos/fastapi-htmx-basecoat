@@ -215,3 +215,58 @@ def test_me_includes_display_name(client: TestClient):
     assert ada.json()["display_name"] == "Ada Lovelace"
     assert ada.json()["username"] == "ada"
     assert "Ada Lovelace" in client.get("/ui/dashboard").text
+
+
+def test_staff_list_uses_the_table_contract(auth_client: TestClient):
+    create_user_sync("aaa", "editorpass", role="viewer")
+    create_user_sync("ada", "editorpass", role="editor")
+    create_user_sync("zzz", "editorpass", role="admin")
+    for index in range(8):
+        create_user_sync(f"page{index}", "editorpass", role="viewer")
+
+    both = auth_client.get(
+        "/ui/admin/users",
+        params=[("role", "editor"), ("role", "viewer"), ("q", "ada")],
+    )
+    assert both.status_code == 200
+    assert "ada" in both.text
+    assert "(you)" not in both.text
+    assert "aaa" not in both.text
+    reset = re.search(r'href="([^"]+)"[^>]*>\s*Reset', both.text)
+    assert reset
+    assert "q=ada" in reset.group(1)
+    assert "role=" not in reset.group(1)
+
+    everyone = auth_client.get(
+        "/ui/admin/users",
+        params=[("role", "viewer"), ("role", "editor"), ("role", "admin")],
+    )
+    assert "(you)" in everyone.text
+
+    ordered = auth_client.get(
+        "/ui/admin/users",
+        params={"ordering": "-username", "size": 100},
+    )
+    body = ordered.text.split("<tbody>", 1)[1].split("</tbody>", 1)[0]
+    assert body.find("zzz") < body.find("aaa")
+
+    fallback = auth_client.get("/ui/admin/users", params={"ordering": "not-a-column"})
+    assert 'href="/ui/admin/users?page=1&amp;size=10&amp;ordering=-username"' in fallback.text
+
+    first = auth_client.get("/ui/admin/users", params={"size": 10})
+    assert "Page 1 of 2" in first.text
+    second = auth_client.get("/ui/admin/users", params={"page": 2, "size": 10})
+    assert "Page 2 of 2" in second.text
+    assert "page7" in second.text
+    assert "page7" not in first.text
+
+    partial = auth_client.get("/ui/admin/users", headers={"HX-Request": "true"})
+    assert 'id="staff-q"' not in partial.text
+    assert "Rows per page" in partial.text
+    restored = auth_client.get(
+        "/ui/admin/users",
+        headers={"HX-Request": "true", "HX-History-Restore-Request": "true"},
+    )
+    assert 'id="staff-q"' in restored.text
+    assert "Add user" in restored.text
+    assert "data-staff-return" in restored.text

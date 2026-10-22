@@ -16,26 +16,41 @@ from app.auth.deps import (
 )
 from app.auth.passwords import hash_password
 from app.auth.users import (
+    DEFAULT_STAFF_ORDERING,
     ROLE_ORDER,
     ROLES,
+    STAFF_SORT_COLUMNS,
     UsernameTaken,
+    chosen_staff_roles,
     clean_display_name,
     clean_password,
     clean_username,
     count_admins,
+    count_staff_by_role,
     create_user,
     get_user_by_id,
-    list_users,
+    list_staff_page,
+    normalize_staff_ordering,
     role_at_least,
     set_password,
+    staff_role_filter,
+    staff_total_pages,
     update_user,
 )
 from app.ui.pages_routes import render_not_found
+from app.ui.pagination import (
+    DEFAULT_PAGE_SIZE,
+    PAGE_SIZES,
+    page_size,
+    page_window,
+    sort_column_state,
+)
 from app.ui.paths import TEMPLATES_DIR
 from app.ui.shell import current_shell_layout
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+templates.env.globals["sort_column_state"] = sort_column_state
 
 STAFF_PATH = "/ui/admin/users"
 
@@ -56,7 +71,8 @@ def _ctx(request: Request, user: dict, **extra):
         "roles": ROLE_ORDER,
     }
     ctx.update(extra)
-    ctx["toast"] = request.session.pop("toast", None)
+    if not _wants_staff_partial(request):
+        ctx["toast"] = request.session.pop("toast", None)
     return ctx
 
 
@@ -71,15 +87,156 @@ def _staff_return(value: str | None) -> str:
     return STAFF_PATH
 
 
-def _list_href(q: str, role: str) -> str:
-    pairs: list[tuple[str, str]] = []
+def _page_links(href, page: int, total_pages: int) -> list[dict[str, object]]:
+    links: list[dict[str, object]] = []
+    for item in page_window(page, total_pages):
+        if item is None:
+            links.append({"ellipsis": True})
+            continue
+        links.append(
+            {
+                "ellipsis": False,
+                "number": item,
+                "url": href(page=item),
+                "current": item == page,
+            }
+        )
+    return links
+
+
+def _toggle_order(current: str, column: str) -> str:
+    if current == column:
+        return f"-{column}"
+    return column
+
+
+def _toggle_role(selected: list[str], role: str) -> list[str]:
+    picked = set(selected)
+    if role in picked:
+        picked.remove(role)
+    else:
+        picked.add(role)
+    return [item for item in ROLE_ORDER if item in picked]
+
+
+def _staff_pairs(
+    *,
+    page: int,
+    size: int,
+    ordering: str,
+    q: str | None,
+    roles: list[str],
+) -> list[tuple[str, str]]:
+    pairs: list[tuple[str, str]] = [
+        ("page", str(page)),
+        ("size", str(size)),
+        ("ordering", ordering),
+    ]
     if q:
         pairs.append(("q", q))
-    if role in ROLES:
-        pairs.append(("role", role))
-    if not pairs:
-        return STAFF_PATH
-    return f"{STAFF_PATH}?{urlencode(pairs)}"
+    pairs.extend(("role", value) for value in roles)
+    return pairs
+
+
+def _staff_url(**kwargs: object) -> str:
+    return f"{STAFF_PATH}?{urlencode(_staff_pairs(**kwargs))}"  # type: ignore[arg-type]
+
+
+def _wants_staff_partial(request: Request) -> bool:
+    if request.headers.get("HX-History-Restore-Request") == "true":
+        return False
+    return request.headers.get("HX-Request") == "true"
+
+
+async def _staff_list_data(
+    *,
+    page: int,
+    size: int,
+    ordering: str | None,
+    q: str | None,
+    roles: list[str],
+) -> dict:
+    size = page_size(size)
+    ordering = normalize_staff_ordering(ordering)
+    q_value = q.strip() if q and q.strip() else None
+    selected = chosen_staff_roles(roles)
+    role_filter = staff_role_filter(selected)
+
+    async def _load(page_num: int) -> tuple[list, int, int]:
+        rows, total = await list_staff_page(
+            page=page_num,
+            size=size,
+            q=q_value,
+            roles=role_filter,
+            ordering=ordering,
+        )
+        pages = staff_total_pages(total, size)
+        return rows, total, pages
+
+    rows, total, pages = await _load(page)
+    if pages and page > pages:
+        page = pages
+        rows, total, pages = await _load(page)
+
+    state = {
+        "page": page,
+        "size": size,
+        "ordering": ordering,
+        "q": q_value,
+        "roles": selected,
+    }
+
+    def href(**overrides: object) -> str:
+        kwargs = dict(state)
+        kwargs.update(overrides)
+        return _staff_url(**kwargs)
+
+    counts = await count_staff_by_role(q_value)
+    role_options = [
+        {
+            "label": role,
+            "count": counts.get(role, 0),
+            "selected": role in selected,
+            "href": href(page=1, roles=_toggle_role(selected, role)),
+        }
+        for role in ROLE_ORDER
+    ]
+    list_href = href()
+    return {
+        "users": [
+            {
+                "id": row["id"],
+                "username": row["username"],
+                "display_name": row["display_name"],
+                "role": row["role"],
+                "created_at": row["created_at"],
+            }
+            for row in rows
+        ],
+        "total": total,
+        "page": page,
+        "size": size,
+        "page_sizes": PAGE_SIZES,
+        "total_pages": pages,
+        "ordering": ordering,
+        "sort_urls": {
+            col: href(page=1, ordering=_toggle_order(ordering, col))
+            for col in STAFF_SORT_COLUMNS
+        },
+        "size_urls": {n: href(page=1, size=n) for n in PAGE_SIZES},
+        "q": q_value or "",
+        "selected_roles": selected,
+        "role_options": role_options,
+        "clear_role_url": href(page=1, roles=[]),
+        "reset_url": href(page=1, roles=[]),
+        "facets_active": bool(selected),
+        "list_href": list_href,
+        "page_links": _page_links(href, page, pages),
+        "first_url": href(page=1) if page > 1 else None,
+        "prev_url": href(page=page - 1) if page > 1 else None,
+        "next_url": href(page=page + 1) if pages and page < pages else None,
+        "last_url": href(page=pages) if pages and page < pages else None,
+    }
 
 
 def _public_row(row: dict) -> dict:
@@ -96,22 +253,27 @@ def _public_row(row: dict) -> dict:
 async def staff_page(
     request: Request,
     user: dict = Depends(require_admin_html),
+    page: int = Query(1, ge=1),
+    size: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=100),
+    ordering: str | None = Query(None),
     q: str = Query(""),
-    role: str = Query(""),
 ):
-    chosen_role = role if role in ROLES else ""
-    rows = await list_users(q=q, role=chosen_role or None)
+    data = await _staff_list_data(
+        page=page,
+        size=size,
+        ordering=ordering,
+        q=q,
+        roles=request.query_params.getlist("role"),
+    )
+    template = (
+        "partials/staff_panel.html"
+        if _wants_staff_partial(request)
+        else "admin_users.html"
+    )
     return templates.TemplateResponse(
         request,
-        "admin_users.html",
-        _ctx(
-            request,
-            user,
-            users=[_public_row(row) for row in rows],
-            q=q.strip(),
-            role=chosen_role,
-            list_href=_list_href(q.strip(), chosen_role),
-        ),
+        template,
+        _ctx(request, user, **data),
     )
 
 

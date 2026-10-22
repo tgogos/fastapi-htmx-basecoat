@@ -1,0 +1,134 @@
+{% macro facet_menu(menu_id, label, options, clear_url) %}
+<div class="dropdown-menu filter-menu" id="{{ menu_id }}">
+  <button
+    type="button"
+    class="btn filter-trigger"
+    data-variant="outline"
+    data-icon="inline-start"
+    id="{{ menu_id }}-trigger"
+    aria-haspopup="menu"
+    aria-controls="{{ menu_id }}-menu"
+    aria-expanded="false"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
+    {{ label }}
+    {% for option in options if option.selected %}
+    <span class="badge" data-variant="secondary">{{ option.label }}</span>
+    {% endfor %}
+  </button>
+  <div id="{{ menu_id }}-popover" data-popover aria-hidden="true" data-side="bottom" data-align="start">
+    <div role="menu" id="{{ menu_id }}-menu" aria-labelledby="{{ menu_id }}-trigger">
+      {% for option in options %}
+      <a
+        role="menuitemcheckbox"
+        aria-checked="{{ 'true' if option.selected else 'false' }}"
+        href="{{ option.href }}"
+        hx-get="{{ option.href }}"
+        hx-target="#staff-panel"
+        hx-swap="innerHTML"
+        hx-push-url="true"
+        hx-indicator="#staff-indicator"
+      >
+        <span>{{ option.label }}</span>
+        <span class="filter-count">{{ option.count }}</span>
+        <svg data-indicator xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+      </a>
+      {% endfor %}
+      {% if options | selectattr("selected") | list %}
+      <hr role="separator" />
+      <a
+        role="menuitem"
+        href="{{ clear_url }}"
+        hx-get="{{ clear_url }}"
+        hx-target="#staff-panel"
+        hx-swap="innerHTML"
+        hx-push-url="true"
+        hx-indicator="#staff-indicator"
+      >Clear</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+<div class="table-toolbar">
+  {{ facet_menu("role-filter", "Role", role_options, clear_role_url) }}
+  {% if facets_active %}
+  <a
+    class="btn"
+    data-variant="ghost"
+    href="{{ reset_url }}"
+    hx-get="{{ reset_url }}"
+    hx-target="#staff-panel"
+    hx-swap="innerHTML"
+    hx-push-url="true"
+    hx-indicator="#staff-indicator"
+  >Reset</a>
+  {% endif %}
+</div>
+
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        {% with sort_column="display_name", sort_label="Display name", sort_href=sort_urls.display_name, sort_ordering=ordering, sort_panel="#staff-panel", sort_indicator="#staff-indicator" %}
+        {% include "partials/sortable_th.html" %}
+        {% endwith %}
+        {% with sort_column="username", sort_label="Username", sort_href=sort_urls.username, sort_ordering=ordering, sort_panel="#staff-panel", sort_indicator="#staff-indicator" %}
+        {% include "partials/sortable_th.html" %}
+        {% endwith %}
+        {% with sort_column="role", sort_label="Role", sort_href=sort_urls.role, sort_ordering=ordering, sort_panel="#staff-panel", sort_indicator="#staff-indicator" %}
+        {% include "partials/sortable_th.html" %}
+        {% endwith %}
+        {% with sort_column="created", sort_label="Created", sort_href=sort_urls.created, sort_ordering=ordering, sort_panel="#staff-panel", sort_indicator="#staff-indicator" %}
+        {% include "partials/sortable_th.html" %}
+        {% endwith %}
+        <th scope="col" class="table-actions"><span class="visually-hidden">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.display_name or "—" }}</td>
+        <td>{{ u.username }}{% if u.id == user.id %} <small class="muted">(you)</small>{% endif %}</td>
+        <td><code>{{ u.role }}</code></td>
+        <td>{{ u.created_at or "—" }}</td>
+        <td class="table-actions">
+          <div class="dropdown-menu" id="staff-actions-{{ u.id }}">
+            <button
+              type="button"
+              class="btn"
+              data-variant="ghost"
+              data-size="icon"
+              id="staff-actions-{{ u.id }}-trigger"
+              aria-haspopup="menu"
+              aria-controls="staff-actions-{{ u.id }}-menu"
+              aria-expanded="false"
+              aria-label="Actions for {{ u.username }}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg>
+            </button>
+            <div id="staff-actions-{{ u.id }}-popover" data-popover aria-hidden="true" data-side="bottom" data-align="end">
+              <div role="menu" id="staff-actions-{{ u.id }}-menu" aria-labelledby="staff-actions-{{ u.id }}-trigger">
+                <a role="menuitem" href="/ui/admin/users/{{ u.id }}/edit?return_to={{ list_href|urlencode }}">Edit</a>
+                <a role="menuitem" href="/ui/admin/users/{{ u.id }}/password?return_to={{ list_href|urlencode }}">Set password</a>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5"><span class="muted">No staff match.</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% set count_summary = total ~ " " ~ ("person" if total == 1 else "people") %}
+{% set list_panel_target = "#staff-panel" %}
+{% set list_indicator = "#staff-indicator" %}
+{% set list_pagination_label = "Staff pagination" %}
+{% set list_page_size_id = "staff-page-size" %}
+{% include "partials/list_pagination.html" %}

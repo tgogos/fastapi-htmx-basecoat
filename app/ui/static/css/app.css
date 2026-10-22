@@ -404,24 +404,14 @@ html.dark .theme-switch .when-dark {
   gap: 0.75rem;
 }
 
-.staff-filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.staff-filters .input {
-  width: 16rem;
-  max-width: 100%;
-}
-
-.table-controls > #books-table-filters {
+.table-controls > #books-table-filters,
+.table-controls > #staff-filters {
   flex: 0 1 16rem;
   min-width: 12rem;
 }
 
-#books-table-panel {
+#books-table-panel,
+#staff-panel {
   display: contents;
 }
 
@@ -434,7 +424,9 @@ html.dark .theme-switch .when-dark {
 
 #books-table-panel > .alert,
 #books-table-select,
-#books-table-panel > .pager {
+#books-table-panel > .pager,
+#staff-panel > .table-container,
+#staff-panel > .pager {
   flex: 1 0 100%;
 }
 

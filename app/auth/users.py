@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import sqlite3
+from math import ceil
 from typing import Any, Optional
 
 from app.db.connection import get_connection
@@ -16,6 +17,19 @@ MIN_PASSWORD_LENGTH = 8
 MAX_PASSWORD_BYTES = 72
 MAX_DISPLAY_NAME_LENGTH = 80
 _USERNAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
+
+STAFF_ORDER_SQL = {
+    "username": "username COLLATE NOCASE ASC",
+    "-username": "username COLLATE NOCASE DESC",
+    "display_name": "display_name COLLATE NOCASE ASC",
+    "-display_name": "display_name COLLATE NOCASE DESC",
+    "role": "role COLLATE NOCASE ASC",
+    "-role": "role COLLATE NOCASE DESC",
+    "created": "created_at ASC",
+    "-created": "created_at DESC",
+}
+DEFAULT_STAFF_ORDERING = "username"
+STAFF_SORT_COLUMNS = ("display_name", "username", "role", "created")
 
 _USER_COLUMNS = (
     "id, username, password_hash, role, display_name, session_version, created_at"
@@ -98,6 +112,25 @@ def public_user(user: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def normalize_staff_ordering(ordering: str | None) -> str:
+    if ordering and ordering in STAFF_ORDER_SQL:
+        return ordering
+    return DEFAULT_STAFF_ORDERING
+
+
+def chosen_staff_roles(values: list[str] | None) -> list[str]:
+    """Keep known roles, in role order. Every role selected is the whole set."""
+    picked = {value for value in values or [] if value in ROLES}
+    return [role for role in ROLE_ORDER if role in picked]
+
+
+def staff_role_filter(selected: list[str]) -> list[str] | None:
+    """A partial set filters. An empty set or every role means no role filter."""
+    if not selected or len(selected) == len(ROLE_ORDER):
+        return None
+    return selected
+
+
 def _like_pattern(term: str) -> str:
     escaped = term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
     return f"%{escaped}%"
@@ -143,10 +176,10 @@ async def count_admins() -> int:
     return int(row["c"])
 
 
-async def list_users(
-    q: str | None = None,
-    role: str | None = None,
-) -> list[dict[str, Any]]:
+def _user_where(
+    q: str | None,
+    roles: list[str] | None,
+) -> tuple[str, list[Any]]:
     clauses: list[str] = []
     params: list[Any] = []
     if q and q.strip():
@@ -155,10 +188,20 @@ async def list_users(
             "(username LIKE ? ESCAPE '\\' OR IFNULL(display_name, '') LIKE ? ESCAPE '\\')"
         )
         params.extend([like, like])
-    if role in ROLES:
-        clauses.append("role = ?")
-        params.append(role)
+    if roles:
+        marks = ", ".join("?" for _ in roles)
+        clauses.append(f"role IN ({marks})")
+        params.extend(roles)
     where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+    return where, params
+
+
+async def list_users(
+    q: str | None = None,
+    role: str | None = None,
+) -> list[dict[str, Any]]:
+    roles = [role] if role in ROLES else None
+    where, params = _user_where(q, roles)
     conn = get_connection()
     async with conn.execute(
         f"""
@@ -171,6 +214,54 @@ async def list_users(
     ) as cursor:
         rows = await cursor.fetchall()
     return [_row_to_user(r) for r in rows]
+
+
+def staff_total_pages(total: int, size: int) -> int:
+    return ceil(total / size) if total else 0
+
+
+async def list_staff_page(
+    *,
+    page: int,
+    size: int,
+    q: str | None,
+    roles: list[str] | None,
+    ordering: str,
+) -> tuple[list[dict[str, Any]], int]:
+    """One page of staff. Filtering runs before LIMIT/OFFSET."""
+    where, params = _user_where(q, roles)
+    order_sql = STAFF_ORDER_SQL[ordering]
+    conn = get_connection()
+    async with conn.execute(
+        f"SELECT COUNT(*) AS c FROM users {where}",
+        params,
+    ) as cursor:
+        total = int((await cursor.fetchone())["c"])
+    offset = (page - 1) * size
+    async with conn.execute(
+        f"""
+        SELECT {_USER_COLUMNS}
+        FROM users
+        {where}
+        ORDER BY {order_sql}
+        LIMIT ? OFFSET ?
+        """,
+        [*params, size, offset],
+    ) as cursor:
+        rows = await cursor.fetchall()
+    return [_row_to_user(row) for row in rows], total
+
+
+async def count_staff_by_role(q: str | None) -> dict[str, int]:
+    """Role counts for the current search, ignoring any role filter."""
+    where, params = _user_where(q, None)
+    conn = get_connection()
+    async with conn.execute(
+        f"SELECT role, COUNT(*) AS c FROM users {where} GROUP BY role",
+        params,
+    ) as cursor:
+        rows = await cursor.fetchall()
+    return {row["role"]: int(row["c"]) for row in rows}
 
 
 async def create_user(
