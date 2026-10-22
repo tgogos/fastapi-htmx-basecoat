@@ -444,12 +444,19 @@ html.dark .theme-switch .when-dark {
 }
 
 .filter-menu [role="menuitemcheckbox"] {
-  padding-inline-end: 1.75rem;
+  padding-inline-start: 2rem;
+  padding-inline-end: 0.75rem;
+}
+
+.filter-menu [data-indicator] {
+  inset-inline-end: auto;
+  inset-inline-start: 0.5rem;
 }
 
 .filter-count {
   margin-inline-start: auto;
   color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
 
 .table-check,
