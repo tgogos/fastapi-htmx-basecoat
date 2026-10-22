@@ -51,7 +51,7 @@ The shared shell (`templates/layout.html`) loads Basecoat 1.0.2. Files: `app/ui/
 
 Dashboard, books, staff, and the sample pages (users, forms, tables, components, settings, blank) use Basecoat classes. `/ui/components` is the component reference: one example each of the pieces in the Basecoat docs, plus a type specimen of plain headings. Vega resets `h1`–`h6` to the body size; a card title is the styled heading. A page title is `.page-head h1`. Chart.js stays vendored because the dashboard chart loads it. Do not load a second stylesheet beside the Basecoat bundle.
 
-`templates/layout.html` is the shell. The sidebar (`partials/sidebar.html`) is the Basecoat sidebar: brand in its header, and the App and Samples groups in its section. Each link starts with an inline icon; Basecoat sizes that SVG. The default layout also paints a content header in the column beside the sidebar: the same toggle button, Basecoat's theme switcher, and an account menu. The breadcrumb (`{% block breadcrumb %}`) is the first thing in the page, in both layouts. The menu trigger is a Basecoat avatar button with the username's initials. Its items are Settings and Sign out. Sign out stays a POST with the CSRF token. The switcher calls `window.basecoat.theme.toggle()` and stores the mode in `localStorage.themeMode`. A palette button beside it stores `localStorage.colorTheme` (`default`, `blue`, `teal`, or `grey`) and sets `data-color` on the document. Default leaves the Vega tokens alone. The other three override the primary, ring, and sidebar-primary colors only, with a light set and a dark set. The other layout is the sidebar alone; the theme switcher and the same account menu then sit in the sidebar footer, and `partials/navbar.html` is only the toggle. Basecoat does not ship an icon-only rail, a floating sidebar, or an inset sidebar, so those are not options. The choice is the `shell_layout` cookie (`header` or `sidebar`), set by `POST /ui/shell` (session CSRF, signed-in user) from the Settings page. It is a display preference, not a credential. Operational pages extend the layout and replace `{% block content %}` and `{% block breadcrumb %}`.
+`templates/layout.html` is the shell. The sidebar (`partials/sidebar.html`) is the Basecoat sidebar: brand in its header, and the App and Samples groups in its section. Each link starts with an inline icon; Basecoat sizes that SVG. The default layout also paints a content header in the column beside the sidebar: the same toggle button, Basecoat's theme switcher, and an account menu. The breadcrumb (`{% block breadcrumb %}`) is the first thing in the page, in both layouts. The menu trigger is a Basecoat avatar button. Its label and initials use the display name when one is set, and the username otherwise. Its items are Settings and Sign out. Sign out stays a POST with the CSRF token. The switcher calls `window.basecoat.theme.toggle()` and stores the mode in `localStorage.themeMode`. A palette button beside it stores `localStorage.colorTheme` (`default`, `blue`, `teal`, or `grey`) and sets `data-color` on the document. Default leaves the Vega tokens alone. The other three override the primary, ring, and sidebar-primary colors only, with a light set and a dark set. The other layout is the sidebar alone; the theme switcher and the same account menu then sit in the sidebar footer, and `partials/navbar.html` is only the toggle. Basecoat does not ship an icon-only rail, a floating sidebar, or an inset sidebar, so those are not options. The choice is the `shell_layout` cookie (`header` or `sidebar`), set by `POST /ui/shell` (session CSRF, signed-in user) from the Settings page. It is a display preference, not a credential. Operational pages extend the layout and replace `{% block content %}` and `{% block breadcrumb %}`.
 
 The sidebar has two groups. **App** is the product: Dashboard, Books, Search books, and Staff (`/ui/admin/users`, admin only). **Samples** is the page set kept as UI copy sources (users, forms, tables, components, settings, blank). Sample pages are not the product. The Users sample stays separate from Staff. Move a link from Samples to App when that page starts reading or writing application data.
 
@@ -79,11 +79,17 @@ Three hierarchical roles on `users.role`:
 |------|----------------|
 | `viewer` | Read books (UI + API GET) |
 | `editor` | Create / update / delete books |
-| `admin` | Editor powers + `/ui/admin/users` (list users, change roles) |
+| `admin` | Editor powers + `/ui/admin/users` (list, add, edit display name and role, set a password) |
 
 Enforcement is always on the server (`require_user` / `require_editor` / `require_admin` and HTML variants). Templates hide buttons; never trust the UI alone.
 
 The seeded demo user is an **admin** (`DEMO_USERNAME` / `DEMO_PASSWORD`).
+
+Staff accounts live in `users`: `username` (sign-in name, unique, chosen at creation), optional `display_name` (the shell label; the username is used when it is empty), `role`, and `session_version`. There is no email column and no active/inactive flag. The sample page `/ui/users` does not read this table.
+
+An admin adds an account, edits the display name and role, and sets a new password. The password form does not reveal the current password. Saving it increments `session_version` and deletes that account's API tokens, so other browser sessions and Bearer tokens stop working. The admin's own session is updated when they set their own password, and that session stays signed in. A password is at least 8 characters and at most 72 bytes. The last admin cannot be demoted. Accounts are not deleted from this page.
+
+A signed-in user does not yet change their own password here. The password card on the Settings sample does not save.
 
 Startup only ensures that admin when `users` is empty. Richer demo data (sample `viewer` / `editor` accounts and books) is opt-in via `python -m app.seed` / `make seed` — idempotent (skips existing usernames). The sample catalog is about 100 well-known titles so page size and column sorting are easy to exercise. Re-running the seed inserts missing titles and refreshes the shelf category on titles it already knows. Other books are left alone.
 
@@ -115,7 +121,7 @@ Path indicates the client. Do not serve HTML under `/api`, and do not issue API 
 
 **Browser auth routes:** `GET/POST /auth/login`, `POST /auth/logout` — establish or clear a session. Logout is POST-only with CSRF (no GET logout). No token issuance here.
 
-**API auth routes:** `POST /api/auth/token` (issue), `DELETE /api/auth/token` (revoke current Bearer), `GET /api/auth/me` (introspect, includes `role`).
+**API auth routes:** `POST /api/auth/token` (issue), `DELETE /api/auth/token` (revoke current Bearer), `GET /api/auth/me` (introspect, includes `role` and `display_name`).
 
 **HTMX:** pages and partials share the `/ui/...` prefix (same router). Do not add a separate `/htmx` prefix. Use `templates/` for full pages and `templates/partials/` for fragments.
 
@@ -129,7 +135,7 @@ Primary mounts:
 | Edit book page | `/ui/books/{id}/edit` — full page on a visit; the table row when `HX-Request` is set |
 | Advanced search | `/ui/books/search` (filters outside swap target) |
 | Books table | `/ui/books/table` (set filters, row menu, page selection) |
-| Staff | `/ui/admin/users` (admin only) |
+| Staff | `/ui/admin/users` (admin only). Add, edit, and set a password. `/ui/users` stays a sample page. |
 | JSON API | `/api/books` (reads: login; writes: editor+; filter query params) |
 | Root | `/` → `/ui/dashboard` |
 

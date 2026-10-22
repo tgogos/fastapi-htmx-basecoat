@@ -10,6 +10,7 @@ from fastapi.templating import Jinja2Templates
 from app.auth.deps import (
     SESSION_CSRF_KEY,
     SESSION_USER_KEY,
+    SESSION_VERSION_KEY,
     get_current_user,
     get_or_create_csrf_token,
     verify_csrf,
@@ -65,6 +66,7 @@ async def login_submit(
         )
 
     request.session[SESSION_USER_KEY] = db_user["id"]
+    request.session[SESSION_VERSION_KEY] = int(db_user.get("session_version") or 0)
     # Rotate CSRF after authentication
     request.session[SESSION_CSRF_KEY] = secrets.token_urlsafe(32)
     return RedirectResponse(url="/ui/dashboard", status_code=303)

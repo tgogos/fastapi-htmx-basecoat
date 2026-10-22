@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block title %}New staff · Admin{% endblock %}
+{% block description %}Add a staff account{% endblock %}
+{% block breadcrumb %}
+{% from "partials/breadcrumb.html" import crumbs %}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": return_to, "label": "Staff"}, {"label": "New"}]) }}
+{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>New staff</h1>
+    <p class="muted">The username is the sign-in name. It stays fixed after the account is created.</p>
+  </div>
+</div>
+<div class="card">
+  <section>
+    {% if form_error %}
+    <div class="alert" role="alert"><section>{{ form_error }}</section></div>
+    {% endif %}
+    <form method="post" action="/ui/admin/users/new">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="return_to" value="{{ return_to }}">
+      <div class="form-grid">
+        <div class="field">
+          <label for="staff-username">Username</label>
+          <input class="input" id="staff-username" type="text" name="username" value="{{ values.username }}" required maxlength="64" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="staff-display-name">Display name</label>
+          <input class="input" id="staff-display-name" type="text" name="display_name" value="{{ values.display_name }}" maxlength="80" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="staff-role">Role</label>
+          <select id="staff-role" name="role">
+            {% for r in roles %}
+            <option value="{{ r }}" {% if values.role == r %}selected{% endif %}>{{ r }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="staff-password">Password</label>
+          <input class="input" id="staff-password" type="password" name="password" required autocomplete="new-password" minlength="8">
+          <p class="muted">At least 8 characters.</p>
+        </div>
+        <div class="field">
+          <label for="staff-password-confirm">Confirm password</label>
+          <input class="input" id="staff-password-confirm" type="password" name="password_confirm" required autocomplete="new-password" minlength="8">
+        </div>
+        <div class="span-2 row-actions">
+          <button class="btn" type="submit">Add user</button>
+          <a class="btn" data-variant="outline" href="{{ return_to }}">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

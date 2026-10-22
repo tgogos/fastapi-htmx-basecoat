@@ -65,5 +65,6 @@ async def me(user: dict = Depends(require_user)) -> UserPublic:
     return UserPublic(
         id=user["id"],
         username=user["username"],
+        display_name=user.get("display_name"),
         role=user.get("role", "viewer"),
     )

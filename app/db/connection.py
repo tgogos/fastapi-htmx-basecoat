@@ -32,6 +32,7 @@ async def connect_to_sqlite() -> aiosqlite.Connection:
     await _connection.executescript(schema_sql)
     await _connection.commit()
     await _migrate_books_columns(_connection)
+    await _migrate_user_columns(_connection)
 
     logger.info("Connected to SQLite at %s", db_path)
     return _connection
@@ -77,6 +78,28 @@ async def _migrate_books_columns(conn: aiosqlite.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_books_added_by ON books(added_by_user_id)"
     )
     await conn.commit()
+
+
+async def _migrate_user_columns(conn: aiosqlite.Connection) -> None:
+    """Add user columns introduced after the first schema."""
+    async with conn.execute("PRAGMA table_info(users)") as cursor:
+        cols = {row["name"] for row in await cursor.fetchall()}
+    if not cols:
+        return
+
+    alters: list[str] = []
+    if "display_name" not in cols:
+        alters.append("ALTER TABLE users ADD COLUMN display_name TEXT")
+    if "session_version" not in cols:
+        alters.append(
+            "ALTER TABLE users ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0"
+        )
+
+    for sql in alters:
+        await conn.execute(sql)
+    if alters:
+        await conn.commit()
+        logger.info("Migrated users table (+%s columns)", len(alters))
 
 
 async def close_sqlite() -> None:

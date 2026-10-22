@@ -273,8 +273,7 @@ html.dark .theme-switch .when-dark {
   gap: 0.75rem;
 }
 
-#books-panel,
-#admin-users-panel {
+#books-panel {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -403,6 +402,18 @@ html.dark .theme-switch .when-dark {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
+}
+
+.staff-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.staff-filters .input {
+  width: 16rem;
+  max-width: 100%;
 }
 
 .table-controls > #books-table-filters {

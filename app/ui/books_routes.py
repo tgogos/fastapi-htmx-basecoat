@@ -1,4 +1,4 @@
-"""HTML / HTMX routes for books UI and admin users."""
+"""HTML / HTMX routes for the books UI."""
 
 from __future__ import annotations
 
@@ -11,19 +11,11 @@ from fastapi.templating import Jinja2Templates
 
 from app.auth.deps import (
     get_or_create_csrf_token,
-    require_admin_html,
     require_editor_html,
     require_user_html,
     verify_csrf,
 )
-from app.auth.users import (
-    ROLES,
-    count_admins,
-    list_users,
-    normalize_role,
-    role_at_least,
-    set_user_role,
-)
+from app.auth.users import list_users, role_at_least
 from app.db import books as books_repo
 from app.db.books import BOOK_CATEGORIES, normalize_category
 from app.ui.pages_routes import render_not_found
@@ -1440,75 +1432,3 @@ async def delete_book(
         {"showToast": {"message": "Book deleted", "level": "ok"}}
     )
     return response
-
-
-@router.get("/admin/users", response_class=HTMLResponse)
-async def admin_users_page(
-    request: Request,
-    user: dict = Depends(require_admin_html),
-):
-    users = await list_users()
-    return templates.TemplateResponse(
-        request,
-        "admin_users.html",
-        _ctx(
-            request,
-            user,
-            users=users,
-            roles=sorted(ROLES),
-            form_error=None,
-            form_ok=None,
-            active="staff",
-        ),
-    )
-
-
-@router.post(
-    "/admin/users/{user_id}/role",
-    response_class=HTMLResponse,
-    dependencies=[Depends(verify_csrf)],
-)
-async def admin_set_role(
-    request: Request,
-    user_id: int,
-    user: dict = Depends(require_admin_html),
-    role: str = Form(...),
-):
-    role = normalize_role(role.strip())
-    form_error = None
-    form_ok = None
-
-    if role not in ROLES:
-        form_error = "Invalid role."
-    else:
-        target = next((u for u in await list_users() if u["id"] == user_id), None)
-        if target is None:
-            form_error = "User not found."
-        elif (
-            target["role"] == "admin"
-            and role != "admin"
-            and await count_admins() <= 1
-        ):
-            form_error = "Cannot demote the last admin."
-        else:
-            updated = await set_user_role(user_id, role)
-            if updated is None:
-                form_error = "User not found."
-            else:
-                form_ok = f"Updated {updated['username']} to {updated['role']}."
-
-    users = await list_users()
-    return templates.TemplateResponse(
-        request,
-        "partials/admin_users_table.html",
-        _ctx(
-            request,
-            user,
-            users=users,
-            roles=sorted(ROLES),
-            form_error=form_error,
-            form_ok=form_ok,
-            active="staff",
-        ),
-        status_code=400 if form_error else 200,
-    )

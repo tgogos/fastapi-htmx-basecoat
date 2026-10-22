@@ -16,4 +16,5 @@ class TokenResponse(BaseModel):
 class UserPublic(BaseModel):
     id: int
     username: str
+    display_name: str | None = None
     role: str = "viewer"

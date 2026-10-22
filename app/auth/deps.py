@@ -14,6 +14,7 @@ from app.auth.users import get_user_by_id, public_user, role_at_least
 
 SESSION_USER_KEY = "user_id"
 SESSION_CSRF_KEY = "csrf_token"
+SESSION_VERSION_KEY = "session_version"
 
 _MUTATING_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 
@@ -65,6 +66,19 @@ async def get_session_user(request: Request) -> Optional[dict[str, Any]]:
     user = await get_user_by_id(int(user_id))
     if user is None:
         request.session.pop(SESSION_USER_KEY, None)
+        return None
+    current = int(user.get("session_version") or 0)
+    stored = request.session.get(SESSION_VERSION_KEY)
+    if stored is None:
+        stored_version = 0
+    else:
+        try:
+            stored_version = int(stored)
+        except (TypeError, ValueError):
+            stored_version = -1
+    if stored_version != current:
+        request.session.pop(SESSION_USER_KEY, None)
+        request.session.pop(SESSION_VERSION_KEY, None)
         return None
     return public_user(user)
 

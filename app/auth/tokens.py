@@ -34,7 +34,7 @@ async def get_user_by_token(raw_token: str) -> Optional[dict[str, Any]]:
     conn = get_connection()
     async with conn.execute(
         """
-        SELECT u.id, u.username, u.role
+        SELECT u.id, u.username, u.role, u.display_name
         FROM api_tokens t
         JOIN users u ON u.id = t.user_id
         WHERE t.token_hash = ?
@@ -44,9 +44,12 @@ async def get_user_by_token(raw_token: str) -> Optional[dict[str, Any]]:
         row = await cursor.fetchone()
     if row is None:
         return None
+    raw_name = row["display_name"]
+    display_name = raw_name.strip() if isinstance(raw_name, str) and raw_name.strip() else None
     return {
         "id": row["id"],
         "username": row["username"],
+        "display_name": display_name,
         "role": normalize_role(row["role"]),
     }
 

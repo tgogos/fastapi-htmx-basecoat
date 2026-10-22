@@ -58,12 +58,16 @@
 </button>
 {% if user %}
 <div class="dropdown-menu account-menu" id="account-menu">
-  <button type="button" class="avatar" id="account-menu-trigger" aria-haspopup="menu" aria-controls="account-menu-menu" aria-expanded="false" aria-label="{{ user.username }}">
-    <span>{{ user.username[:2]|upper }}</span>
+  {% set account_label = user.display_name or user.username %}
+  <button type="button" class="avatar" id="account-menu-trigger" aria-haspopup="menu" aria-controls="account-menu-menu" aria-expanded="false" aria-label="{{ account_label }}">
+    <span>{{ account_label[:2]|upper }}</span>
   </button>
   <div id="account-menu-popover" data-popover aria-hidden="true" data-side="{{ account_menu_side|default('bottom') }}" data-align="{{ account_menu_align|default('end') }}">
     <div role="menu" id="account-menu-menu" aria-labelledby="account-menu-trigger">
-      <div role="heading" id="account-menu-label">{{ user.username }}</div>
+      <div role="heading" id="account-menu-label">{{ account_label }}</div>
+      {% if user.display_name %}
+      <p class="muted">{{ user.username }}</p>
+      {% endif %}
       <a role="menuitem" href="/ui/settings">Settings</a>
       <hr role="separator" />
       <form action="/auth/logout" method="post">
