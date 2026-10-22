@@ -257,6 +257,11 @@ html.dark .theme-switch .when-dark {
   font-weight: 600;
 }
 
+.settings-panel > div:first-child {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
 .settings-panel .alert {
   margin-bottom: 1rem;
 }
@@ -284,6 +289,16 @@ html.dark .theme-switch .when-dark {
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 48rem) {
+  .page-head {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
 }
 
 .page-head h1 {
