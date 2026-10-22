@@ -491,6 +491,8 @@ class TestAuthWeb:
         page = auth_client.get("/ui/books")
         assert page.status_code == 200
         assert 'id="confirm-dialog"' in page.text
+        assert 'id="confirm-dialog-phrase"' in page.text
+        assert "Type DELETE to confirm" in page.text
         assert 'id="toast-region"' in page.text
         assert 'hx-trigger="confirmed-delete"' in page.text
 

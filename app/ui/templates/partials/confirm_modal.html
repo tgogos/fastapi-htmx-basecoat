@@ -10,10 +10,14 @@
         </header>
         <section>
           <p id="confirm-dialog-message"></p>
+          <div class="field">
+            <label for="confirm-dialog-phrase">Type DELETE to confirm</label>
+            <input class="input" id="confirm-dialog-phrase" type="text" autocomplete="off" spellcheck="false" />
+          </div>
         </section>
         <footer>
           <button type="button" class="btn" data-variant="outline" data-confirm-cancel>Cancel</button>
-          <button type="button" class="btn" data-variant="destructive" id="confirm-dialog-ok" data-confirm-ok>Delete</button>
+          <button type="button" class="btn" data-variant="destructive" id="confirm-dialog-ok" data-confirm-ok disabled>Delete</button>
         </footer>
       </div>
     </dialog>

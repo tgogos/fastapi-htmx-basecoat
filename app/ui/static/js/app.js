@@ -18,15 +18,40 @@
     return document.getElementById("confirm-dialog-message");
   }
 
+  function confirmPhraseEl() {
+    return document.getElementById("confirm-dialog-phrase");
+  }
+
+  function confirmOkEl() {
+    return document.getElementById("confirm-dialog-ok");
+  }
+
+  function syncConfirmPhrase() {
+    var phrase = confirmPhraseEl();
+    var ok = confirmOkEl();
+    if (!phrase || !ok) {
+      return;
+    }
+    ok.disabled = phrase.value !== "DELETE";
+  }
+
   function openConfirm(el) {
     var dialog = confirmDialog();
     var messageEl = confirmMessageEl();
+    var phrase = confirmPhraseEl();
     if (!dialog || !messageEl || typeof dialog.showModal !== "function") {
       return false;
     }
     pendingConfirmEl = el;
     messageEl.textContent = el.getAttribute("data-confirm") || "Are you sure?";
+    if (phrase) {
+      phrase.value = "";
+    }
+    syncConfirmPhrase();
     dialog.showModal();
+    if (phrase) {
+      phrase.focus();
+    }
     return true;
   }
 
@@ -84,6 +109,10 @@
       return;
     }
     if (event.target.closest("[data-confirm-ok]")) {
+      var ok = confirmOkEl();
+      if (ok && ok.disabled) {
+        return;
+      }
       var el = pendingConfirmEl;
       closeConfirm();
       if (el && window.htmx) {
@@ -91,6 +120,20 @@
       }
     }
   });
+
+  var confirmPhrase = confirmPhraseEl();
+  if (confirmPhrase) {
+    confirmPhrase.addEventListener("input", syncConfirmPhrase);
+    confirmPhrase.addEventListener("keydown", function (event) {
+      if (event.key !== "Enter") {
+        return;
+      }
+      var ok = confirmOkEl();
+      if (ok && !ok.disabled) {
+        ok.click();
+      }
+    });
+  }
 
   document.body.addEventListener("showToast", function (event) {
     var detail = event.detail || {};
