@@ -64,10 +64,12 @@
   </button>
   <div id="account-menu-popover" data-popover aria-hidden="true" data-side="{{ account_menu_side|default('bottom') }}" data-align="{{ account_menu_align|default('end') }}">
     <div role="menu" id="account-menu-menu" aria-labelledby="account-menu-trigger">
-      <div role="heading" id="account-menu-label">{{ account_label }}</div>
-      {% if user.display_name %}
-      <p class="muted">{{ user.username }}</p>
-      {% endif %}
+      <div class="account-identity">
+        <span class="account-identity-name">{{ account_label }}</span>
+        {% if user.display_name and user.display_name != user.username %}
+        <span class="account-identity-login">{{ user.username }}</span>
+        {% endif %}
+      </div>
       <a role="menuitem" href="/ui/settings">Settings</a>
       <hr role="separator" />
       <form action="/auth/logout" method="post">
