@@ -20,15 +20,11 @@
       <h2>Appearance</h2>
       <p class="muted">How the shell and the page column are arranged.</p>
     </div>
-<section class="card shell-choice">
-  <header>
-    <h2>Shell</h2>
-  </header>
-  <section>
-    <form method="post" action="/ui/shell">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <input type="hidden" name="next" value="/ui/settings/appearance">
-      <div class="stack">
+    <section class="shell-choice">
+      <h3>Shell</h3>
+      <form class="stack" method="post" action="/ui/shell">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="next" value="/ui/settings/appearance">
         <div class="field">
           <label>
             <input class="input" type="radio" name="layout" value="header" {% if shell_layout|default("header") != "sidebar" %}checked{% endif %} />
@@ -43,19 +39,13 @@
         </div>
         <p class="muted">Sidebar and header is the default. Sidebar only keeps the theme switcher and the account menu in the sidebar footer.</p>
         <button type="submit" class="btn">Save shell</button>
-      </div>
-    </form>
-  </section>
-</section>
-<section class="card view-choice">
-  <header>
-    <h2>View</h2>
-  </header>
-  <section>
-    <form method="post" action="/ui/view">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <input type="hidden" name="next" value="/ui/settings/appearance">
-      <div class="stack">
+      </form>
+    </section>
+    <section class="view-choice">
+      <h3>View</h3>
+      <form class="stack" method="post" action="/ui/view">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="next" value="/ui/settings/appearance">
         <div class="field">
           <label>
             <input class="input" type="radio" name="width" value="wide" {% if content_width|default("wide") != "centered" %}checked{% endif %} />
@@ -70,24 +60,20 @@
         </div>
         <p class="muted">Wide uses the full column beside the sidebar. Centered keeps the page at 80rem and centers it, so a wider window leaves equal space on both sides.</p>
         <button type="submit" class="btn">Save view</button>
-      </div>
-    </form>
-  </section>
-</section>
-    <section class="card" id="help" aria-labelledby="help-heading">
-      <header>
-        <h2 id="help-heading">Help</h2>
-      </header>
-      <section class="page-stack">
+      </form>
+    </section>
+    <section id="help" aria-labelledby="help-heading">
+      <h3 id="help-heading">Help</h3>
+      <div class="page-stack">
         <details>
           <summary>Where is the page shell?</summary>
-          <p class="muted">Copy <code>blank.html</code>. Pages extend <code>layout.html</code> and replace the content and breadcrumb blocks. The Shell card stores <code>shell_layout</code> as <code>header</code> or <code>sidebar</code>. The View card stores <code>content_width</code> as <code>wide</code> or <code>centered</code>.</p>
+          <p class="muted">Copy <code>blank.html</code>. Pages extend <code>layout.html</code> and replace the content and breadcrumb blocks. Shell stores <code>shell_layout</code> as <code>header</code> or <code>sidebar</code>. View stores <code>content_width</code> as <code>wide</code> or <code>centered</code>.</p>
         </details>
         <details>
           <summary>How is colour mode stored?</summary>
           <p class="muted">The header switcher calls Basecoat's theme API. The mode is saved in <code>localStorage</code> as <code>themeMode</code>: light or dark. The palette button stores <code>colorTheme</code>: default, blue, teal, or grey.</p>
         </details>
-      </section>
+      </div>
     </section>
   </div>
 </div>

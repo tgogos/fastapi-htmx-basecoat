@@ -20,34 +20,30 @@
       <h2>Profile</h2>
       <p class="muted">The name shown in the account menu. The username stays the sign-in name.</p>
     </div>
-    <section class="card">
-      <section>
-        {% if form_error %}
-        <div class="alert" role="alert"><section>{{ form_error }}</section></div>
-        {% endif %}
-        <form method="post" action="/ui/settings">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-          <div class="form-grid">
-            <div class="field">
-              <label for="profile-username">Username</label>
-              <input class="input" id="profile-username" type="text" value="{{ user.username }}" disabled>
-            </div>
-            <div class="field">
-              <label for="profile-role">Role</label>
-              <input class="input" id="profile-role" type="text" value="{{ user.role }}" disabled>
-            </div>
-            <div class="field span-2">
-              <label for="profile-display-name">Display name</label>
-              <input class="input" id="profile-display-name" type="text" name="display_name" value="{{ display_name_value }}" maxlength="80" autocomplete="name">
-              <p class="muted">Leave this empty to show the username in the account menu.</p>
-            </div>
-            <div class="span-2 row-actions">
-              <button class="btn" type="submit">Save profile</button>
-            </div>
-          </div>
-        </form>
-      </section>
-    </section>
+    <form method="post" action="/ui/settings">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      {% if form_error %}
+      <div class="alert" role="alert"><section>{{ form_error }}</section></div>
+      {% endif %}
+      <div class="form-grid">
+        <div class="field">
+          <label for="profile-username">Username</label>
+          <input class="input" id="profile-username" type="text" value="{{ user.username }}" disabled>
+        </div>
+        <div class="field">
+          <label for="profile-role">Role</label>
+          <input class="input" id="profile-role" type="text" value="{{ user.role }}" disabled>
+        </div>
+        <div class="field span-2">
+          <label for="profile-display-name">Display name</label>
+          <input class="input" id="profile-display-name" type="text" name="display_name" value="{{ display_name_value }}" maxlength="80" autocomplete="name">
+          <p class="muted">Leave this empty to show the username in the account menu.</p>
+        </div>
+        <div class="span-2 row-actions">
+          <button class="btn" type="submit">Save profile</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %}
