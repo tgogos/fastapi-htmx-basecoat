@@ -216,6 +216,17 @@ html.dark .theme-switch .when-dark {
   align-self: flex-start;
 }
 
+.shell-choice .field,
+.view-choice .field {
+  max-width: 20rem;
+}
+
+.shell-choice .field > label,
+.view-choice .field > label {
+  box-sizing: border-box;
+  width: 100%;
+}
+
 .settings-panel > section {
   display: flex;
   flex-direction: column;
