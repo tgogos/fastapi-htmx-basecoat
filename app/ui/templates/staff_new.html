@@ -1,14 +1,14 @@
 {% extends "layout.html" %}
-{% block title %}New staff · Admin{% endblock %}
-{% block description %}Add a staff account{% endblock %}
+{% block title %}New user · Admin{% endblock %}
+{% block description %}Add a user{% endblock %}
 {% block breadcrumb %}
 {% from "partials/breadcrumb.html" import crumbs %}
-{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": return_to, "label": "Staff"}, {"label": "New"}]) }}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": return_to, "label": "Users"}, {"label": "New"}]) }}
 {% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
-    <h1>New staff</h1>
+    <h1>New user</h1>
     <p class="muted">The username is the sign-in name. It stays fixed after the account is created.</p>
   </div>
 </div>

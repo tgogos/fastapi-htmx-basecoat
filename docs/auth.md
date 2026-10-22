@@ -104,7 +104,7 @@ Or use a Bearer token in `Authorization` (no CSRF header). Prefer Bearer for non
 ```
 /auth/login, /auth/logout     Browser session (HTML); CSRF on POST
 /ui/books, /ui/books/{id}    Books list and book pages; session + CSRF on mutations
-/ui/admin/users               Admin-only staff page
+/ui/admin/users               Admin-only users page
 POST   /api/auth/token        Issue Bearer token
 DELETE /api/auth/token        Revoke current Bearer token
 GET    /api/auth/me           Current user + role (Bearer or session)

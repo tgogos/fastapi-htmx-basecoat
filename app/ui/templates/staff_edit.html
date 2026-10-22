@@ -1,15 +1,15 @@
 {% extends "layout.html" %}
 {% block title %}Edit {{ target.username }} · Admin{% endblock %}
-{% block description %}Edit a staff account{% endblock %}
+{% block description %}Edit a user{% endblock %}
 {% block breadcrumb %}
 {% from "partials/breadcrumb.html" import crumbs %}
-{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": return_to, "label": "Staff"}, {"label": target.username}]) }}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": return_to, "label": "Users"}, {"label": target.username}]) }}
 {% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
     <h1>Edit {{ target.username }}</h1>
-    <p class="muted">The username stays the sign-in name. Set a new password from the staff list.</p>
+    <p class="muted">The username stays the sign-in name. Set a new password from the users list.</p>
   </div>
 </div>
 <div class="card">

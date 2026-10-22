@@ -1,4 +1,4 @@
-"""Staff directory: display name, role, and admin password changes."""
+"""Users directory: display name, role, and admin password changes."""
 
 import os
 import re
@@ -31,6 +31,8 @@ def test_staff_list_is_admin_only(client: TestClient):
     login_as(client, os.environ["DEMO_USERNAME"], os.environ["DEMO_PASSWORD"])
     page = client.get("/ui/admin/users")
     assert page.status_code == 200
+    assert "<h1>Users</h1>" in page.text
+    assert ">Staff</span>" not in page.text
     assert "Add user" in page.text
     assert "Display name" in page.text
     assert os.environ["DEMO_USERNAME"] in page.text

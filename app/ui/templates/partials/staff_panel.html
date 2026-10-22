@@ -119,7 +119,7 @@
       </tr>
       {% else %}
       <tr>
-        <td colspan="5"><span class="muted">No staff match.</span></td>
+        <td colspan="5"><span class="muted">No users match.</span></td>
       </tr>
       {% endfor %}
     </tbody>
@@ -129,6 +129,6 @@
 {% set count_summary = total ~ " " ~ ("person" if total == 1 else "people") %}
 {% set list_panel_target = "#staff-panel" %}
 {% set list_indicator = "#staff-indicator" %}
-{% set list_pagination_label = "Staff pagination" %}
+{% set list_pagination_label = "Users pagination" %}
 {% set list_page_size_id = "staff-page-size" %}
 {% include "partials/list_pagination.html" %}

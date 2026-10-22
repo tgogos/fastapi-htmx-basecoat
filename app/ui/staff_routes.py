@@ -1,4 +1,4 @@
-"""HTML routes for staff accounts. Admin only. The sample /ui/users page is separate."""
+"""HTML routes for user accounts. Admin only. The sample /ui/users page is separate."""
 
 from __future__ import annotations
 

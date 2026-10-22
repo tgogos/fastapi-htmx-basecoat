@@ -54,7 +54,7 @@ The shell is `app/ui/templates/layout.html`. The default is a Basecoat sidebar p
 | Page | Path |
 |------|------|
 | Dashboard | `/ui/dashboard` |
-| Users, Forms, Tables | `/ui/users`, `/ui/forms`, `/ui/tables` |
+| Users sample, Forms, Tables | `/ui/users`, `/ui/forms`, `/ui/tables` |
 | Components | `/ui/components` |
 | Settings, Blank, 404 | `/ui/settings`, `/ui/blank`, `/ui/404` |
 | Sign in | `/auth/login` |
@@ -68,7 +68,7 @@ Working data pages use the same shell:
 | New book | `/ui/books/new` |
 | Edit book | `/ui/books/{id}/edit` |
 | Search books | `/ui/books/search` |
-| Staff (admin) | `/ui/admin/users` |
+| Users (admin) | `/ui/admin/users` |
 
 The sidebar is split into **App** (the product) and **Samples** (copy-source pages). To add a page, copy `app/ui/templates/pages/blank.html`, register it in `SHELL_PAGES` in `app/ui/pages_routes.py`, and add a sidebar link under the matching group in `app/ui/templates/partials/sidebar.html`.
 

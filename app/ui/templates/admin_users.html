@@ -1,14 +1,14 @@
 {% extends "layout.html" %}
-{% block title %}Staff · Admin{% endblock %}
-{% block description %}Staff accounts{% endblock %}
+{% block title %}Users · Admin{% endblock %}
+{% block description %}User accounts{% endblock %}
 {% block breadcrumb %}
 {% from "partials/breadcrumb.html" import crumbs %}
-{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"label": "Staff"}]) }}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"label": "Users"}]) }}
 {% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
-    <h1>Staff</h1>
+    <h1>Users</h1>
     <p class="muted">Sign-in names, display names, and roles for people who use this environment.</p>
   </div>
   <a class="btn" data-icon="inline-start" data-staff-return href="/ui/admin/users/new?return_to={{ list_href|urlencode }}">
@@ -45,7 +45,7 @@
       name="q"
       value="{{ q }}"
       placeholder="Name or username"
-      aria-label="Search staff"
+      aria-label="Search users"
       autocomplete="off"
     >
     <noscript><button class="btn" type="submit" data-variant="outline">Search</button></noscript>
