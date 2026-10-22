@@ -449,8 +449,32 @@ html.dark .theme-switch .when-dark {
 }
 
 .filter-menu [data-indicator] {
+  visibility: visible;
   inset-inline-end: auto;
   inset-inline-start: 0.5rem;
+  box-sizing: border-box;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--color-input);
+  border-radius: 4px;
+  background: transparent;
+  box-shadow: 0 1px 2px #0000000d;
+}
+
+.filter-menu [data-indicator] svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  visibility: hidden;
+}
+
+.filter-menu [aria-checked="true"] [data-indicator] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.filter-menu [aria-checked="true"] [data-indicator] svg {
+  visibility: visible;
 }
 
 .filter-count {
