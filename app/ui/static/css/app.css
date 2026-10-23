@@ -232,6 +232,22 @@ html.dark .theme-switch .when-dark {
   align-self: flex-start;
 }
 
+.card > header:has(> .card-action) {
+  column-gap: 1rem;
+}
+
+@media (max-width: 40rem) {
+  .card > header:has(> .card-action) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .card > header > .card-action {
+    grid-row: auto;
+    grid-column: 1;
+    justify-self: start;
+  }
+}
+
 .shell-choice .field,
 .view-choice .field {
   max-width: 20rem;

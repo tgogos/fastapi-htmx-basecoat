@@ -19,13 +19,19 @@
     {% endwith %}
   </section>
 </div>
-<button
-  type="button"
-  class="btn js-confirm-delete"
-  data-variant="destructive"
-  data-confirm="Delete “{{ book.title }}”? This cannot be undone."
-  hx-delete="{{ delete_href }}"
-  hx-trigger="confirmed-delete"
-  hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
->Delete</button>
+<section class="card" aria-labelledby="danger-heading">
+  <header>
+    <h2 id="danger-heading">Danger zone</h2>
+    <p>Delete this book from the catalog. This cannot be undone.</p>
+    <button
+      type="button"
+      class="btn card-action js-confirm-delete"
+      data-variant="destructive"
+      data-confirm="Delete “{{ book.title }}”? This cannot be undone."
+      hx-delete="{{ delete_href }}"
+      hx-trigger="confirmed-delete"
+      hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
+    >Delete</button>
+  </header>
+</section>
 {% endblock %}
