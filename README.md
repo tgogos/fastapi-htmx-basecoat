@@ -1,6 +1,6 @@
 # FastAPI HTMX Basecoat
 
-A small admin app you can fork. People use server-rendered pages. Other programs call a JSON API with a Bearer token. Both use the same accounts. There is no frontend build and no ORM.
+A small admin app, kept boring on purpose. Pages are server-rendered HTML, with HTMX and a CSS library, so the UI has no build step. The database is SQLite and SQL written by hand, so there is no ORM. A JSON API uses the same accounts. The aim is a lightweight project with few dependencies, one you can still read and change next year.
 
 ## What it uses
 
