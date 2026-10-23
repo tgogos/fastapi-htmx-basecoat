@@ -232,11 +232,6 @@ html.dark .theme-switch .when-dark {
   align-self: flex-start;
 }
 
-.shell-choice .stack > .btn,
-.view-choice .stack > .btn {
-  align-self: flex-start;
-}
-
 .shell-choice .field,
 .view-choice .field {
   max-width: 20rem;
@@ -405,6 +400,14 @@ html.dark .theme-switch .when-dark {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 .pager {
