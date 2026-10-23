@@ -6,6 +6,7 @@
 {{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": return_to, "label": "Users"}, {"label": "New"}]) }}
 {% endblock %}
 {% block content %}
+{% from "partials/password_field.html" import new_password_fields %}
 <div class="page-head">
   <div>
     <h1>New user</h1>
@@ -37,15 +38,7 @@
             {% endfor %}
           </select>
         </div>
-        <div class="field">
-          <label for="staff-password">Password</label>
-          <input class="input" id="staff-password" type="password" name="password" required autocomplete="new-password" minlength="8">
-          <p class="muted">At least 8 characters.</p>
-        </div>
-        <div class="field">
-          <label for="staff-password-confirm">Confirm password</label>
-          <input class="input" id="staff-password-confirm" type="password" name="password_confirm" required autocomplete="new-password" minlength="8">
-        </div>
+        {{ new_password_fields("staff", "Password", "At least 8 characters.") }}
         <div class="span-2 row-actions">
           <button class="btn" type="submit">Add user</button>
           <a class="btn" data-variant="outline" href="{{ return_to }}">Cancel</a>

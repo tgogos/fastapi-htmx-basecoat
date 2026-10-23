@@ -6,6 +6,7 @@
 {{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": "/ui/settings", "label": "Settings"}, {"label": "Account"}]) }}
 {% endblock %}
 {% block content %}
+{% from "partials/password_field.html" import new_password_fields %}
 <div class="page-head">
   <div>
     <h1>Settings</h1>
@@ -30,15 +31,7 @@
           <label for="account-current-password">Current password</label>
           <input class="input" id="account-current-password" type="password" name="current_password" required autocomplete="current-password">
         </div>
-        <div class="field">
-          <label for="account-password">New password</label>
-          <input class="input" id="account-password" type="password" name="password" required autocomplete="new-password" minlength="8">
-          <p class="muted">At least 8 characters.</p>
-        </div>
-        <div class="field">
-          <label for="account-password-confirm">Confirm password</label>
-          <input class="input" id="account-password-confirm" type="password" name="password_confirm" required autocomplete="new-password" minlength="8">
-        </div>
+        {{ new_password_fields("account", "New password", "At least 8 characters.") }}
         <div class="span-2 row-actions">
           <button class="btn" type="submit">Update password</button>
         </div>

@@ -4,6 +4,7 @@
  * - Basecoat toasts (HX-Trigger: showToast)
  * - Dismiss flash messages
  * - Send CSRF header on HTMX requests when meta csrf-token is present
+ * - Show password checkbox on a new-password pair
  */
 (function () {
   "use strict";
@@ -134,6 +135,19 @@
       }
     });
   }
+
+  document.addEventListener("change", function (event) {
+    var box = event.target;
+    if (!box || !box.matches || !box.matches("[data-show-password-toggle]")) {
+      return;
+    }
+    var type = box.checked ? "text" : "password";
+    document.querySelectorAll("[data-show-password]").forEach(function (input) {
+      if (input.getAttribute("data-show-password") === box.id) {
+        input.type = type;
+      }
+    });
+  });
 
   document.body.addEventListener("showToast", function (event) {
     var detail = event.detail || {};

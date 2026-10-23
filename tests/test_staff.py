@@ -54,6 +54,10 @@ def test_sample_users_page_stays_a_sample(auth_client: TestClient):
 
 def test_admin_adds_and_filters_staff(auth_client: TestClient):
     form = auth_client.get("/ui/admin/users/new")
+    assert 'id="staff-show-password"' in form.text
+    assert "Show password" in form.text
+    assert form.text.count('data-show-password="staff-show-password"') == 2
+    assert "data-password-toggle" not in form.text
     created = auth_client.post(
         "/ui/admin/users/new",
         data={
@@ -162,6 +166,8 @@ def test_set_password_signs_the_user_out_and_revokes_tokens(client: TestClient):
     listing = client.get("/ui/admin/users")
     user_id = _staff_id(listing.text, "ada")
     form = client.get(f"/ui/admin/users/{user_id}/password")
+    assert 'id="staff-show-password"' in form.text
+    assert form.text.count('data-show-password="staff-show-password"') == 2
     saved = client.post(
         f"/ui/admin/users/{user_id}/password",
         data={
@@ -358,6 +364,9 @@ def test_account_changes_own_password(client: TestClient):
     assert nav.find(">Profile</a>") < nav.find(">Account</a>") < nav.find(">Appearance</a>")
     assert 'name="current_password"' in page.text
     assert 'name="role"' not in page.text
+    assert 'id="account-show-password"' in page.text
+    assert page.text.count('data-show-password="account-show-password"') == 2
+    assert 'data-show-password="account-current-password"' not in page.text
 
     wrong = client.post(
         "/ui/settings/account",

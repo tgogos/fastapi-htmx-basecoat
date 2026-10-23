@@ -791,6 +791,7 @@ class TestAuthWeb:
 
     def test_login_logout(self, client: TestClient):
         page = client.get("/auth/login")
+        assert "data-show-password" not in page.text
         csrf = page.text.split('name="csrf_token" value="', 1)[1].split('"', 1)[0]
         login = client.post(
             "/auth/login",
