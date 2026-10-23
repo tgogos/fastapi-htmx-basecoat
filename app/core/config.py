@@ -43,7 +43,7 @@ class Settings(BaseSettings):
 
     # Session / auth
     SECRET_KEY: str = "change-me-in-production"
-    SESSION_COOKIE_NAME: str = "fastapi_htmx_bootstrap_session"
+    SESSION_COOKIE_NAME: str = "fastapi_htmx_basecoat_session"
     # Demo user seeded when users table is empty (development convenience)
     DEMO_USERNAME: str = "admin"
     DEMO_PASSWORD: str = "admin123"
@@ -57,7 +57,7 @@ class Settings(BaseSettings):
     MONGO_HOST: str = "mongodb"
     MONGO_PORT: str = "27017"
     MONGO_AUTH_SOURCE: str = "admin"
-    MONGO_DATABASE: str = "fastapi_htmx_bootstrap"
+    MONGO_DATABASE: str = "fastapi_htmx_basecoat"
 
 
 settings = Settings()

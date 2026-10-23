@@ -71,9 +71,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="FastAPI HTMX Bootstrap",
+    title="FastAPI HTMX Basecoat",
     description=description,
-    summary="FastAPI + HTMX admin with a Bootstrap shell",
+    summary="FastAPI + HTMX admin with a Basecoat shell",
     version=config.VERSION,
     lifespan=lifespan,
 )

@@ -29,7 +29,7 @@ Prefer boring, server-driven UI over client frameworks. Concrete HTMX usage is u
 | Principle | Meaning |
 |-----------|---------|
 | **Server owns the truth** | Pages and HTMX fragments are the UI. Do not grow a client-side app store or SPA router. |
-| **HTML first** | First paint and list/filter/mutation flows are server-rendered HTML (Jinja + the Bootstrap admin shell). |
+| **HTML first** | First paint and list/filter/mutation flows are server-rendered HTML (Jinja + the Basecoat admin shell). |
 | **HTMX for interaction** | Search, filters, pagination, and forms use HTMX swaps. |
 | **Small JS islands** | Vanilla JS only where the browser must own a bit of widget state (confirm modal, toasts, CSRF header, page-size select, show password). Prefer one focused script (`app/ui/static/js/app.js`). |
 | **Progressive enhancement** | Pagination links keep usable `href`s; forms still work without JS where practical. |
@@ -148,7 +148,7 @@ Books include scalars (`category`, `isbn`, `page_count`, `available`) and `added
 
 ### HTMX patterns in use
 
-See **UI architecture** for the HTML-first contract. Patterns below are what this app actually ships (Bootstrap shell + `app.js`). Do not add Idiomorph, `hx-boost` shells, or OOB toasts unless they land in code and this file in the same change.
+See **UI architecture** for the HTML-first contract. Patterns below are what this app actually ships (Basecoat shell + `app.js`). Do not add Idiomorph, `hx-boost` shells, or OOB toasts unless they land in code and this file in the same change.
 
 - **`HX-Request` dual response** — one list route returns the full page or `partials/books_table.html`. A history restore (`HX-History-Restore-Request`) gets the full page even though it also sends `HX-Request`.
 - **Book pages** — `/ui/books/new`, `/ui/books/{id}`, and `/ui/books/{id}/edit` are whole pages. The edit URL still returns the table row when the list sends `HX-Request`. A title link keeps the list query (`page`, `size`, `ordering`, search filters, and `return_to` for the books list or search). The book and edit pages read that query the same way the list does, and Back uses `_books_list_url`. A visit with no list query still returns to `/ui/books`. Delete from the edit page sends `redirect=1` and `HX-Redirect` to that list. The button sits in a Danger zone card under the form, as the header’s `.card-action`.
@@ -220,7 +220,7 @@ Do not log passwords, session cookies, Bearer tokens, or CSRF secrets. Examples:
 Unless this document is updated first:
 
 - ORMs and sync DB drivers for the primary path
-- SPA frameworks, SPA routers, or a frontend build step (vanilla JS + HTMX + the Bootstrap admin shell)
+- SPA frameworks, SPA routers, or a frontend build step (vanilla JS + HTMX + the Basecoat admin shell)
 - Alpine.js / React / Vue / Svelte (or similar) unless a concrete widget forces an island and this doc is updated
 - HTMX out-of-band (`hx-swap-oob`) swaps, client-side i18n libraries
 - OAuth2 / OIDC providers

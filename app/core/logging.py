@@ -8,7 +8,7 @@ import sys
 from datetime import datetime, timezone
 from typing import Any
 
-_HANDLER_MARK = "_fastapi_htmx_bootstrap"
+_HANDLER_MARK = "_fastapi_htmx_basecoat"
 _RESERVED_RECORD_KEYS = frozenset(
     {
         "name",
