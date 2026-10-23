@@ -1,25 +1,36 @@
 # FastAPI HTMX Basecoat
 
-Server-driven admin UI: the FastAPI + HTMX backend (SQLite books, session/CSRF, Bearer API) with a [Basecoat](https://basecoatui.com/introduction/) (shadcn/ui components as CSS and JavaScript) 1.0.2 shell.
+A small admin app you can fork. People use server-rendered pages. Other programs call a JSON API with a Bearer token. Both use the same accounts. There is no frontend build and no ORM.
 
-The books API, session, and roles are unchanged from the [FastAPI HTMX starter](https://github.com/tgogos/fastapi-htmx-starter), the starting point for this repo. Basecoat's Vega stylesheet and JavaScript are vendored under `app/ui/static/vendor/basecoat/`.
+## What it uses
 
-Browsers get HTML (Jinja + HTMX 4.0.0). Machines get `/api` with Bearer tokens. One user store, Docker Compose, pytest.
+- **FastAPI**, async on the request path. **Pydantic** validates HTTP input and output.
+- **SQLite**, with parameterized SQL and no ORM.
+- **Jinja** templates and **HTMX 4.0.0**. The shell is [Basecoat](https://basecoatui.com/introduction/) 1.0.2, shadcn/ui components shipped as CSS and JavaScript and vendored under `app/ui/static/vendor/basecoat/`. There is no Tailwind or npm build.
+- A cookie session and CSRF for the pages. Opaque Bearer tokens for `/api`.
+- **Docker Compose**, [uv](https://docs.astral.sh/uv/), and pytest. Python 3.14.
 
-Architecture: [`docs/ENGINEERING.md`](docs/ENGINEERING.md).  
-Sessions, CSRF, and Bearer: [`docs/auth.md`](docs/auth.md).  
-Vendored Chart.js and Basecoat notices: [`LICENSES.md`](LICENSES.md).
+## What is already wired
 
-## Primary path vs demos
+Books is the working example. The app includes a list, search, a table with filters, a page for one book, and screens to create, edit, and delete. An admin can manage users. The signed-in person can change their display name, password, and the shell layout from Settings.
 
-| | Role |
-|--|------|
-| **Primary** | SQLite **books** · roles (viewer / editor / admin) · session + CSRF for `/ui` and `/auth` · Bearer (or session) for `/api/books` · Basecoat (vendored) + HTMX |
-| **Demos** (thin, removable) | `/items` in-memory CRUD · `/db-items` MongoDB CRUD |
+Each user has a role. A **viewer** can read. An **editor** can change books. An **admin** can also manage users.
+
+Two extra HTTP examples sit outside the admin UI. `/items` is an in-memory list. `/db-items` is the same idea in MongoDB. A fork that does not need them can delete both.
+
+Books is the place to copy when you add your own data: take its routes and replace the noun. The steps are in [`docs/ENGINEERING.md`](docs/ENGINEERING.md).
+
+The dashboard and the Samples group in the sidebar are layout examples. They do not read or write application data.
+
+## A good fit
+
+This repo fits a server-rendered admin that grows by copying the books screens, with a JSON API in the same process.
+
+Look elsewhere for an ORM and migrations, background jobs, OAuth, or a client-side frontend.
 
 ## Quick start
 
-**Requires:** Docker Compose. Make is optional. Dependencies are managed with [uv](https://docs.astral.sh/uv/) (`pyproject.toml` + `uv.lock`).
+**Requires:** Docker Compose. Python 3.14 if you run the app on the host. Make is optional. Dependencies are managed with uv (`pyproject.toml` + `uv.lock`).
 
 ```bash
 make dotenv   # .env.example → .env
@@ -27,14 +38,14 @@ make upd      # build + start (detached)
 
 # http://localhost:8000              → /ui/dashboard (login first)
 # http://localhost:8000/auth/login
-# http://localhost:8000/ui/books     → books CRUD
-# http://localhost:8000/docs         → OpenAPI (JSON API only)
+# http://localhost:8000/ui/books     → books
+# http://localhost:8000/docs         → OpenAPI (JSON API)
 ```
 
-Demo user (seeded when `users` is empty) is an **admin**: `DEMO_USERNAME` / `DEMO_PASSWORD` (defaults `admin` / `admin123`). Change these and **`SECRET_KEY`** before any shared deploy.
+The first start creates an **admin** when the users table is empty: `DEMO_USERNAME` / `DEMO_PASSWORD` (defaults `admin` / `admin123`). Change these and **`SECRET_KEY`** before any shared deploy.
 
 ```bash
-make seed     # optional viewer + editor users and sample books
+make seed     # optional viewer and editor (password demo123) and sample books
 make test
 make down
 ```
@@ -47,36 +58,11 @@ uv run fastapi dev app/main.py --port 8000 --host 0.0.0.0
 uv run pytest
 ```
 
-## UI
+## Auth
 
-The shell is `app/ui/templates/layout.html`. The default is a Basecoat sidebar plus a content header (sidebar toggle, color theme, light/dark theme, and an account menu with Settings and Sign out). The breadcrumb is the first line of the page in both layouts. Settings can switch to the sidebar alone, which keeps the theme switcher and that menu in the sidebar footer. It can also keep the page wide, or center it at 80rem. Profile saves the signed-in person's display name. Account changes their password. Sample pages keep their own routes:
+Pages keep a cookie session. A form or an HTMX request that changes data also sends a CSRF token.
 
-| Page | Path |
-|------|------|
-| Dashboard | `/ui/dashboard` |
-| Users sample, Forms, Tables | `/ui/users`, `/ui/forms`, `/ui/tables` |
-| Components | `/ui/components` |
-| Blank, 404 | `/ui/blank`, `/ui/404` |
-| Sign in | `/auth/login` |
-
-Working data pages use the same shell:
-
-| Page | Path |
-|------|------|
-| Books | `/ui/books` |
-| Book | `/ui/books/{id}` |
-| New book | `/ui/books/new` |
-| Edit book | `/ui/books/{id}/edit` |
-| Search books | `/ui/books/search` |
-| Users (admin) | `/ui/admin/users` |
-| Settings | `/ui/settings` (profile), `/ui/settings/account`, `/ui/settings/appearance` |
-
-The sidebar is split into **App** (the product) and **Samples** (copy-source pages). To add a page, copy `app/ui/templates/pages/blank.html`, register it in `SHELL_PAGES` in `app/ui/pages_routes.py`, and add a sidebar link under the matching group in `app/ui/templates/partials/sidebar.html`.
-
-## Auth in brief
-
-- **Browser / HTMX:** cookie session + CSRF on mutating HTML (`/auth`, `/ui`).
-- **API:** Bearer via `POST /api/auth/token`, or session cookie. Session writes to `/api` need `X-CSRF-Token`. Bearer skips CSRF.
+The JSON API accepts an opaque Bearer token from `POST /api/auth/token`. It also accepts the session cookie. A session that writes to `/api` still sends `X-CSRF-Token`. A Bearer token does not.
 
 ```bash
 curl -s -X POST http://localhost:8000/api/auth/token \
@@ -84,20 +70,29 @@ curl -s -X POST http://localhost:8000/api/auth/token \
   -d '{"username":"admin","password":"admin123"}'
 ```
 
+Sessions, CSRF, and Bearer tokens: [`docs/auth.md`](docs/auth.md).
+
 ## Layout
 
 ```
 app/
-  auth/     # passwords, users, tokens, deps
-  db/       # SQLite connection + schema (primary)
-  routes/   # JSON API (/api/..., demos)
-  ui/       # HTML/HTMX templates + Bootstrap static
-  models/   # Pydantic schemas
-  core/     # settings + logging
+  auth/     # passwords, users, tokens, route checks
+  db/       # SQLite connection, schema, and SQL
+  routes/   # JSON API, plus the /items and /db-items examples
+  ui/       # HTML, HTMX, and the vendored Basecoat shell
+  models/   # Pydantic request and response schemas
+  core/     # settings and logging
 docs/
 pyproject.toml
 uv.lock
 ```
+
+## Further reading
+
+- Architecture and conventions: [`docs/ENGINEERING.md`](docs/ENGINEERING.md)
+- Sessions, CSRF, and Bearer tokens: [`docs/auth.md`](docs/auth.md)
+- Vendored Chart.js and Basecoat notices: [`LICENSES.md`](LICENSES.md)
+- This repo started from the [FastAPI HTMX starter](https://github.com/tgogos/fastapi-htmx-starter)
 
 ## License
 
