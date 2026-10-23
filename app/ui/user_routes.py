@@ -267,7 +267,7 @@ async def staff_page(
         roles=request.query_params.getlist("role"),
     )
     template = (
-        "partials/staff_panel.html"
+        "partials/user_panel.html"
         if _wants_staff_partial(request)
         else "admin_users.html"
     )
@@ -287,7 +287,7 @@ async def new_staff_page(
     back = _staff_return(return_to)
     return templates.TemplateResponse(
         request,
-        "staff_new.html",
+        "user_new.html",
         _ctx(
             request,
             user,
@@ -353,7 +353,7 @@ async def edit_staff_page(
     back = _staff_return(return_to)
     return templates.TemplateResponse(
         request,
-        "staff_edit.html",
+        "user_edit.html",
         _ctx(
             request,
             user,
@@ -425,7 +425,7 @@ async def staff_password_page(
         return await render_not_found(request)
     return templates.TemplateResponse(
         request,
-        "staff_password.html",
+        "user_password.html",
         _ctx(
             request,
             user,
@@ -458,7 +458,7 @@ async def staff_password(
     except ValueError as exc:
         return templates.TemplateResponse(
             request,
-            "staff_password.html",
+            "user_password.html",
             _ctx(
                 request,
                 user,
@@ -485,7 +485,7 @@ def _blank_values() -> dict:
 def _new_form(request, user, values, form_error, return_to):
     return templates.TemplateResponse(
         request,
-        "staff_new.html",
+        "user_new.html",
         _ctx(
             request,
             user,
@@ -500,7 +500,7 @@ def _new_form(request, user, values, form_error, return_to):
 def _edit_form(request, user, target, values, form_error, return_to):
     return templates.TemplateResponse(
         request,
-        "staff_edit.html",
+        "user_edit.html",
         _ctx(
             request,
             user,

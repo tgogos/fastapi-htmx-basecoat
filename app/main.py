@@ -15,7 +15,7 @@ from app.auth.exceptions import ForbiddenPage, LoginRequired
 from app.core import config
 from app.core.logging import setup_logging
 from app.routes import root, items, db_items, books, api_auth
-from app.ui import auth_routes, books_routes, pages_routes, staff_routes
+from app.ui import auth_routes, books_routes, pages_routes, user_routes
 from app.ui.paths import STATIC_DIR
 
 logger = logging.getLogger(__name__)
@@ -133,5 +133,5 @@ app.include_router(
     books_routes.router, prefix="/ui", tags=["ui"], include_in_schema=False
 )
 app.include_router(
-    staff_routes.router, prefix="/ui", tags=["ui"], include_in_schema=False
+    user_routes.router, prefix="/ui", tags=["ui"], include_in_schema=False
 )
