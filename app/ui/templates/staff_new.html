@@ -30,6 +30,7 @@
           <label for="staff-display-name">Display name</label>
           <input class="input" id="staff-display-name" type="text" name="display_name" value="{{ values.display_name }}" maxlength="80" autocomplete="off">
         </div>
+        {{ new_password_fields("staff", "Password", "At least 8 characters.") }}
         <div class="field">
           <label for="staff-role">Role</label>
           <select id="staff-role" name="role">
@@ -38,7 +39,6 @@
             {% endfor %}
           </select>
         </div>
-        {{ new_password_fields("staff", "Password", "At least 8 characters.") }}
         <div class="span-2 row-actions">
           <button class="btn" type="submit">Add user</button>
           <a class="btn" data-variant="outline" href="{{ return_to }}">Cancel</a>
