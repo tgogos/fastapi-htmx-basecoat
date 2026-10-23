@@ -15,18 +15,47 @@
   <a class="btn" href="{{ edit_href }}">Edit</a>
   {% endif %}
 </div>
-<article class="card">
+<div class="card">
   <section>
-    <dl class="stack">
-      <div><dt>Category</dt><dd>{{ category_labels.get(book.category, book.category) }}</dd></div>
-      <div><dt>Year</dt><dd>{{ book.year if book.year is not none else "—" }}</dd></div>
-      <div><dt>Pages</dt><dd>{{ book.page_count if book.page_count is not none else "—" }}</dd></div>
-      <div><dt>ISBN</dt><dd>{{ book.isbn or "—" }}</dd></div>
-      <div><dt>Available</dt><dd>{{ "Yes" if book.available else "No" }}</dd></div>
-      <div><dt>Added by</dt><dd>{{ book.added_by_username or "—" }}</dd></div>
-      <div><dt>Notes</dt><dd>{{ book.notes or "—" }}</dd></div>
+    <dl class="form-grid fact-grid">
+      <div class="field">
+        <dt>Category</dt>
+        <dd>{{ category_labels.get(book.category, book.category) }}</dd>
+      </div>
+      <div class="field">
+        <dt>Year</dt>
+        <dd>{{ book.year if book.year is not none else "—" }}</dd>
+      </div>
+      <div class="field">
+        <dt>Pages</dt>
+        <dd>{{ book.page_count if book.page_count is not none else "—" }}</dd>
+      </div>
+      <div class="field">
+        <dt>ISBN</dt>
+        <dd>{{ book.isbn or "—" }}</dd>
+      </div>
+      <div class="field span-2">
+        <dt>Notes</dt>
+        <dd>{{ book.notes or "—" }}</dd>
+      </div>
+      <div class="field">
+        <dt>Available</dt>
+        <dd>
+          {% if book.available %}
+          <span class="badge">Yes</span>
+          {% else %}
+          <span class="badge" data-variant="secondary">No</span>
+          {% endif %}
+        </dd>
+      </div>
+      <div class="field">
+        <dt>Added by</dt>
+        <dd>{{ book.added_by_username or "—" }}</dd>
+      </div>
+      <div class="span-2 form-actions">
+        <a class="btn" data-variant="outline" href="{{ list_href }}">Back to the list</a>
+      </div>
     </dl>
   </section>
-</article>
-<p><a href="{{ list_href }}">Back to the list</a></p>
+</div>
 {% endblock %}
