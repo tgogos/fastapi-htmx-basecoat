@@ -96,7 +96,7 @@ Or use a Bearer token in `Authorization` (no CSRF header). Prefer Bearer for non
 | `Authorization: Bearer …` | Explicit API token |
 | `X-CSRF-Token` | CSRF secret for cookie-authenticated writes |
 | **401** | Not authenticated |
-| **403** | Forbidden (bad/missing CSRF, or insufficient role) |
+| **403** | Forbidden. An HTML page the role cannot open returns the forbidden page. An HTMX fragment returns a short alert. Bad or missing CSRF, and `/api`, stay JSON. |
 | **303** | Redirect (e.g. anonymous UI → `/auth/login`) |
 
 ## How this maps to URLs

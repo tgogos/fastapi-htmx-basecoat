@@ -8,7 +8,7 @@ from typing import Annotated, Any, Optional
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.auth.exceptions import LoginRequired
+from app.auth.exceptions import ForbiddenPage, LoginRequired
 from app.auth.tokens import get_user_by_token
 from app.auth.users import get_user_by_id, public_user, role_at_least
 
@@ -171,18 +171,12 @@ async def require_user_html(request: Request) -> dict[str, Any]:
 async def require_editor_html(request: Request) -> dict[str, Any]:
     user = await require_user_html(request)
     if not role_at_least(user["role"], "editor"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Editor or admin role required",
-        )
+        raise ForbiddenPage()
     return user
 
 
 async def require_admin_html(request: Request) -> dict[str, Any]:
     user = await require_user_html(request)
     if not role_at_least(user["role"], "admin"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin role required",
-        )
+        raise ForbiddenPage()
     return user

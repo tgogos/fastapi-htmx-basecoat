@@ -311,6 +311,12 @@ for _spec in SHELL_PAGES:
         _path, _handler, methods=["GET"], response_class=HTMLResponse, include_in_schema=False
     )
 
+def _is_htmx_fragment(request: Request) -> bool:
+    if request.headers.get("HX-History-Restore-Request") == "true":
+        return False
+    return request.headers.get("HX-Request") == "true"
+
+
 async def render_not_found(request: Request) -> HTMLResponse:
     user = await get_session_user(request)
     return templates.TemplateResponse(
@@ -318,4 +324,19 @@ async def render_not_found(request: Request) -> HTMLResponse:
         "pages/not_found.html",
         shell_ctx(request, user, active=""),
         status_code=404,
+    )
+
+
+async def render_forbidden(request: Request) -> HTMLResponse:
+    if _is_htmx_fragment(request):
+        return HTMLResponse(
+            '<div class="alert" role="alert"><section>You do not have permission to do that.</section></div>',
+            status_code=403,
+        )
+    user = await get_session_user(request)
+    return templates.TemplateResponse(
+        request,
+        "pages/forbidden.html",
+        shell_ctx(request, user, active=""),
+        status_code=403,
     )

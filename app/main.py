@@ -11,7 +11,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 
 # Local imports
-from app.auth.exceptions import LoginRequired
+from app.auth.exceptions import ForbiddenPage, LoginRequired
 from app.core import config
 from app.core.logging import setup_logging
 from app.routes import root, items, db_items, books, api_auth
@@ -101,6 +101,11 @@ def _wants_html(request: Request) -> bool:
 @app.exception_handler(LoginRequired)
 async def login_required_handler(request: Request, exc: LoginRequired):
     return RedirectResponse(url="/auth/login", status_code=303)
+
+
+@app.exception_handler(ForbiddenPage)
+async def forbidden_page_handler(request: Request, exc: ForbiddenPage):
+    return await pages_routes.render_forbidden(request)
 
 
 @app.exception_handler(StarletteHTTPException)

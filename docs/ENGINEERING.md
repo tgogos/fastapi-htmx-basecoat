@@ -81,7 +81,7 @@ Three hierarchical roles on `users.role`:
 | `editor` | Create / update / delete books |
 | `admin` | Editor powers + `/ui/admin/users` (list, add, edit display name and role, set a password) |
 
-Enforcement is always on the server (`require_user` / `require_editor` / `require_admin` and HTML variants). Templates hide buttons; never trust the UI alone.
+Enforcement is always on the server (`require_user` / `require_editor` / `require_admin` and HTML variants). Templates hide buttons; never trust the UI alone. A signed-in person who opens an HTML page their role does not allow gets the forbidden page, status 403. An HTMX fragment on that route gets a short alert with the same status, so the shell is not swapped into the page. An unknown HTML address gets the not-found page, status 404. `/api` keeps JSON for both statuses. A signed-out browser is sent to `/auth/login`.
 
 The seeded demo user is an **admin** (`DEMO_USERNAME` / `DEMO_PASSWORD`).
 

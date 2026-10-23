@@ -25,8 +25,15 @@ def _staff_id(html: str, username: str) -> str:
 def test_staff_list_is_admin_only(client: TestClient):
     create_user_sync("editor2", "editorpass", role="editor")
     login_as(client, "editor2", "editorpass")
-    assert client.get("/ui/admin/users").status_code == 403
+    denied = client.get("/ui/admin/users")
+    assert denied.status_code == 403
+    assert "<h1>Forbidden</h1>" in denied.text
+    assert "Back to dashboard" in denied.text
     assert client.get("/ui/admin/users/new").status_code == 403
+    fragment = client.get("/ui/admin/users", headers={"HX-Request": "true"})
+    assert fragment.status_code == 403
+    assert "<h1>Forbidden</h1>" not in fragment.text
+    assert "You do not have permission to do that." in fragment.text
 
     login_as(client, os.environ["DEMO_USERNAME"], os.environ["DEMO_PASSWORD"])
     page = client.get("/ui/admin/users")
