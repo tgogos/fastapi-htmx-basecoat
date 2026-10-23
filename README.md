@@ -1,6 +1,6 @@
 # FastAPI HTMX Basecoat
 
-A small admin app, kept boring on purpose. Pages are server-rendered HTML, with HTMX and a CSS library, so the UI has no build step. The database is SQLite and SQL written by hand, so there is no ORM. A JSON API uses the same accounts. The aim is a lightweight project with few dependencies, one you can still read and change next year.
+A FastAPI boilerplate you fork and grow, kept boring on purpose. The same app serves the people who use the pages and the programs that call its API. Pages are server-rendered HTML, with HTMX and a CSS library, so the UI has no build step. The database is SQLite and SQL written by hand, so there is no ORM. The aim is a lightweight start, with few dependencies, that you can still read as it grows.
 
 ## What it uses
 
