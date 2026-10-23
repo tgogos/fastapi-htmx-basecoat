@@ -12,7 +12,7 @@ A FastAPI boilerplate you fork and grow, kept boring on purpose. The same app se
 
 ## What is already wired
 
-Books is the working example. The app includes a list, search, a table with filters, a page for one book, and screens to create, edit, and delete. An admin can manage users. The signed-in person can change their display name, password, and the shell layout from Settings.
+Books is included as an example, with the pages to list, open, create, edit, and delete a book. Search, filters, sorting, and pagination swap part of the page and update the URL. That is the HTMX these screens are here to show. An admin can manage users. The signed-in person can change their display name, password, and the shell layout from Settings.
 
 Each user has a role. A **viewer** can read. An **editor** can change books. An **admin** can also manage users.
 
