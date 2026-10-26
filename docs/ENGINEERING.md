@@ -31,19 +31,25 @@ Prefer boring, server-driven UI over client frameworks. Concrete HTMX usage is u
 | **Server owns the truth** | Pages and HTMX fragments are the UI. Do not grow a client-side app store or SPA router. |
 | **HTML first** | First paint and list/filter/mutation flows are server-rendered HTML (Jinja + the Basecoat admin shell). |
 | **HTMX for interaction** | Search, filters, pagination, and forms use HTMX swaps. |
-| **Small JS islands** | Vanilla JS only where the browser must own a bit of widget state (confirm modal, toasts, CSRF header, page-size select, show password). Prefer one focused script (`app/ui/static/js/app.js`). |
+| **Small JS islands** | Vanilla JS where the browser must own a bit of widget state (confirm modal, toasts, CSRF header, page-size select, show password). Prefer one focused script (`app/ui/static/js/app.js`). A bounded framework island is the exception for a specialised workspace — see **Client-side boundary**. |
 | **Progressive enhancement** | Pagination links keep usable `href`s; forms still work without JS where practical. |
 | **Shareable URLs** | List/search use `hx-push-url`. |
 
 ### What not to add by default
 
-- **No Alpine, React, Vue, Svelte, or similar** — local reactivity is not a reason. Add a client library only when a concrete widget cannot be done with HTMX + a small vanilla island, and document why in this file in the same change.
-- **No SPA routing or frontend build step** — no Vite/Webpack app shell; static CSS/JS under `app/ui/static/` is enough.
+- **No client framework by default** — do not introduce Alpine, React, Vue, Svelte, or another browser application framework for ordinary forms, navigation, filtering, pagination, dialogs, or local show/hide state.
+- **No SPA routing or frontend build step for the application shell** — FastAPI owns routes and renders the surrounding document. Static CSS and JavaScript under `app/ui/static/` remain the default.
 - **No client i18n framework** — if i18n lands, prefer server-side templates.
 
-### Island boundary
+### Client-side boundary
 
-Use an island when interaction is inherently client-side (dialog, toast DOM, attaching a request header). Prefer HTMX when the server can return the next HTML fragment. Do not move list/table/form flows into islands “for speed.”
+Use HTMX when an interaction needs the server and the server can return the next HTML representation.
+
+Use native HTML, Basecoat, or a small vanilla-JavaScript island when state exists only in the browser, such as opening a menu, showing a dialog, selecting rows on the current page, rendering a chart, or attaching a request header.
+
+A bounded React or other framework island is allowed when a feature owns substantial, interconnected browser state or a specialised rendering lifecycle—for example, a live operational map, 3D digital twin, timeline-driven workspace, or tightly coupled real-time visualisations. Document the reason, mount point, server/data contract, authentication boundary, and lifecycle in this file when introducing one.
+
+Do not move the application shell, ordinary CRUD workflows, or server-owned state into a client framework merely because one specialised workspace requires it.
 
 ### Admin shell
 
@@ -220,8 +226,8 @@ Do not log passwords, session cookies, Bearer tokens, or CSRF secrets. Examples:
 Unless this document is updated first:
 
 - ORMs and sync DB drivers for the primary path
-- SPA frameworks, SPA routers, or a frontend build step (vanilla JS + HTMX + the Basecoat admin shell)
-- Alpine.js / React / Vue / Svelte (or similar) unless a concrete widget forces an island and this doc is updated
+- SPA frameworks, SPA routers, or a frontend build step for the application shell (vanilla JS + HTMX + the Basecoat admin shell)
+- Alpine.js / React / Vue / Svelte (or similar) for ordinary UI; a bounded framework island only under **Client-side boundary**, with this doc updated in the same change
 - HTMX out-of-band (`hx-swap-oob`) swaps, client-side i18n libraries
 - OAuth2 / OIDC providers
 - JWT as the default API token
