@@ -1,13 +1,22 @@
 /**
- * Small vanilla island for the HTMX UI.
- * - Dialog confirm before destructive HTMX deletes
- * - Basecoat toasts (HX-Trigger: showToast)
- * - Dismiss flash messages
- * - Send CSRF header on HTMX requests when meta csrf-token is present
- * - Show password checkbox on a new-password pair
+ * Shared vanilla island for the HTMX + Basecoat shell.
+ *
+ * Sections below (natural split points later):
+ * - Confirm dialog
+ * - Toasts / flash / Basecoat init helpers
+ * - Show password
+ * - CSRF on HTMX requests
+ * - List URL sync, staff return, page-size
+ * - Table facets and row selection
+ * - Row-menu positioning
+ * - HTMX settle / history (Basecoat reinit)
+ * - Theme bridge and colour palette
+ * - Pending toast after full-page redirect
  */
 (function () {
   "use strict";
+
+  /* --- Confirm dialog (type DELETE, then fire confirmed-delete) --- */
 
   var pendingConfirmEl = null;
 
@@ -64,6 +73,8 @@
     }
   }
 
+  /* --- Shared helpers: Basecoat toasts and initAll --- */
+
   function showToast(message, level) {
     var region = document.getElementById("toaster");
     if (!region || !message || typeof region.toast !== "function") {
@@ -80,6 +91,8 @@
       window.basecoat.initAll(force ? { force: true } : undefined);
     }
   }
+
+  /* --- Flash dismiss; open confirm on .js-confirm-delete --- */
 
   document.body.addEventListener("click", function (event) {
     var dismiss = event.target.closest(".flash-dismiss");
@@ -103,6 +116,8 @@
       }
     }
   }, true);
+
+  /* --- Confirm dialog: Cancel, Delete, backdrop, phrase input --- */
 
   document.body.addEventListener("click", function (event) {
     if (event.target.closest("[data-confirm-cancel]")) {
@@ -145,6 +160,8 @@
     });
   }
 
+  /* --- Show password (checkbox toggles linked inputs) --- */
+
   document.addEventListener("change", function (event) {
     var box = event.target;
     if (!box || !box.matches || !box.matches("[data-show-password-toggle]")) {
@@ -158,10 +175,14 @@
     });
   });
 
+  /* --- Toast from HX-Trigger: showToast --- */
+
   document.body.addEventListener("showToast", function (event) {
     var detail = event.detail || {};
     showToast(detail.message, detail.level);
   });
+
+  /* --- CSRF: copy meta csrf-token onto HTMX mutating requests --- */
 
   document.body.addEventListener("htmx:config:request", function (event) {
     var meta = document.querySelector('meta[name="csrf-token"]');
@@ -175,6 +196,8 @@
       headers["X-CSRF-Token"] = token;
     }
   });
+
+  /* --- List URL sync, staff return link, rows-per-page --- */
 
   function syncStaffReturn() {
     var link = document.querySelector("[data-staff-return]");
@@ -216,6 +239,8 @@
       push: url,
     });
   });
+
+  /* --- Table facets (hidden inputs from URL) and row selection bar --- */
 
   function syncTableFacetsFromUrl() {
     var form = document.querySelector("form[data-table-filters]");
@@ -302,6 +327,8 @@
     syncTableSelection();
   });
 
+  /* --- Row-menu positioning: keep open actions menus in the viewport --- */
+
   function placeRowMenu(pop) {
     var menu = pop.parentElement;
     var trigger = menu && menu.querySelector(":scope > button");
@@ -351,6 +378,8 @@
   document.addEventListener("scroll", syncRowMenus, true);
   window.addEventListener("resize", syncRowMenus);
 
+  /* --- After HTMX: reinit Basecoat; resync list/table URL state --- */
+
   document.addEventListener("htmx:after:history:push", function () {
     syncListFiltersFromUrl();
     syncTableFacetsFromUrl();
@@ -367,6 +396,8 @@
   syncListFiltersFromUrl();
   syncTableFacetsFromUrl();
   syncStaffReturn();
+
+  /* --- Theme bridge (Basecoat → document) and colour palette menu --- */
 
   document.addEventListener("basecoat:themechange", function () {
     document.documentElement.dispatchEvent(new CustomEvent("themechange"));
@@ -402,6 +433,8 @@
     document.documentElement.dispatchEvent(new CustomEvent("themechange"));
   });
   syncColorMenu();
+
+  /* --- Pending toast after a full-page redirect (server left #pending-toast) --- */
 
   function showPendingToast() {
     var pendingToast = document.getElementById("pending-toast");
