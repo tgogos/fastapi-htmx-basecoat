@@ -4,7 +4,9 @@ import time
 
 # Third-party imports
 from fastapi import APIRouter
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
+
+from app.ui.paths import STATIC_DIR
 
 # Capture the start time of the application
 start_time = time.time()
@@ -21,6 +23,15 @@ router = APIRouter()
 async def root():
     """Send browsers to the primary UI (anonymous users then hit /auth/login)."""
     return RedirectResponse(url="/ui/dashboard", status_code=303)
+
+
+@router.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Browsers still request /favicon.ico; serve the SVG mark."""
+    return FileResponse(
+        STATIC_DIR / "favicon.svg",
+        media_type="image/svg+xml",
+    )
 
 
 @router.get(
