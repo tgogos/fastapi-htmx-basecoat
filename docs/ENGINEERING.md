@@ -184,6 +184,38 @@ See **UI architecture** for the HTML-first contract. Patterns below are what thi
 - **Confirm dialog** — Basecoat `<dialog>` plus a few lines in `app/ui/static/js/app.js`. Delete buttons use `hx-trigger="confirmed-delete"`. The dialog stays closed to HTMX until the person types `DELETE`, which enables the button. There is no `window.confirm`.
 - **Toasts** — Basecoat toaster. A swap can send `HX-Trigger: {"showToast": {...}}` (table save and delete). A full-page save or a delete that leaves the edit page stores the same message for the next page. That page shows it after Basecoat has initialized the toaster.
 
+## Production HTTP boundary
+
+The application owns authentication and response semantics. A reverse proxy may own TLS termination, some security headers, and compression. Who owns each concern must stay explicit in the deploy notes for that environment. This section is a checklist for a shared or production deploy. It is **not** a claim that every item is wired in this repository today.
+
+### Required for a shared deploy
+
+- Authenticated `/ui` and `/auth` responses must not be stored in shared caches. Prefer `Cache-Control: private, no-store`.
+- If a full-page or fragment route is ever cacheable, its response must vary on every request header that changes the representation. For the current HTMX 4 patterns that includes `HX-Request` and `HX-History-Restore-Request`.
+- Production session cookies must be `Secure`, `HttpOnly`, and use an appropriate `SameSite` policy.
+- Production startup must reject the default `SECRET_KEY` and the documented demo credentials.
+- Apply HSTS, `X-Content-Type-Options`, an appropriate `Referrer-Policy`, framing restrictions, and a Content Security Policy either in FastAPI or at the reverse proxy — one documented place, not conflicting layers.
+- Avoid inline event handlers. Inline bootstrap scripts retained to prevent a theme flash need an explicit CSP nonce or hash.
+- Static assets need a cache-invalidation strategy before they receive long-lived cache headers. Use versioned URLs or content-hashed filenames.
+- Compression may be handled by FastAPI or the reverse proxy, but do it in one documented layer rather than both.
+
+### Status in this repository
+
+| Concern | Today |
+|---------|--------|
+| Session cookie `HttpOnly` / `SameSite=lax` | Set by Starlette `SessionMiddleware` |
+| Session cookie `Secure` (`https_only`) | Always `False` in `app/main.py` — not production-ready |
+| Reject default `SECRET_KEY` / demo passwords when `ENVIRONMENT=production` | Not implemented (README only warns) |
+| `Cache-Control: private, no-store` on authenticated HTML | Not set |
+| `Vary` on HTMX request headers for dual full-page / fragment routes | Not set (acceptable while those responses stay uncacheable) |
+| HSTS, CSP, `Referrer-Policy`, framing, `X-Content-Type-Options` | Not set in the app; leave to a reverse proxy until this file says otherwise |
+| Inline `onclick` handlers | Present on shell controls and some sample pages |
+| Theme flash bootstrap in `partials/head_assets.html` | Inline `<script>` without a CSP nonce/hash |
+| Versioned or content-hashed static URLs | Not implemented |
+| Compression | Not configured here; prefer the reverse proxy |
+
+When any row above is implemented in code, update this table in the same change. Prefer small slices: production `Secure` cookies and rejecting unsafe defaults first; CSP and removing inline handlers together; long-lived static caching only after URL versioning exists.
+
 ## Authentication
 
 Teaching overview (cookies, CSRF, Bearer): [`auth.md`](auth.md).
