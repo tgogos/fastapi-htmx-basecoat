@@ -51,6 +51,22 @@ A bounded React or other framework island is allowed when a feature owns substan
 
 Do not move the application shell, ordinary CRUD workflows, or server-owned state into a client framework merely because one specialised workspace requires it.
 
+### Accessibility baseline
+
+Target WCAG 2 Level AA for application pages.
+
+- Prefer native semantic elements and behaviour before ARIA.
+- Use links for navigation, buttons for actions, labels for controls, a meaningful heading hierarchy, and `aria-current="page"` for active navigation.
+- All interactive components must work with a keyboard and expose visible focus.
+- Menus, dialogs, tabs, toasts, and other Basecoat components must retain their documented roles, labels, focus behaviour, and keyboard interaction after HTMX swaps.
+- The skip link must become visible when focused.
+- Do not communicate status or meaning through colour alone.
+- Respect `prefers-reduced-motion` for custom animation.
+- Charts and maps need a text summary, table, or other appropriate alternative when they communicate information that is not available elsewhere.
+- HTMX updates that materially change context must preserve or deliberately move focus and announce important success or error states where appropriate.
+
+Automated accessibility checks are useful regression tests but do not constitute a WCAG compliance claim.
+
 ### Admin shell
 
 The shared shell (`templates/layout.html`) loads Basecoat 1.0.2. Files: `app/ui/static/vendor/basecoat/basecoat.min.css` (the standalone Vega bundle, `basecoat.cdn.min.css` from `basecoat-css@1.0.2`) and `app/ui/static/vendor/basecoat/js/all.min.js`. Jinja macros from the same package are in `app/ui/templates/basecoat/`. There is no Tailwind or npm build: the standalone bundle already contains the component CSS, but not every Tailwind utility. Page layout that the bundle does not provide lives in `app/ui/static/css/app.css`. Interactive Basecoat components call `window.basecoat.initAll()` after HTMX inserts HTML, and `window.basecoat.initAll({ force: true })` when HTMX restores a page from history.
