@@ -122,6 +122,15 @@
     }
   });
 
+  var confirmRoot = confirmDialog();
+  if (confirmRoot) {
+    confirmRoot.addEventListener("click", function (event) {
+      if (event.target === confirmRoot) {
+        closeConfirm();
+      }
+    });
+  }
+
   var confirmPhrase = confirmPhraseEl();
   if (confirmPhrase) {
     confirmPhrase.addEventListener("input", syncConfirmPhrase);
