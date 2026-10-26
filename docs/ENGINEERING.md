@@ -93,7 +93,7 @@ To add a page: copy `templates/pages/blank.html`, add a row to `SHELL_PAGES` in 
 
 **Removable means delete the demo from a fork**, not “leave the container off and the app still starts.” While `/db-items` ships in this tree, lifespan connects to MongoDB, Compose includes a Mongo service, and the full test suite expects a reachable Mongo. There is no feature flag to skip that connection. A fork that does not want Mongo deletes the `/db-items` routes, `app/utils/mongo.py`, the Motor/pymongo dependencies, the Compose Mongo service, and the related tests. Until then, the supported way to run the app and `pytest` is Docker Compose (`make upd` / `make test`), or a local Mongo that matches `MONGO_*` in `.env`.
 
-Books is the reference domain in this repo, not a requirement of every fork. Copy `app/routes/books.py`, `app/db/books.py`, and `app/ui/books_routes.py` for the next entity, then replace books. Keep the URL split (`/api`, `/auth`, `/ui`), session/CSRF, Bearer tokens, roles, and the list contract (`page`, `size`, allowlisted `ordering`, `innerHTML` swaps).
+Books is the reference domain in this repo, not a requirement of every fork. Reuse its contracts and patterns when introducing another entity: repository helpers, request validation, role gates, URL-backed list state, full-page/fragment responses, and progressive-enhancement links. Do not copy the entire Books route module mechanically. Extract or reuse focused pagination, filtering, URL-state, and rendering helpers where the behaviour is genuinely shared. Keep the URL split (`/api`, `/auth`, `/ui`), session/CSRF, Bearer tokens, roles, and the list contract (`page`, `size`, allowlisted `ordering`, `innerHTML` swaps).
 
 ## Roles
 
@@ -127,7 +127,7 @@ Write primary-path code like the SQL and web layers:
 - Pydantic models are request/response schemas only, not persistence objects.
 - Prefer FastAPI dependencies for auth over ad-hoc checks in every handler.
 
-Reference implementations: `app/routes/books.py`, `app/db/books.py`, `app/ui/books_routes.py`.
+Reference implementations: `app/routes/books.py` for a thin JSON layer, `app/db/books.py` for parameterised persistence, and the focused patterns documented under **HTMX patterns in use** for the browser UI. The current `app/ui/books_routes.py` demonstrates the complete workflow but should not be copied wholesale into another domain.
 
 The in-memory and Mongo routes may stay more verbose (logic in the handler, broad try/except). That style is for demos only — do not copy it into the primary path.
 

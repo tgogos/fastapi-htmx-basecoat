@@ -18,13 +18,13 @@ Each user has a role. A **viewer** can read. An **editor** can change books. An 
 
 Two extra HTTP examples sit outside the admin UI. `/items` is an in-memory list. `/db-items` shows the same idea with async MongoDB (Motor). While those demos ship here, Compose starts Mongo and the app connects on startup; the full test suite needs that Mongo too. A fork that does not want them deletes the demo code and dependencies — there is no switch to leave Mongo off.
 
-Books is the place to copy when you add your own data: take its routes and replace the noun. The steps are in [`docs/ENGINEERING.md`](docs/ENGINEERING.md).
+Books is the reference domain when you add your own data: reuse its contracts and patterns, do not clone the whole UI route module. The steps are in [`docs/ENGINEERING.md`](docs/ENGINEERING.md).
 
 The dashboard and the Samples group in the sidebar are layout examples. They do not read or write application data.
 
 ## A good fit
 
-This repo fits a server-rendered admin that grows by copying the books screens, with a JSON API in the same process.
+This repo fits a server-rendered admin that grows by reusing the books contracts and patterns, with a JSON API in the same process.
 
 Look elsewhere for an ORM and migrations, background jobs, OAuth, or a client-side frontend.
 
