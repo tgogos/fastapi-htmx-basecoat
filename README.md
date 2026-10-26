@@ -16,7 +16,7 @@ Books is included as an example, with the pages to list, open, create, edit, and
 
 Each user has a role. A **viewer** can read. An **editor** can change books. An **admin** can also manage users.
 
-Two extra HTTP examples sit outside the admin UI. `/items` is an in-memory list. `/db-items` is the same idea in MongoDB. A fork that does not need them can delete both.
+Two extra HTTP examples sit outside the admin UI. `/items` is an in-memory list. `/db-items` shows the same idea with async MongoDB (Motor). While those demos ship here, Compose starts Mongo and the app connects on startup; the full test suite needs that Mongo too. A fork that does not want them deletes the demo code and dependencies — there is no switch to leave Mongo off.
 
 Books is the place to copy when you add your own data: take its routes and replace the noun. The steps are in [`docs/ENGINEERING.md`](docs/ENGINEERING.md).
 
@@ -51,6 +51,8 @@ make down
 ```
 
 ### Local development with uv (optional)
+
+Compose remains the supported way to run the full stack and `make test`. On the host you still need a reachable Mongo for lifespan and for `pytest` (set `MONGO_HOST` and the other `MONGO_*` values, or leave Compose’s Mongo published and point at it).
 
 ```bash
 uv sync --all-groups

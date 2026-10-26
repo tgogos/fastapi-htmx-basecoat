@@ -7,7 +7,7 @@ This file is the source of truth for architecture and conventions. When a decisi
 ## Goals
 
 - Mature shape (clear modules, auth, tests, Docker) without shortcuts that fight growth.
-- One primary full-stack path; optional demos stay thin and removable.
+- One primary full-stack path; teaching demos stay thin and deletable from a fork.
 - Async-first; raw SQL (no ORM); Pydantic at the HTTP edge only.
 - **HTML-first / HTMX** for the browser UI; `/api` JSON for machines. Not an SPA. HTMX is pinned to **4.0.0** in `app/ui/static/js/htmx.min.js`. Teach and copy from [four.htmx.org](https://four.htmx.org/docs).
 
@@ -86,12 +86,14 @@ To add a page: copy `templates/pages/blank.html`, add a row to `SHELL_PAGES` in 
 | Surface | Role |
 |---------|------|
 | SQLite + session/CSRF + HTMX UI + protected books JSON API | Primary path — fork and grow this |
-| `/items` (in-memory) | Minimal teaching CRUD — no auth, no UI |
-| `/db-items` (MongoDB) | Optional NoSQL demo — removable |
+| `/items` (in-memory) | Teaching CRUD — no auth, no UI |
+| `/db-items` (MongoDB) | Teaching async Mongo (Motor) — no auth, no UI |
 
-Do not add auth, HTMX, or shared abstractions to the memory/Mongo demos unless the point is to teach that idea. Keep demos thin on purpose. `/items` and `/db-items` teach storage. Delete them when a fork does not need them.
+`/items` and `/db-items` teach storage shapes. They stay thin: do not add auth, HTMX, or shared abstractions unless the point is to teach that idea. They are not a second product; they keep the thin **Item** naming on purpose.
 
-Books is the reference domain in this repo, not a requirement of every fork. Copy `app/routes/books.py`, `app/db/books.py`, and `app/ui/books_routes.py` for the next entity, then replace books. Keep the URL split (`/api`, `/auth`, `/ui`), session/CSRF, Bearer tokens, roles, and the list contract (`page`, `size`, allowlisted `ordering`, `innerHTML` swaps). Demo routes keep the thin **Item** naming so they are not a second product.
+**Removable means delete the demo from a fork**, not “leave the container off and the app still starts.” While `/db-items` ships in this tree, lifespan connects to MongoDB, Compose includes a Mongo service, and the full test suite expects a reachable Mongo. There is no feature flag to skip that connection. A fork that does not want Mongo deletes the `/db-items` routes, `app/utils/mongo.py`, the Motor/pymongo dependencies, the Compose Mongo service, and the related tests. Until then, the supported way to run the app and `pytest` is Docker Compose (`make upd` / `make test`), or a local Mongo that matches `MONGO_*` in `.env`.
+
+Books is the reference domain in this repo, not a requirement of every fork. Copy `app/routes/books.py`, `app/db/books.py`, and `app/ui/books_routes.py` for the next entity, then replace books. Keep the URL split (`/api`, `/auth`, `/ui`), session/CSRF, Bearer tokens, roles, and the list contract (`page`, `size`, allowlisted `ordering`, `innerHTML` swaps).
 
 ## Roles
 
@@ -254,7 +256,7 @@ Do not log passwords, session cookies, Bearer tokens, or CSRF secrets. Examples:
 
 - **Async-first** on the request path (async handlers, aiosqlite, Motor). Avoid new sync I/O in handlers. Sync `bcrypt` is an accepted exception; do not add more blocking work without noting it here.
 - **No ORM** (no SQLAlchemy, SQLModel, Tortoise, etc.). SQL strings + parameters.
-- **Removable modules** — Mongo, web UI, and demos must stay deletable via the README checklist pattern; do not entangle them into the primary path.
+- **Removable demos** — `/items`, `/db-items`, and their storage helpers must stay deletable from a fork without rewriting the primary path; do not entangle them into books, session auth, or the admin shell. Removable is not the same as runtime-optional.
 - **Document new patterns here** in the same change that introduces them.
 
 ## Patterns in use (primary path)
