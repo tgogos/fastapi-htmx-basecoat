@@ -504,7 +504,7 @@ class TestAuthWeb:
         assert "<html" in search.text.lower()
         assert "Search books" in search.text
 
-    def test_ui_includes_confirm_dialog_and_toast_region(
+    def test_ui_includes_confirm_dialog_and_toaster(
         self, auth_client: TestClient
     ):
         headers = session_csrf_headers(auth_client)
@@ -518,7 +518,7 @@ class TestAuthWeb:
         assert 'id="confirm-dialog"' in page.text
         assert 'id="confirm-dialog-phrase"' in page.text
         assert "Type DELETE to confirm" in page.text
-        assert 'id="toast-region"' in page.text
+        assert 'id="toaster"' in page.text
         assert 'hx-trigger="confirmed-delete"' in page.text
 
     def test_advanced_search_page(self, auth_client: TestClient):
