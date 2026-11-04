@@ -50,6 +50,8 @@ make test
 make down
 ```
 
+On push and pull request to `main`, GitHub Actions runs the same Compose build and pytest path (`.github/workflows/docker-test.yml`). It does not push an image.
+
 ### Local development with uv (optional)
 
 Compose remains the supported way to run the full stack and `make test`. On the host you still need a reachable Mongo for lifespan and for `pytest` (set `MONGO_HOST` and the other `MONGO_*` values, or leave Compose’s Mongo published and point at it).

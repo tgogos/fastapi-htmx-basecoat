@@ -1,0 +1,50 @@
+name: Docker test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: docker-test-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env from example
+        run: cp .env.example .env
+
+      - name: Build images
+        run: docker compose -f docker-compose.dev.yml build
+
+      - name: Start stack
+        run: docker compose -f docker-compose.dev.yml up -d
+
+      - name: Wait for /health
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf "http://127.0.0.1:${PUBLISH_PORT:-8000}/health" >/dev/null; then
+              echo "healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "timed out waiting for /health"
+          docker compose -f docker-compose.dev.yml ps
+          docker compose -f docker-compose.dev.yml logs
+          exit 1
+
+      - name: Run pytest
+        run: docker compose -f docker-compose.dev.yml exec -T fastapi-htmx-basecoat pytest
+
+      - name: Tear down
+        if: always()
+        run: docker compose -f docker-compose.dev.yml down -v
