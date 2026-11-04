@@ -6,7 +6,7 @@ A FastAPI boilerplate you fork and grow, kept boring on purpose. The same app se
 
 - **FastAPI**, async on the request path. **Pydantic** validates HTTP input and output.
 - **SQLite**, with parameterized SQL and no ORM.
-- **Jinja** templates and **HTMX 4.0.0**. The shell is [Basecoat](https://basecoatui.com/introduction/) 1.0.2, shadcn/ui components shipped as CSS and JavaScript and vendored under `app/ui/static/vendor/basecoat/`. There is no Tailwind or npm build.
+- **Jinja** templates and **HTMX 4.0.1**. The shell is [Basecoat](https://basecoatui.com/introduction/) 1.0.2, shadcn/ui components shipped as CSS and JavaScript and vendored under `app/ui/static/vendor/basecoat/`. There is no Tailwind or npm build.
 - A cookie session and CSRF for the pages. Opaque Bearer tokens for `/api`.
 - **Docker Compose**, [uv](https://docs.astral.sh/uv/), and pytest. Python 3.14.
 
