@@ -1,5 +1,7 @@
 # FastAPI HTMX Basecoat
 
+[![Docker test](https://github.com/tgogos/fastapi-htmx-basecoat/actions/workflows/docker-test.yml/badge.svg)](https://github.com/tgogos/fastapi-htmx-basecoat/actions/workflows/docker-test.yml)
+
 A FastAPI boilerplate you fork and grow, kept boring on purpose. The same app serves the people who use the pages and the programs that call its API. Pages are server-rendered HTML, with HTMX and a CSS library, so the UI has no build step. The database is SQLite and SQL written by hand, so there is no ORM. The aim is a lightweight start, with few dependencies, that you can still read as it grows.
 
 ## What it uses
