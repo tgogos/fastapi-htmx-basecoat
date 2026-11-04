@@ -14,11 +14,11 @@ The compiled files under `assets/vendor/` are unchanged upstream distributions. 
 
 Chart.js is loaded only on the dashboard. The rest of the template does not depend on it.
 
-## Basecoat 1.0.2
+## Basecoat 1.1.0
 
 - Licence: MIT
 - Files: `app/ui/static/vendor/basecoat/` and `app/ui/templates/basecoat/`
-- Package: `basecoat-css@1.0.2`
+- Package: `basecoat-css@1.1.0`
 - Upstream: <https://github.com/hunvreus/basecoat>
 - Docs: <https://basecoatui.com/introduction/>
 - Notice: `app/ui/static/vendor/basecoat/LICENSE.md`

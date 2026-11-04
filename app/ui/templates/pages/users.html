@@ -105,7 +105,7 @@
     <li><a class="btn" data-variant="ghost" href="/ui/users">Next</a></li>
   </ul>
 </nav>
-<dialog id="add-user" class="dialog" aria-labelledby="add-user-title" onclick="if (event.target === this) this.close()">
+<dialog id="add-user" class="dialog" aria-labelledby="add-user-title" onpointerdown="this.dataset.backdropPress = event.target === this" onclick="if (event.target === this && this.dataset.backdropPress === 'true') this.close()">
   <div>
     <header>
       <h2 id="add-user-title">Add user</h2>

@@ -139,8 +139,16 @@
 
   var confirmRoot = confirmDialog();
   if (confirmRoot) {
+    // Match Basecoat 1.1.0 dialogs: only close when the press started on the backdrop.
+    confirmRoot.addEventListener("pointerdown", function (event) {
+      confirmRoot.dataset.backdropPress =
+        event.target === confirmRoot ? "true" : "false";
+    });
     confirmRoot.addEventListener("click", function (event) {
-      if (event.target === confirmRoot) {
+      if (
+        event.target === confirmRoot &&
+        confirmRoot.dataset.backdropPress === "true"
+      ) {
         closeConfirm();
       }
     });

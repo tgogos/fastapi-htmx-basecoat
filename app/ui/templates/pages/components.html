@@ -238,7 +238,7 @@
   </section>
 </div>
 
-<dialog id="component-dialog" class="dialog" aria-labelledby="component-dialog-title" onclick="if (event.target === this) this.close()">
+<dialog id="component-dialog" class="dialog" aria-labelledby="component-dialog-title" onpointerdown="this.dataset.backdropPress = event.target === this" onclick="if (event.target === this && this.dataset.backdropPress === 'true') this.close()">
   <div>
     <header>
       <h2 id="component-dialog-title">Confirm change</h2>
