@@ -22,6 +22,10 @@ Books markup already puts `hx-get`, `hx-target`, and `hx-swap` on the element th
 - HTTP 4xx and 5xx responses swap into the target. A books form that returns `400` with table HTML shows that HTML.
 - An expired or missing session on an HTMX request must not return a normal `303` to `/auth/login`. HTMX would follow it and swap the login page into the fragment target. The `LoginRequired` handler returns `204` with `HX-Redirect: /auth/login` when `HX-Request` is set, so the whole window navigates. Full-page visits still use `303`.
 
+### FastAPI / Starlette
+
+FastAPI is pinned in `pyproject.toml` (`fastapi[standard]==0.161.1`). Starlette is not pinned there; it comes in as FastAPI’s dependency and is resolved in `uv.lock` (currently **1.3.1**). Starlette **1.x** is intentional — security updates land through that line. Do not force Starlette back to 0.x without a concrete break and an update to this note. Prefer FastAPI’s declared range plus the lockfile unless an override is required.
+
 ## UI architecture (HTML-first)
 
 Prefer boring, server-driven UI over client frameworks. Concrete HTMX usage is under **HTMX patterns in use**.
