@@ -242,6 +242,18 @@ In-memory and Mongo demos remain unauthenticated unless that changes deliberatel
 
 Implemented: session + CSRF for the UI and for session-authenticated `/api` writes; `POST/DELETE /api/auth/token` + opaque tokens in `api_tokens`; `require_user` accepts Bearer or session; Swagger shows HTTP Bearer via `HTTPBearer` on API deps.
 
+### Return URLs after POST (open redirects)
+
+Some forms carry a “where next” value so the browser returns to the same list or page after a save (filters, pagination, shell controls). Never put that value straight into `RedirectResponse` without a server check (CWE-601).
+
+| Pattern | Where | Rule |
+|---------|--------|------|
+| Token → server builds URL | Books (`return_to=list\|search\|table`, list query via `_list_place`) | Client does not supply the redirect path |
+| Path allowlist | Staff (`_staff_return`) | Only `/ui/admin/users` or that path with a query |
+| Relative path only | Shell / view (`safe_shell_next` → `safe_relative_path` in `app/ui/redirects.py`) | Leading `/`, no scheme/host; strip `\`; else fallback |
+
+Prefer the token pattern for new list flows. CodeQL may still flag helpers; dismiss with a note pointing at this section when the check is already in place.
+
 ## Logging
 
 Stdlib `logging` to **stdout** (Docker/12-factor). No log files, Loguru, or structlog.

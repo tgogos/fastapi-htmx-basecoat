@@ -46,6 +46,7 @@ from app.ui.pagination import (
     sort_column_state,
 )
 from app.ui.paths import TEMPLATES_DIR
+from app.ui.redirects import safe_relative_path
 from app.ui.shell import current_content_width, current_shell_layout
 
 router = APIRouter()
@@ -82,7 +83,7 @@ def _remember_toast(request: Request, message: str) -> None:
 
 
 def _staff_return(value: str | None) -> str:
-    path = (value or "").strip()
+    path = safe_relative_path(value or "", fallback=STAFF_PATH)
     if path == STAFF_PATH or path.startswith(f"{STAFF_PATH}?"):
         return path
     return STAFF_PATH

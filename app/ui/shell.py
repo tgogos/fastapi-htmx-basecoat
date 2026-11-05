@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from starlette.requests import Request
 
+from app.ui.redirects import safe_relative_path
+
 SHELL_LAYOUTS = ("header", "sidebar")
 SHELL_COOKIE = "shell_layout"
 DEFAULT_SHELL_LAYOUT = "header"
@@ -33,11 +35,4 @@ def current_content_width(request: Request) -> str:
 
 
 def safe_shell_next(value: str) -> str:
-    if (
-        not value.startswith("/")
-        or value.startswith("//")
-        or "\\" in value
-        or "://" in value
-    ):
-        return "/ui/settings"
-    return value
+    return safe_relative_path(value, fallback="/ui/settings")
