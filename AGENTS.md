@@ -2,9 +2,14 @@
 
 Before changing this repo, read [`docs/ENGINEERING.md`](docs/ENGINEERING.md) and follow it.
 
+## Choosing technologies
+
+[`docs/ENGINEERING.md`](docs/ENGINEERING.md) is the source of truth. Generic FastAPI skills, tutorials, or checklists often push SQLModel/ORMs, JWT, SPA front ends, OpenTelemetry, or a frontend build — **do not adopt those by default here**. Treat external advice as questions; keep this boilerplate’s stack unless `ENGINEERING.md` is updated in the same change. See that file’s **Choosing technologies (agents)** and **Out of scope**.
+
 ## Must follow
 
 - Prefer the primary path: SQLite, session/CSRF + HTMX UI, protected books JSON API (`/api/books`, `/ui/books`). Keep in-memory and Mongo demos thin and deletable from a fork. While `/db-items` ships here, startup and the full test suite expect Mongo (Compose); do not treat that demo as runtime-optional.
+- Auth on handlers: use Annotated aliases from `app/auth/deps.py` (`UserDep`, `EditorDep`, `AdminDep`, `HtmlUserDep`, `HtmlEditorDep`, `HtmlAdminDep`). Keep `Depends(verify_csrf)` (and similar) on router `dependencies=` when nothing is injected. App entrypoint: `[tool.fastapi] entrypoint = "app.main:app"` in `pyproject.toml`.
 - **HTML-first / HTMX** — see [`docs/ENGINEERING.md`](docs/ENGINEERING.md) § UI architecture and **Client-side boundary**. The shared shell (`templates/layout.html`) uses Basecoat 1.1.0. Vendored files are in `app/ui/static/vendor/basecoat/`. Server owns pages and fragments. Vanilla JS islands only when needed (confirm dialog, toasts, CSRF, theme toggle). Do **not** add Alpine, React, Vue, Svelte, SPA routing, or a Tailwind/npm build step for ordinary UI or the application shell. A bounded framework island is allowed only for a specialised workspace, and only when `ENGINEERING.md` documents it in the same change. Do not add another global component framework stylesheet; page-specific CSS may still be justified.
 - HTMX is pinned to **4.0.1** (`app/ui/static/js/htmx.min.js`). Use [four.htmx.org](https://four.htmx.org/docs). Do not reintroduce HTMX 2 event names (`htmx:configRequest`, `htmx:pushedIntoHistory`) or the `htmx.ajax` options `pushUrl` and `indicator`.
 - Async-first on the request path. No ORM — parameterized SQL only. Pydantic for request/response schemas, not persistence.

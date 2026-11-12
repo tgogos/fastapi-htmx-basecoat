@@ -10,8 +10,8 @@ from fastapi.templating import Jinja2Templates
 
 from app.auth.deps import (
     SESSION_VERSION_KEY,
+    HtmlAdminDep,
     get_or_create_csrf_token,
-    require_admin_html,
     verify_csrf,
 )
 from app.auth.passwords import hash_password
@@ -254,7 +254,7 @@ def _public_row(row: dict) -> dict:
 @router.get("/admin/users", response_class=HTMLResponse)
 async def staff_page(
     request: Request,
-    user: dict = Depends(require_admin_html),
+    user: HtmlAdminDep,
     page: int = Query(1, ge=1),
     size: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=100),
     ordering: str | None = Query(None),
@@ -282,7 +282,7 @@ async def staff_page(
 @router.get("/admin/users/new", response_class=HTMLResponse)
 async def new_staff_page(
     request: Request,
-    user: dict = Depends(require_admin_html),
+    user: HtmlAdminDep,
     return_to: str = Query(""),
 ):
     back = _staff_return(return_to)
@@ -306,7 +306,7 @@ async def new_staff_page(
 )
 async def create_staff(
     request: Request,
-    user: dict = Depends(require_admin_html),
+    user: HtmlAdminDep,
     username: str = Form(""),
     display_name: str = Form(""),
     role: str = Form("viewer"),
@@ -345,7 +345,7 @@ async def create_staff(
 async def edit_staff_page(
     request: Request,
     user_id: int,
-    user: dict = Depends(require_admin_html),
+    user: HtmlAdminDep,
     return_to: str = Query(""),
 ):
     target = await get_user_by_id(user_id)
@@ -377,7 +377,7 @@ async def edit_staff_page(
 async def edit_staff(
     request: Request,
     user_id: int,
-    user: dict = Depends(require_admin_html),
+    user: HtmlAdminDep,
     display_name: str = Form(""),
     role: str = Form(""),
     return_to: str = Form(""),
@@ -418,7 +418,7 @@ async def edit_staff(
 async def staff_password_page(
     request: Request,
     user_id: int,
-    user: dict = Depends(require_admin_html),
+    user: HtmlAdminDep,
     return_to: str = Query(""),
 ):
     target = await get_user_by_id(user_id)
@@ -445,7 +445,7 @@ async def staff_password_page(
 async def staff_password(
     request: Request,
     user_id: int,
-    user: dict = Depends(require_admin_html),
+    user: HtmlAdminDep,
     password: str = Form(""),
     password_confirm: str = Form(""),
     return_to: str = Form(""),

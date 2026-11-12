@@ -2,9 +2,9 @@
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 
-from app.auth.deps import require_editor, require_user
+from app.auth.deps import EditorDep, UserDep
 from app.db import books as books_repo
 from app.db.books import BOOK_CATEGORIES, normalize_ordering
 from app.models.book import BookCreate, BookResponse, BookUpdate, PaginatedBooks
@@ -38,7 +38,7 @@ def _parse_available(value: Optional[str]) -> Optional[bool]:
 )
 async def create_book(
     book: BookCreate,
-    user: dict = Depends(require_editor),
+    user: EditorDep,
 ) -> BookResponse:
     row = await books_repo.create_book(
         book.title,
@@ -60,7 +60,7 @@ async def create_book(
     summary="List books",
 )
 async def list_books(
-    _user: dict = Depends(require_user),
+    _user: UserDep,
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
     q: str | None = Query(None, description="Search title, author, or ISBN"),
@@ -110,7 +110,7 @@ async def list_books(
 )
 async def get_book(
     book_id: str,
-    _user: dict = Depends(require_user),
+    _user: UserDep,
 ) -> BookResponse:
     row = await books_repo.get_book(book_id)
     if row is None:
@@ -126,7 +126,7 @@ async def get_book(
 async def update_book(
     book_id: str,
     book_update: BookUpdate,
-    _user: dict = Depends(require_editor),
+    _user: EditorDep,
 ) -> BookResponse:
     data = book_update.model_dump(exclude_unset=True)
     if not data:
@@ -159,7 +159,7 @@ async def update_book(
 )
 async def delete_book(
     book_id: str,
-    _user: dict = Depends(require_editor),
+    _user: EditorDep,
 ) -> None:
     deleted = await books_repo.delete_book(book_id)
     if not deleted:

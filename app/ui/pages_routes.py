@@ -8,6 +8,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.auth.deps import (
     SESSION_VERSION_KEY,
+    HtmlUserDep,
     get_or_create_csrf_token,
     get_session_user,
     require_user_html,
@@ -98,7 +99,7 @@ def _page(
 ):
     async def handler(
         request: Request,
-        user: dict = Depends(require_user_html),
+        user: HtmlUserDep,
     ):
         return templates.TemplateResponse(
             request,
@@ -163,7 +164,7 @@ def _profile_page(
 @router.get("/settings", response_class=HTMLResponse)
 async def settings_profile(
     request: Request,
-    user: dict = Depends(require_user_html),
+    user: HtmlUserDep,
 ):
     return _profile_page(
         request,
@@ -181,7 +182,7 @@ async def settings_profile_redirect():
 @router.get("/settings/appearance", response_class=HTMLResponse)
 async def settings_appearance(
     request: Request,
-    user: dict = Depends(require_user_html),
+    user: HtmlUserDep,
 ):
     return templates.TemplateResponse(
         request,
@@ -202,7 +203,7 @@ async def settings_appearance(
 )
 async def save_settings_profile(
     request: Request,
-    user: dict = Depends(require_user_html),
+    user: HtmlUserDep,
     display_name: str = Form(""),
 ):
     try:
@@ -243,7 +244,7 @@ def _account_page(
 @router.get("/settings/account", response_class=HTMLResponse)
 async def settings_account(
     request: Request,
-    user: dict = Depends(require_user_html),
+    user: HtmlUserDep,
 ):
     return _account_page(request, user, form_error=None)
 
@@ -255,7 +256,7 @@ async def settings_account(
 )
 async def save_settings_account(
     request: Request,
-    user: dict = Depends(require_user_html),
+    user: HtmlUserDep,
     current_password: str = Form(""),
     password: str = Form(""),
     password_confirm: str = Form(""),

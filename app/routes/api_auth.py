@@ -6,7 +6,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.auth.deps import require_user
+from app.auth.deps import UserDep
 from app.auth.passwords import verify_password
 from app.auth.tokens import create_token, revoke_token
 from app.auth.users import get_user_by_username
@@ -61,7 +61,7 @@ async def revoke_current_token(
     response_model=UserPublic,
     summary="Current user (session or Bearer)",
 )
-async def me(user: dict = Depends(require_user)) -> UserPublic:
+async def me(user: UserDep) -> UserPublic:
     return UserPublic(
         id=user["id"],
         username=user["username"],

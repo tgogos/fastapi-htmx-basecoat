@@ -26,6 +26,32 @@ Books markup already puts `hx-get`, `hx-target`, and `hx-swap` on the element th
 
 FastAPI is pinned in `pyproject.toml` (`fastapi[standard]==0.162.2`). Starlette is not pinned there; it comes in as FastAPI’s dependency and is resolved in `uv.lock` (currently **1.3.1**). Starlette **1.x** is intentional — security updates land through that line. Do not force Starlette back to 0.x without a concrete break and an update to this note. Prefer FastAPI’s declared range plus the lockfile unless an override is required. From 0.162.0, omitted boolean form fields no longer become `False` by inference — declare `bool = Form(False)` for checkboxes. This app’s book `available` field uses `str | None = Form(None)` instead.
 
+`pyproject.toml` declares `[tool.fastapi] entrypoint = "app.main:app"` so `fastapi dev` / `fastapi run`, FastAPI Cloud, and editor tooling can find the app without a path argument. Keep that entrypoint accurate when the ASGI object moves.
+
+### Annotated auth dependencies
+
+Handler parameters use Annotated aliases from `app/auth/deps.py`, not inline `Depends(require_…)`:
+
+| Alias | For | Wraps |
+|-------|-----|-------|
+| `UserDep` | JSON `/api` | `require_user` (Bearer or session; CSRF on session mutations) |
+| `EditorDep` / `AdminDep` | JSON `/api` | role gates on top of `require_user` |
+| `HtmlUserDep` | HTML `/ui` | `require_user_html` (session; `LoginRequired`) |
+| `HtmlEditorDep` / `HtmlAdminDep` | HTML `/ui` | role gates; `ForbiddenPage` when too low |
+
+Example: `async def me(user: UserDep) -> UserPublic:`. Router-level side effects that inject nothing stay as `dependencies=[Depends(verify_csrf)]` (and `Depends(require_user_html)` when a route only gates access that way). Add a new alias next to the underlying function when you introduce a reusable auth dependency; export it from `app/auth/__init__.py`.
+
+## Choosing technologies (agents)
+
+This file wins over generic FastAPI tutorials, checklists, or agent skills. Those often assume SQLModel/SQLAlchemy, JWT, SPA front ends, OpenTelemetry, or a frontend build by default. **Do not apply those defaults here.**
+
+When picking a library or path:
+
+1. Prefer what this repo already ships for that concern (see **Goals**, **Product shape**, **Non-negotiables**, **Out of scope**).
+2. Copy primary-path style (`/api/books`, `/ui/books`, `app/auth/deps.py` aliases) rather than inventing a parallel stack.
+3. Treat skill or blog advice as a checklist of questions, not a rewrite plan. Adopt a suggestion only when it fits these notes; if it conflicts, keep the boilerplate choice and update this file only when the project deliberately changes course.
+4. New architectural patterns require an update to this document in the same change.
+
 ## UI architecture (HTML-first)
 
 Prefer boring, server-driven UI over client frameworks. Concrete HTMX usage is under **HTMX patterns in use**.
@@ -111,7 +137,7 @@ Three hierarchical roles on `users.role`:
 | `editor` | Create / update / delete books |
 | `admin` | Editor powers + `/ui/admin/users` (list, add, edit display name and role, set a password) |
 
-Enforcement is always on the server (`require_user` / `require_editor` / `require_admin` and HTML variants). Templates hide buttons; never trust the UI alone. A signed-in person who opens an HTML page their role does not allow gets the forbidden page, status 403. An HTMX fragment on that route gets a short alert with the same status, so the shell is not swapped into the page. An unknown HTML address gets the not-found page, status 404. `/api` keeps JSON for both statuses. A signed-out browser is sent to `/auth/login`.
+Enforcement is always on the server (`UserDep` / `EditorDep` / `AdminDep` and HTML aliases). Templates hide buttons; never trust the UI alone. A signed-in person who opens an HTML page their role does not allow gets the forbidden page, status 403. An HTMX fragment on that route gets a short alert with the same status, so the shell is not swapped into the page. An unknown HTML address gets the not-found page, status 404. `/api` keeps JSON for both statuses. A signed-out browser is sent to `/auth/login`.
 
 The seeded demo user is an **admin** (`DEMO_USERNAME` / `DEMO_PASSWORD`).
 
@@ -131,7 +157,7 @@ Write primary-path code like the SQL and web layers:
 - SQL in small modules (`app/db/…`, `app/auth/users.py`) with parameterized queries.
 - Schema in `app/db/schema.sql`.
 - Pydantic models are request/response schemas only, not persistence objects.
-- Prefer FastAPI dependencies for auth over ad-hoc checks in every handler.
+- Prefer FastAPI dependencies for auth over ad-hoc checks in every handler. Use the Annotated aliases (`UserDep`, `EditorDep`, `AdminDep`, `HtmlUserDep`, …) in signatures; see **Annotated auth dependencies**.
 
 Reference implementations: `app/routes/books.py` for a thin JSON layer, `app/db/books.py` for parameterised persistence, and the focused patterns documented under **HTMX patterns in use** for the browser UI. The current `app/ui/books_routes.py` demonstrates the complete workflow but should not be copied wholesale into another domain.
 
@@ -234,7 +260,7 @@ One user store; two client mechanisms:
 
 1. **Browsers / HTMX** — signed session cookie. Mutating HTML/HTMX requests require CSRF (`require_user_html`, `verify_csrf`). `LoginRequired` uses `303` for full pages and `HX-Redirect` for HTMX (see **HTMX 4**).
 2. **Machine clients** — opaque Bearer token from `POST /api/auth/token` (username/password). Store tokens in SQLite so revocation is deleting a row. Do not default to JWT unless this document is updated to say so.
-3. **Protected JSON routes** — `require_user` accepts a valid session **or** a valid Bearer token. If the client uses the **session cookie** on a mutating method (`POST`/`PUT`/`PATCH`/`DELETE`), CSRF is required (`X-CSRF-Token` header or form field). **Bearer requests skip CSRF.** Role gates: `require_editor`, `require_admin`.
+3. **Protected JSON routes** — inject `UserDep` (or `EditorDep` / `AdminDep`). Under the hood, `require_user` accepts a valid session **or** a valid Bearer token. If the client uses the **session cookie** on a mutating method (`POST`/`PUT`/`PATCH`/`DELETE`), CSRF is required (`X-CSRF-Token` header or form field). **Bearer requests skip CSRF.**
 4. **Same-origin JS calling `/api`** — either send the session cookie with `credentials: "include"` **and** `X-CSRF-Token` (from the page meta tag), or use a Bearer token. Prefer Bearer for non-HTML clients; session+CSRF is fine for page scripts.
 5. **Swagger `/docs`** — use HTTP Bearer for `/api` routes. Cookie login is for the UI, not the main docs Authorize flow.
 
@@ -284,12 +310,13 @@ Do not log passwords, session cookies, Bearer tokens, or CSRF secrets. Examples:
 - Lifespan for connect / schema / seed / shutdown (not deprecated `@on_event`).
 - Process-wide SQLite connection via `app/db/connection.py` (simple single-process setup; not a pool).
 - Repository-style helpers return dicts (or simple structures); routes map to Pydantic.
-- Separate dependencies for JSON vs HTML auth: `require_user` (Bearer or session) vs `require_user_html` + `LoginRequired` (session only); plus `require_editor` / `require_admin` (and HTML variants).
+- Separate dependencies for JSON vs HTML auth: Annotated aliases `UserDep` / `EditorDep` / `AdminDep` vs `HtmlUserDep` / `HtmlEditorDep` / `HtmlAdminDep` (session + `LoginRequired` / `ForbiddenPage`). Underlying callables remain in `app/auth/deps.py` for router `dependencies=[Depends(…)]` and tests.
 - Opaque API tokens hashed (SHA-256) in `api_tokens`; plaintext returned once from `POST /api/auth/token`.
 - Settings via Pydantic Settings (`app/core/config.py`).
 - Stdlib logging to stdout (`app/core/logging.py`); `LOG_LEVEL` env; JSON when `ENVIRONMENT=production`.
 - Shared identity helpers in `app/auth/` (passwords, users, tokens, deps). HTTP routes live in `app/routes/` (JSON) and `app/ui/` (HTML).
 - **uv** for Python deps: `pyproject.toml` + committed `uv.lock`; Docker installs with `uv sync --frozen`. Do not reintroduce `requirements.txt` as a second source of truth. Target CPython **3.14** (`.python-version`, `requires-python`).
+- FastAPI CLI entrypoint: `[tool.fastapi] entrypoint = "app.main:app"` in `pyproject.toml`.
 
 ## Out of scope
 

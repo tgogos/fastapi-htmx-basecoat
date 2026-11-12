@@ -2,6 +2,12 @@
 
 from app.auth.passwords import hash_password, verify_password
 from app.auth.deps import (
+    AdminDep,
+    EditorDep,
+    HtmlAdminDep,
+    HtmlEditorDep,
+    HtmlUserDep,
+    UserDep,
     get_current_user,
     get_session_user,
     get_api_user,
@@ -19,6 +25,12 @@ from app.auth.deps import (
 __all__ = [
     "hash_password",
     "verify_password",
+    "UserDep",
+    "EditorDep",
+    "AdminDep",
+    "HtmlUserDep",
+    "HtmlEditorDep",
+    "HtmlAdminDep",
     "get_current_user",
     "get_session_user",
     "get_api_user",

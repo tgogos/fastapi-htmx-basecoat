@@ -24,6 +24,9 @@ dev = [
 [tool.uv]
 package = false
 
+[tool.fastapi]
+entrypoint = "app.main:app"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]

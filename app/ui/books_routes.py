@@ -10,9 +10,9 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.auth.deps import (
+    HtmlEditorDep,
+    HtmlUserDep,
     get_or_create_csrf_token,
-    require_editor_html,
-    require_user_html,
     verify_csrf,
 )
 from app.auth.users import list_users, role_at_least
@@ -804,7 +804,7 @@ async def _books_table_page_data(
 @router.get("/books", response_class=HTMLResponse)
 async def books_page(
     request: Request,
-    user: dict = Depends(require_user_html),
+    user: HtmlUserDep,
     page: int = Query(1, ge=1),
     size: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=100),
     ordering: str | None = Query(None),
@@ -828,7 +828,7 @@ async def books_page(
 @router.get("/books/search", response_class=HTMLResponse)
 async def books_search_page(
     request: Request,
-    user: dict = Depends(require_user_html),
+    user: HtmlUserDep,
     page: int = Query(1, ge=1),
     size: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=100),
     ordering: str | None = Query(None),
@@ -882,7 +882,7 @@ async def books_search_page(
 @router.get("/books/table", response_class=HTMLResponse)
 async def books_table_page(
     request: Request,
-    user: dict = Depends(require_user_html),
+    user: HtmlUserDep,
     page: int = Query(1, ge=1),
     size: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=100),
     ordering: str | None = Query(None),
@@ -911,7 +911,7 @@ async def books_table_page(
 )
 async def delete_selected_books(
     request: Request,
-    user: dict = Depends(require_editor_html),
+    user: HtmlEditorDep,
     page: int = Query(1, ge=1),
     size: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=100),
     ordering: str | None = Query(None),
@@ -961,7 +961,7 @@ async def delete_selected_books(
 @router.get("/books/new", response_class=HTMLResponse)
 async def new_book_page(
     request: Request,
-    user: dict = Depends(require_editor_html),
+    user: HtmlEditorDep,
 ):
     return templates.TemplateResponse(
         request,
@@ -991,7 +991,7 @@ async def new_book_page(
 )
 async def create_book(
     request: Request,
-    user: dict = Depends(require_editor_html),
+    user: HtmlEditorDep,
     title: str = Form(...),
     author: str = Form(...),
     year: str = Form(""),
@@ -1075,7 +1075,7 @@ async def create_book(
 async def edit_book_form(
     request: Request,
     book_id: str,
-    user: dict = Depends(require_editor_html),
+    user: HtmlEditorDep,
     place: dict[str, str] = Depends(_list_place),
 ):
     book = await books_repo.get_book(book_id)
@@ -1122,7 +1122,7 @@ async def edit_book_form(
 async def save_book_page(
     request: Request,
     book_id: str,
-    user: dict = Depends(require_editor_html),
+    user: HtmlEditorDep,
     place: dict[str, str] = Depends(_list_place),
     title: str = Form(...),
     author: str = Form(...),
@@ -1194,7 +1194,7 @@ async def save_book_page(
 async def book_page(
     request: Request,
     book_id: str,
-    user: dict = Depends(require_user_html),
+    user: HtmlUserDep,
     place: dict[str, str] = Depends(_list_place),
 ):
     book = await books_repo.get_book(book_id)
@@ -1211,7 +1211,7 @@ async def book_page(
 async def book_row(
     request: Request,
     book_id: str,
-    user: dict = Depends(require_user_html),
+    user: HtmlUserDep,
 ):
     book = await books_repo.get_book(book_id)
     if book is None:
@@ -1242,7 +1242,7 @@ async def book_row(
 async def update_book(
     request: Request,
     book_id: str,
-    user: dict = Depends(require_editor_html),
+    user: HtmlEditorDep,
     title: str = Form(...),
     author: str = Form(...),
     year: str = Form(""),
@@ -1312,7 +1312,7 @@ async def update_book(
 async def delete_book(
     request: Request,
     book_id: str,
-    user: dict = Depends(require_editor_html),
+    user: HtmlEditorDep,
     page: int = Query(1, ge=1),
     size: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=100),
     ordering: str | None = Query(None),
