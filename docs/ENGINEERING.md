@@ -24,7 +24,7 @@ Books markup already puts `hx-get`, `hx-target`, and `hx-swap` on the element th
 
 ### FastAPI / Starlette
 
-FastAPI is pinned in `pyproject.toml` (`fastapi[standard]==0.162.0`). Starlette is not pinned there; it comes in as FastAPI’s dependency and is resolved in `uv.lock` (currently **1.3.1**). Starlette **1.x** is intentional — security updates land through that line. Do not force Starlette back to 0.x without a concrete break and an update to this note. Prefer FastAPI’s declared range plus the lockfile unless an override is required. From 0.162.0, omitted boolean form fields no longer become `False` by inference — declare `bool = Form(False)` for checkboxes. This app’s book `available` field uses `str | None = Form(None)` instead.
+FastAPI is pinned in `pyproject.toml` (`fastapi[standard]==0.162.2`). Starlette is not pinned there; it comes in as FastAPI’s dependency and is resolved in `uv.lock` (currently **1.3.1**). Starlette **1.x** is intentional — security updates land through that line. Do not force Starlette back to 0.x without a concrete break and an update to this note. Prefer FastAPI’s declared range plus the lockfile unless an override is required. From 0.162.0, omitted boolean form fields no longer become `False` by inference — declare `bool = Form(False)` for checkboxes. This app’s book `available` field uses `str | None = Form(None)` instead.
 
 ## UI architecture (HTML-first)
 
