@@ -706,6 +706,13 @@ html.dark .theme-switch .when-dark {
   z-index: 40;
 }
 
+/* Row menus are fixed even while closed. A closed Basecoat menu is only
+   invisible, and an absolute one below the last rows gives the table its own
+   scrollbar. app.js sets the coordinates when a menu opens. */
+.table-actions [data-popover] {
+  position: fixed;
+}
+
 .table tr:hover > .table-check,
 .table tr:hover > .table-actions {
   background: color-mix(in oklab, var(--muted) 50%, var(--background));
