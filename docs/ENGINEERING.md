@@ -9,7 +9,7 @@ This file is the source of truth for architecture and conventions. When a decisi
 - Mature shape (clear modules, auth, tests, Docker) without shortcuts that fight growth.
 - One primary full-stack path; teaching demos stay thin and deletable from a fork.
 - Async-first; raw SQL (no ORM); Pydantic at the HTTP edge only.
-- **HTML-first / HTMX** for the browser UI; `/api` JSON for machines. Not an SPA. HTMX is pinned to **4.0.1** in `app/ui/static/js/htmx.min.js`. Teach and copy from [four.htmx.org](https://four.htmx.org/docs).
+- **HTML-first / HTMX** for the browser UI; `/api` JSON for machines. Not an SPA. HTMX is pinned to **4.0.2** in `app/ui/static/js/htmx.min.js`. Teach and copy from [four.htmx.org](https://four.htmx.org/docs).
 
 ### HTMX 4
 
@@ -17,7 +17,7 @@ Books markup already puts `hx-get`, `hx-target`, and `hx-swap` on the element th
 
 - `app.js` listens for `htmx:config:request` and writes the CSRF token on `event.detail.ctx.request.headers`. The 2.x names `htmx:configRequest` and `event.detail.headers` do not fire.
 - The same file listens for `htmx:after:history:push` (the 2.x name was `htmx:pushedIntoHistory`). The page-size control calls `htmx.ajax` with `push`, and the select carries `hx-indicator`. `pushUrl` and `indicator` are not `htmx.ajax` arguments in 4.x.
-- From 4.0.1, a new trigger on an element cancels a pending `delay` or `throttle` on that same element (same as 2.x). Debounced search relies on that.
+- From 4.0.2, a pending `delay` or `throttle` is cancelled only by another trigger in the same `hx-trigger` value (not by `hx-on`). Debounced search relies on that.
 - Back and Forward refetch the URL and still send `HX-Request`. `_wants_books_partial` returns the full page when `HX-History-Restore-Request` is set, and the table fragment otherwise. `/ui/books` and `/ui/books/search` both use it.
 - HTTP 4xx and 5xx responses swap into the target. A books form that returns `400` with table HTML shows that HTML.
 - An expired or missing session on an HTMX request must not return a normal `303` to `/auth/login`. HTMX would follow it and swap the login page into the fragment target. The `LoginRequired` handler returns `204` with `HX-Redirect: /auth/login` when `HX-Request` is set, so the whole window navigates. Full-page visits still use `303`.
