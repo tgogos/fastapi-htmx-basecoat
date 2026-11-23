@@ -519,6 +519,8 @@ class TestAuthWeb:
         assert 'id="confirm-dialog-phrase"' in page.text
         assert "Type DELETE to confirm" in page.text
         assert 'id="toaster"' in page.text
+        assert 'class="toaster"' in page.text
+        assert 'role="list"' in page.text
         assert 'hx-trigger="confirmed-delete"' in page.text
 
     def test_advanced_search_page(self, auth_client: TestClient):
@@ -617,7 +619,8 @@ class TestAuthWeb:
             },
         )
         assert deleted.status_code == 200
-        assert "Deleted 2 books" in deleted.headers["HX-Trigger"]
+        assert '"description": "Deleted 2 books"' in deleted.headers["HX-Trigger"]
+        assert '"category": "success"' in deleted.headers["HX-Trigger"]
         assert "Table Fiction" not in deleted.text
         assert "Table Mystery" not in deleted.text
         assert "Table Biography" in deleted.text
@@ -642,7 +645,8 @@ class TestAuthWeb:
         assert deleted.status_code == 200
         assert "HX-Trigger" in deleted.headers
         assert "showToast" in deleted.headers["HX-Trigger"]
-        assert "Book deleted" in deleted.headers["HX-Trigger"]
+        assert '"description": "Book deleted"' in deleted.headers["HX-Trigger"]
+        assert '"category": "success"' in deleted.headers["HX-Trigger"]
 
     def test_ui_update_triggers_toast_header(self, auth_client: TestClient):
         headers = session_csrf_headers(auth_client)
@@ -664,7 +668,8 @@ class TestAuthWeb:
         )
         assert saved.status_code == 200
         assert "Toast Save" in saved.text
-        assert "Book saved" in saved.headers["HX-Trigger"]
+        assert '"description": "Book saved"' in saved.headers["HX-Trigger"]
+        assert '"category": "success"' in saved.headers["HX-Trigger"]
 
     def test_book_pages_create_show_edit_and_delete(self, auth_client: TestClient):
         headers = session_csrf_headers(auth_client)
@@ -721,7 +726,8 @@ class TestAuthWeb:
         assert saved.headers["location"] == f"/ui/books/{book_id}"
         revised = auth_client.get(saved.headers["location"])
         assert "Page Book Revised" in revised.text
-        assert 'data-message="Book saved"' in revised.text
+        assert 'data-description="Book saved"' in revised.text
+        assert 'data-category="success"' in revised.text
 
         deleted = auth_client.delete(
             f"/ui/books/{book_id}?redirect=1",
@@ -730,7 +736,8 @@ class TestAuthWeb:
         assert deleted.status_code == 200
         assert deleted.headers["HX-Redirect"] == "/ui/books"
         listing = auth_client.get("/ui/books")
-        assert 'data-message="Book deleted"' in listing.text
+        assert 'data-description="Book deleted"' in listing.text
+        assert 'data-category="success"' in listing.text
         missing = auth_client.get(f"/ui/books/{book_id}")
         assert missing.status_code == 404
 

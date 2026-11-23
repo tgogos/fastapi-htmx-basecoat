@@ -75,15 +75,69 @@
 
   /* --- Shared helpers: Basecoat toasts and initAll --- */
 
-  function showToast(message, level) {
+  function toastCategory(value) {
+    if (value === null) {
+      return null;
+    }
+    if (value === "ok" || value === "success") {
+      return "success";
+    }
+    if (value === "error" || value === "info" || value === "warning" || value === "loading") {
+      return value;
+    }
+    return "success";
+  }
+
+  function toastConfig(detail) {
+    var source = detail || {};
+    if (typeof source === "string") {
+      source = { description: source };
+    }
+    var description =
+      source.description != null ? source.description : source.message;
+    var title = source.title;
+    var category = Object.prototype.hasOwnProperty.call(source, "category")
+      ? toastCategory(source.category)
+      : toastCategory(source.level != null ? source.level : "success");
+    var config = { category: category };
+    if (title) {
+      config.title = title;
+    }
+    if (description) {
+      config.description = description;
+    }
+    if (source.duration != null) {
+      config.duration = source.duration;
+    }
+    if (source.action) {
+      config.action = source.action;
+    }
+    if (source.cancel) {
+      config.cancel = source.cancel;
+    }
+    if (source.closeButton != null) {
+      config.closeButton = source.closeButton;
+    }
+    if (source.icon) {
+      config.icon = source.icon;
+    }
+    if (source.html != null) {
+      config.html = source.html;
+    }
+    return config;
+  }
+
+  function showToast(detail) {
     var region = document.getElementById("toaster");
-    if (!region || !message || typeof region.toast !== "function") {
+    var config = toastConfig(detail);
+    if (
+      !region ||
+      typeof region.toast !== "function" ||
+      (!config.description && !config.title)
+    ) {
       return;
     }
-    region.toast({
-      category: level === "error" ? "error" : "success",
-      description: message,
-    });
+    region.toast(config);
   }
 
   function initBasecoat(force) {
@@ -183,11 +237,10 @@
     });
   });
 
-  /* --- Toast from HX-Trigger: showToast --- */
+  /* --- Toast from HX-Trigger: showToast (Basecoat toast config) --- */
 
   document.body.addEventListener("showToast", function (event) {
-    var detail = event.detail || {};
-    showToast(detail.message, detail.level);
+    showToast(event.detail || {});
   });
 
   /* --- CSRF: copy meta csrf-token onto HTMX mutating requests --- */
@@ -447,7 +500,17 @@
     if (typeof region.toast !== "function") {
       return false;
     }
-    showToast(pendingToast.getAttribute("data-message"), pendingToast.getAttribute("data-level"));
+    showToast({
+      title: pendingToast.getAttribute("data-title") || undefined,
+      description:
+        pendingToast.getAttribute("data-description") ||
+        pendingToast.getAttribute("data-message") ||
+        undefined,
+      category:
+        pendingToast.getAttribute("data-category") ||
+        pendingToast.getAttribute("data-level") ||
+        "success",
+    });
     pendingToast.remove();
     return true;
   }

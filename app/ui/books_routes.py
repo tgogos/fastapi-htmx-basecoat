@@ -94,8 +94,12 @@ def _ctx(request: Request, user: dict, **extra):
     return ctx
 
 
-def _remember_toast(request: Request, message: str) -> None:
-    request.session["toast"] = {"message": message, "level": "ok"}
+def _remember_toast(request: Request, message: str, *, category: str = "success") -> None:
+    request.session["toast"] = {"description": message, "category": category}
+
+
+def _toast_trigger(message: str, *, category: str = "success") -> str:
+    return json.dumps({"showToast": {"description": message, "category": category}})
 
 
 def _parse_optional_int(raw: str | None) -> int | None:
@@ -952,9 +956,7 @@ async def delete_selected_books(
         "partials/books_table_panel.html",
         _ctx(request, user, **data),
     )
-    response.headers["HX-Trigger"] = json.dumps(
-        {"showToast": {"message": f"Deleted {deleted} {noun}", "level": "ok"}}
-    )
+    response.headers["HX-Trigger"] = _toast_trigger(f"Deleted {deleted} {noun}")
     return response
 
 
@@ -1298,9 +1300,7 @@ async def update_book(
             ),
         ),
     )
-    response.headers["HX-Trigger"] = json.dumps(
-        {"showToast": {"message": "Book saved", "level": "ok"}}
-    )
+    response.headers["HX-Trigger"] = _toast_trigger("Book saved")
     return response
 
 
@@ -1371,9 +1371,7 @@ async def delete_book(
             "partials/books_table_panel.html",
             _ctx(request, user, **data),
         )
-        response.headers["HX-Trigger"] = json.dumps(
-            {"showToast": {"message": "Book deleted", "level": "ok"}}
-        )
+        response.headers["HX-Trigger"] = _toast_trigger("Book deleted")
         return response
 
     if redirect:
@@ -1429,7 +1427,5 @@ async def delete_book(
         "partials/books_table.html",
         _ctx(request, user, **data),
     )
-    response.headers["HX-Trigger"] = json.dumps(
-        {"showToast": {"message": "Book deleted", "level": "ok"}}
-    )
+    response.headers["HX-Trigger"] = _toast_trigger("Book deleted")
     return response

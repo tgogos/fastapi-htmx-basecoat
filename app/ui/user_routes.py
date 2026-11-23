@@ -78,8 +78,8 @@ def _ctx(request: Request, user: dict, **extra):
     return ctx
 
 
-def _remember_toast(request: Request, message: str) -> None:
-    request.session["toast"] = {"message": message, "level": "ok"}
+def _remember_toast(request: Request, message: str, *, category: str = "success") -> None:
+    request.session["toast"] = {"description": message, "category": category}
 
 
 def _staff_return(value: str | None) -> str:

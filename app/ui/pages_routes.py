@@ -137,8 +137,8 @@ async def set_shell_layout(
     return response
 
 
-def _remember_toast(request: Request, message: str) -> None:
-    request.session["toast"] = {"message": message, "level": "ok"}
+def _remember_toast(request: Request, message: str, *, category: str = "success") -> None:
+    request.session["toast"] = {"description": message, "category": category}
 
 
 def _profile_page(

@@ -217,7 +217,14 @@
           </div>
         </div>
       </div>
-      <button type="button" class="btn" data-variant="outline" onclick="document.getElementById('toaster').toast({ category: 'success', title: 'Saved', description: 'This sample does not write anything.' })">Show toast</button>
+    </div>
+    <div class="row-actions">
+      <button type="button" class="btn" data-variant="outline" onclick="document.getElementById('toaster').toast({ category: null, description: 'Event has been created.' })">Default</button>
+      <button type="button" class="btn" data-variant="outline" onclick="document.getElementById('toaster').toast({ category: 'success', description: 'Event has been created.' })">Success</button>
+      <button type="button" class="btn" data-variant="outline" onclick="document.getElementById('toaster').toast({ category: 'info', description: 'Arrive 10 minutes before the event.' })">Info</button>
+      <button type="button" class="btn" data-variant="outline" onclick="document.getElementById('toaster').toast({ category: 'warning', description: 'The event cannot start before 8:00 AM.' })">Warning</button>
+      <button type="button" class="btn" data-variant="outline" onclick="document.getElementById('toaster').toast({ category: 'error', description: 'The event could not be created.' })">Error</button>
+      <button type="button" class="btn" data-variant="outline" onclick="document.getElementById('toaster').toast({ category: null, title: 'Event created', description: 'This sample does not write anything.', action: { label: 'Undo' } })">With action</button>
     </div>
   </section>
 

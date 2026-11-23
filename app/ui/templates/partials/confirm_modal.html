@@ -20,7 +20,13 @@
         </footer>
       </div>
     </dialog>
-    <div id="toaster" class="toaster"></div>
+    <ol id="toaster" class="toaster" role="list" aria-label="Notifications"></ol>
     {% if toast %}
-    <div id="pending-toast" hidden data-message="{{ toast.message }}" data-level="{{ toast.level }}"></div>
+    <div
+      id="pending-toast"
+      hidden
+      {% if toast.title %}data-title="{{ toast.title }}"{% endif %}
+      data-description="{{ toast.description }}"
+      data-category="{{ toast.category }}"
+    ></div>
     {% endif %}
