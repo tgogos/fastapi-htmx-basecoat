@@ -1,4 +1,4 @@
-basecoat-css 1.2.1
+basecoat-css 1.3.0
 Standalone Vega bundle (basecoat.cdn.min.css) and all.min.js.
 Copied from the npm package. Not loaded from a CDN.
 https://basecoatui.com/installation/
