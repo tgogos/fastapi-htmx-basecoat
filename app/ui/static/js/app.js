@@ -438,6 +438,35 @@
 
   /* --- After HTMX: reinit Basecoat; resync list/table URL state --- */
 
+  // HTMX snapshots elements that keep their id, initializes Basecoat on the
+  // new copy, then restores attributes from the snapshot. That restore would
+  // delete Basecoat's init markers and the settle pass would bind each menu
+  // again, so the next click opens and immediately closes it.
+  if (window.htmx && Array.isArray(window.htmx.config.morphIgnore)) {
+    [
+      "data-basecoat-component",
+      "data-accordion-initialized",
+      "data-carousel-initialized",
+      "data-code-block-initialized",
+      "data-command-initialized",
+      "data-combobox-initialized",
+      "data-drawer-initialized",
+      "data-dropdown-menu-initialized",
+      "data-input-otp-initialized",
+      "data-popover-initialized",
+      "data-range-initialized",
+      "data-select-initialized",
+      "data-sidebar-initialized",
+      "data-tabs-initialized",
+      "data-toaster-initialized",
+      "data-toast-initialized",
+    ].forEach(function (name) {
+      if (window.htmx.config.morphIgnore.indexOf(name) === -1) {
+        window.htmx.config.morphIgnore.push(name);
+      }
+    });
+  }
+
   document.addEventListener("htmx:after:history:push", function () {
     syncListFiltersFromUrl();
     syncTableFacetsFromUrl();
