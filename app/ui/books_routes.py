@@ -960,10 +960,21 @@ async def delete_selected_books(
     return response
 
 
+def _new_book_form_ctx(place: dict[str, str]) -> dict[str, str]:
+    carry = place["carry_query"]
+    return {
+        "form_action": f"/ui/books?{carry}" if carry else "/ui/books",
+        "cancel_href": place["list_href"],
+        "list_href": place["list_href"],
+        "active": place["active"],
+    }
+
+
 @router.get("/books/new", response_class=HTMLResponse)
 async def new_book_page(
     request: Request,
     user: HtmlEditorDep,
+    place: dict[str, str] = Depends(_list_place),
 ):
     return templates.TemplateResponse(
         request,
@@ -982,6 +993,7 @@ async def new_book_page(
                 page_count="",
                 available="1",
             ),
+            **_new_book_form_ctx(place),
         ),
     )
 
@@ -1007,6 +1019,7 @@ async def create_book(
     ordering: str = Form(""),
     q: str = Form(""),
     next: str = Form(""),
+    place: dict[str, str] = Depends(_list_place),
 ):
     # Unchecked checkbox omits the field → treat as unavailable.
     payload, form_error = _parse_book_form(
@@ -1036,7 +1049,11 @@ async def create_book(
 
     if next == "detail":
         if created is not None:
-            return RedirectResponse(url=f"/ui/books/{created['id']}", status_code=303)
+            detail = f"/ui/books/{created['id']}"
+            carry = place["carry_query"]
+            if carry:
+                detail = f"{detail}?{carry}"
+            return RedirectResponse(url=detail, status_code=303)
         return templates.TemplateResponse(
             request,
             "book_new.html",
@@ -1054,6 +1071,7 @@ async def create_book(
                     page_count=page_count,
                     available=available,
                 ),
+                **_new_book_form_ctx(place),
             ),
             status_code=400,
         )

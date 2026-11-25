@@ -303,13 +303,21 @@ class TestAuthWeb:
         assert 'data-list-page-size' in response.text
         assert 'class="select"' in response.text
         assert "ordering=title" in response.text
-        assert 'href="/ui/books/new"' in response.text
+        assert 'data-list-new="/ui/books/new"' in response.text
+        assert (
+            'href="/ui/books/new?page=1&amp;size=10&amp;ordering=title&amp;return_to=list"'
+            in response.text
+        )
         assert "Add book" in response.text
         assert 'id="book-title"' not in response.text
 
         resorted = auth_client.get("/ui/books", params={"ordering": "-author"})
         assert 'aria-sort="descending"' in resorted.text
         assert "table-sort-link--desc" in resorted.text
+        assert (
+            'href="/ui/books/new?page=1&amp;size=10&amp;ordering=-author&amp;return_to=list"'
+            in resorted.text
+        )
 
     def test_books_pager_numbers_keep_the_query(self, auth_client: TestClient):
         headers = session_csrf_headers(auth_client)
@@ -581,6 +589,8 @@ class TestAuthWeb:
         assert "Books table" in page.text
         assert "Select all on this page" in page.text
         assert "return_to=table" in page.text
+        assert 'data-list-new="/ui/books/new"' in page.text
+        assert "href=\"/ui/books/new?return_to=table" in page.text
 
         either = auth_client.get(
             "/ui/books/table",
@@ -680,9 +690,23 @@ class TestAuthWeb:
         assert "<html" in new_page.text.lower()
         assert 'action="/ui/books"' in new_page.text
         assert 'name="next" value="detail"' in new_page.text
+        assert 'data-variant="outline" href="/ui/books"' in new_page.text
+
+        list_query = {"page": 2, "size": 25, "ordering": "-author", "return_to": "list"}
+        new_from_list = auth_client.get("/ui/books/new", params=list_query)
+        assert new_from_list.status_code == 200
+        assert (
+            'action="/ui/books?page=2&amp;size=25&amp;ordering=-author&amp;return_to=list"'
+            in new_from_list.text
+        )
+        assert (
+            'data-variant="outline" href="/ui/books?page=2&amp;size=25&amp;ordering=-author"'
+            in new_from_list.text
+        )
 
         created = auth_client.post(
             "/ui/books",
+            params=list_query,
             data={
                 "title": "Page Book",
                 "author": "Ada",
@@ -693,8 +717,13 @@ class TestAuthWeb:
             follow_redirects=False,
         )
         assert created.status_code == 303
-        assert created.headers["location"].startswith("/ui/books/")
-        book_id = created.headers["location"].rsplit("/", 1)[-1]
+        location = created.headers["location"]
+        assert location.startswith("/ui/books/")
+        assert "page=2" in location
+        assert "size=25" in location
+        assert "ordering=-author" in location
+        assert "return_to=list" in location
+        book_id = location.split("?", 1)[0].rsplit("/", 1)[-1]
 
         detail = auth_client.get(f"/ui/books/{book_id}")
         assert detail.status_code == 200

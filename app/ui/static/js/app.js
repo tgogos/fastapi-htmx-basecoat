@@ -269,6 +269,27 @@
     link.setAttribute("href", "/ui/admin/users/new?return_to=" + encodeURIComponent(back));
   }
 
+  // "Add book" lives outside the HTMX list panel, so its href goes stale after
+  // pagination/sort/filter swaps. Rebuild from the current list URL.
+  function syncListNewLinks() {
+    document.querySelectorAll("a[data-list-new]").forEach(function (link) {
+      var base = link.getAttribute("data-list-new");
+      if (!base) {
+        return;
+      }
+      var params = new URLSearchParams(window.location.search);
+      var path = window.location.pathname.replace(/\/+$/, "");
+      // List URLs omit return_to; table (and search) need it so Cancel lands right.
+      if (path.indexOf("/table") !== -1) {
+        params.set("return_to", "table");
+      } else if (path.indexOf("/search") !== -1) {
+        params.set("return_to", "search");
+      }
+      var qs = params.toString();
+      link.setAttribute("href", qs ? base + "?" + qs : base);
+    });
+  }
+
   function syncListFiltersFromUrl() {
     var params = new URLSearchParams(window.location.search);
     document.querySelectorAll("form[data-list-filters] input[type='hidden']").forEach(function (input) {
@@ -471,11 +492,13 @@
     syncListFiltersFromUrl();
     syncTableFacetsFromUrl();
     syncStaffReturn();
+    syncListNewLinks();
   });
   document.body.addEventListener("htmx:after:settle", function () {
     initBasecoat(false);
     syncTableSelection();
     syncTableFacetsFromUrl();
+    syncListNewLinks();
   });
   document.body.addEventListener("htmx:after:history:update", function () {
     initBasecoat(true);
@@ -483,6 +506,7 @@
   syncListFiltersFromUrl();
   syncTableFacetsFromUrl();
   syncStaffReturn();
+  syncListNewLinks();
 
   /* --- Theme bridge (Basecoat → document) and colour palette menu --- */
 

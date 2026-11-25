@@ -3,7 +3,7 @@
 {% block description %}Add a book{% endblock %}
 {% block breadcrumb %}
 {% from "partials/breadcrumb.html" import crumbs %}
-{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": "/ui/books", "label": "Books"}, {"label": "New book"}]) }}
+{{ crumbs([{"href": "/ui/dashboard", "label": "Dashboard"}, {"href": list_href, "label": "Books"}, {"label": "New book"}]) }}
 {% endblock %}
 {% block content %}
 <div class="page-head">
@@ -14,7 +14,7 @@
 </div>
 <div class="card">
   <section>
-    {% with form_action="/ui/books", next="detail", submit_label="Create", cancel_href="/ui/books" %}
+    {% with form_action=form_action, next="detail", submit_label="Create", cancel_href=cancel_href %}
     {% include "partials/book_page_form.html" %}
     {% endwith %}
   </section>
