@@ -9,12 +9,12 @@
 <div class="page-head">
   <div>
     <h1>Edit {{ book.title }}</h1>
-    <p class="muted">Saving returns to the book page. The Edit button on the list still replaces the row in the table.</p>
+    <p class="muted">Cancel returns to the list. Saving opens the book page. The Edit button on the list still replaces the row in the table.</p>
   </div>
 </div>
 <div class="card">
   <section>
-    {% with form_action=edit_href, next="", submit_label="Save", cancel_href=detail_href %}
+    {% with form_action=edit_href, next="", submit_label="Save", cancel_href=list_href %}
     {% include "partials/book_page_form.html" %}
     {% endwith %}
   </section>

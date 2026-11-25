@@ -774,7 +774,7 @@ class TestAuthWeb:
 
         edit = auth_client.get(f"/ui/books/{book_id}/edit", params=query)
         assert f'action="/ui/books/{book_id}/edit?{carried}"' in edit.text
-        assert f'href="/ui/books/{book_id}?{carried}"' in edit.text
+        assert 'data-variant="outline" href="/ui/books?page=2&amp;size=25&amp;ordering=-author"' in edit.text
         assert f"redirect=1&amp;{carried}" in edit.text
 
         saved = auth_client.post(
