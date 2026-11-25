@@ -501,6 +501,18 @@ html.dark .theme-switch .when-dark {
   width: auto;
 }
 
+.pager .select {
+  width: auto;
+  min-width: 4.5rem;
+}
+
+.pager .select > button {
+  width: auto;
+  min-width: 4.5rem;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .stat-grid {
   display: grid;
   gap: 1rem;

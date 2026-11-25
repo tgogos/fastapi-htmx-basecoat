@@ -300,6 +300,8 @@ class TestAuthWeb:
         assert 'aria-sort="ascending"' in response.text
         assert "table-sort-link" in response.text
         assert 'aria-label="Rows per page"' in response.text
+        assert 'data-list-page-size' in response.text
+        assert 'class="select"' in response.text
         assert "ordering=title" in response.text
         assert 'href="/ui/books/new"' in response.text
         assert "Add book" in response.text

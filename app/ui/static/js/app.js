@@ -282,16 +282,22 @@
 
   document.body.addEventListener("change", function (event) {
     var el = event.target;
-    if (!el || !el.matches || !el.matches("[data-list-page-size]")) {
+    if (!el || !el.matches || !el.matches(".select[data-list-page-size]")) {
       return;
     }
-    var opt = el.selectedOptions && el.selectedOptions[0];
+    var value =
+      event.detail && event.detail.value != null
+        ? String(event.detail.value)
+        : "";
+    var opt = value
+      ? el.querySelector('[role="option"][data-value="' + value.replace(/"/g, "") + '"]')
+      : null;
     var url = opt && opt.getAttribute("data-url");
     if (!url || !window.htmx) {
       return;
     }
     document.querySelectorAll("form[data-list-filters] input[type='hidden'][name='size']").forEach(function (input) {
-      input.value = el.value;
+      input.value = value;
     });
     htmx.ajax("GET", url, {
       source: el,

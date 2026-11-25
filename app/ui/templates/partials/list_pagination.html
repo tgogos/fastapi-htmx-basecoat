@@ -24,18 +24,51 @@
 {% endmacro %}
 <div class="pager">
   <div class="pager-controls">
-    <label class="visually-hidden" for="{{ list_page_size_id }}">Rows per page</label>
-    <select
+    <label class="visually-hidden" for="{{ list_page_size_id }}-trigger">Rows per page</label>
+    <div
+      class="select"
       id="{{ list_page_size_id }}"
       data-list-page-size
       data-panel-target="{{ list_panel_target }}"
+      data-placeholder="{{ size }}"
       hx-indicator="{{ list_indicator }}"
-      aria-label="Rows per page"
     >
-      {% for n in page_sizes %}
-      <option value="{{ n }}" data-url="{{ size_urls[n] }}" {% if n == size %}selected{% endif %}>{{ n }}</option>
-      {% endfor %}
-    </select>
+      <button
+        type="button"
+        id="{{ list_page_size_id }}-trigger"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+        aria-controls="{{ list_page_size_id }}-listbox"
+        aria-label="Rows per page"
+      >
+        <span class="truncate">{{ size }}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div
+        id="{{ list_page_size_id }}-popover"
+        data-popover
+        aria-hidden="true"
+        data-side="top"
+        data-align="start"
+      >
+        <div
+          role="listbox"
+          id="{{ list_page_size_id }}-listbox"
+          aria-orientation="vertical"
+          aria-labelledby="{{ list_page_size_id }}-trigger"
+        >
+          {% for n in page_sizes %}
+          <div
+            role="option"
+            data-value="{{ n }}"
+            data-url="{{ size_urls[n] }}"
+            {% if n == size %}aria-selected="true"{% endif %}
+          >{{ n }}</div>
+          {% endfor %}
+        </div>
+      </div>
+      <input type="hidden" name="size" value="{{ size }}" data-list-page-size-value>
+    </div>
     <span class="muted">Rows per page</span>
     <span class="muted">{{ count_summary }}</span>
   </div>
