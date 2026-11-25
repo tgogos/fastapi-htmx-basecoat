@@ -17,7 +17,7 @@ DEFAULT_SHELL_LAYOUT = "header"
 # `wide` fills the column beside the sidebar. `centered` caps the page at 80rem.
 CONTENT_WIDTHS = ("wide", "centered")
 CONTENT_WIDTH_COOKIE = "content_width"
-DEFAULT_CONTENT_WIDTH = "wide"
+DEFAULT_CONTENT_WIDTH = "centered"
 
 
 def current_shell_layout(request: Request) -> str:
